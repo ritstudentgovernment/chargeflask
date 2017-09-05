@@ -5,8 +5,7 @@ created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 08/30/17
 """
 
-from .. import *
-from sqlalchemy_utils import ChoiceType
+from app import db
 
 class Charges(db.Model):
 	__tablename__ = 'charges'

@@ -1,10 +1,10 @@
 """
 filename: committees.py
-description: Model for committees.
+description: Model for Committees.
 created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 08/31/17
 """
-from .. import *
+from app import db
 
 class Committees(db.Model):
 	__tablename__ = 'committees'

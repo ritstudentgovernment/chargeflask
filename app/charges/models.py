@@ -6,6 +6,8 @@ created on: 08/30/17
 """
 
 from app import db
+from sqlalchemy.dialects.postgresql import *
+from sqlalchemy_utils import ChoiceType
 
 class Charges(db.Model):
 	__tablename__ = 'charges'

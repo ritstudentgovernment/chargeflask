@@ -6,6 +6,7 @@ created on: 08/31/17
 """
 
 from app import db
+from sqlalchemy_utils import ChoiceType
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 

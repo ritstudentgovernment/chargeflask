@@ -1,0 +1,16 @@
+click==6.7
+Flask==0.12.2
+Flask-SocketIO==2.9.2
+Flask-SQLAlchemy==2.2
+itsdangerous==0.24
+Jinja2==2.9.6
+MarkupSafe==1.0
+psycopg2==2.7.3.1
+pyasn1==0.3.3
+python-engineio==1.7.0
+python-socketio==1.8.0
+python3-ldap==0.9.8.4
+six==1.10.0
+SQLAlchemy==1.1.13
+SQLAlchemy-Utils==0.32.15
+Werkzeug==0.12.2

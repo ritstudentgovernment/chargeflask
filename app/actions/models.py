@@ -18,7 +18,6 @@ class Actions(db.Model):
 	notes = db.relationship('Notes', backref='actions', lazy='dynamic')
 	created_at = db.Column(db.DateTime, server_default= db.func.now())
 	
-	
 	status_types = [(0, "In Progress"), (1, "Indefinite"), (2, "Unknown"),
 					(3, "Completed"), (4, "Stopped"), (5, "Incomplete"), (6, "On Hold")]
 

@@ -20,4 +20,6 @@ from app.users.models import Users
 from app.charges.models import Charges
 from app.committees.models import Committees
 from app.members.models import Members
+from app.actions.models import Actions
+from app.notes.models import Notes
 db.create_all()

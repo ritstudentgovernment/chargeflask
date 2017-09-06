@@ -12,4 +12,4 @@ class Committees(db.Model):
 	title = db.Column(db.String(255))
 	description = db.Column(db.String(255))
 	head = db.Column(db.ForeignKey('users.id'))
-	#members = 
+	members = db.relationship('Members', backref='committees', lazy='dynamic')

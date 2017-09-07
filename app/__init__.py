@@ -9,17 +9,22 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import *
 from sqlalchemy_utils import ChoiceType
+from flask_socketio import SocketIO
+
 
 # Create the app and add configuration.
 app = Flask(__name__)
 app.config.from_object('config')
+socketio = SocketIO(app)
 db = SQLAlchemy(app)
 
 # Import each module created.
-from app.users.models import Users
+from app.users.controllers import *
 from app.charges.models import Charges
 from app.committees.models import Committees
 from app.members.models import Members
 from app.actions.models import Actions
 from app.notes.models import Notes
 db.create_all()
+
+socketio.run(app)

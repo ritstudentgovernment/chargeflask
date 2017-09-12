@@ -11,3 +11,7 @@ install:
 before_script:
  - psql -c 'CREATE DATABASE chargetracker;' -U postgres
 
+script:
+ - nosetests --cover-package app --with-coverage
+
+after_script: codecov

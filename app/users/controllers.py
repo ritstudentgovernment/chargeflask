@@ -10,13 +10,13 @@ from app import socketio, db
 from app.users.models import Users
 import ldap
 
-@socketio.on('login')
+@socketio.on('auth')
 def login_user(credentials):
 
 	ldap_server = "ldaps://ldap.rit.edu"
 
 	if credentials["username"] == "" or credentials["password"] == "":
-		emit('error', {'error': "Authentication error."})
+		emit('auth', {'error': "Authentication error."})
 		return;
 
 	user_dn = "uid=" + credentials["username"] + ",ou=People,dc=rit,dc=edu"
@@ -40,7 +40,7 @@ def login_user(credentials):
 
 			user = Users.query.filter_by(id = username).first()
 			token = user.generate_auth()
-			emit('token', {'token': token.decode('ascii')})
+			emit('auth', {'token': token.decode('ascii')})
 
 		else:
 
@@ -52,9 +52,9 @@ def login_user(credentials):
 			db.session.add(user)
 			db.session.commit()
 			token = user.generate_auth()
-			emit('token', {'token': token.decode('ascii')})
+			emit('auth', {'token': token.decode('ascii')})
 
 	except ldap.LDAPError:
 		connect.unbind_s()
-		emit('error', {'error': "Authentication error."})
+		emit('auth', {'error': "Authentication error."})
 		return;

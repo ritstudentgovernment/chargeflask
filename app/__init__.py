@@ -26,5 +26,3 @@ from app.members.models import Members
 from app.actions.models import Actions
 from app.notes.models import Notes
 db.create_all()
-
-socketio.run(app)

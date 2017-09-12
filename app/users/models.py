@@ -31,5 +31,5 @@ class Users(db.Model):
 			return None
 		except BadSignature:
 			return None
-		user = User.query.get(data['id'])
+		user = Users.query.get(data['id'])
 		return user

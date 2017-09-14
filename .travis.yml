@@ -12,6 +12,6 @@ before_script:
  - psql -c 'CREATE DATABASE chargetracker;' -U postgres
 
 script:
- - nosetests --cover-package app --with-coverage
+ - py.test --cov=./app
 
 after_script: codecov

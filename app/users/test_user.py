@@ -21,15 +21,18 @@ class TestUser(object):
 	def setup_class(self):
 		app.config['TESTING'] = True
 		self.app = app.test_client()
+
 		self.db = db
+		self.db.session.close()
+		self.db.drop_all()
 		self.db.create_all()
+
 		self.socketio = socketio.test_client(app);
 		self.socketio.connect()
 
 	@classmethod 
 	def teardown_class(self):
 		self.socketio.disconnect()
-
 
 	# Test empty login.
 	def test_empty_login(self):
@@ -42,3 +45,63 @@ class TestUser(object):
 		self.socketio.emit("auth", {"username":"incorrect","password":"incorrect"})
 		received = self.socketio.get_received()
 		assert received[0]["args"][0] == {'error': 'Authentication error.'}
+
+	# Correct login new user.
+	@patch('ldap.initialize')
+	def test_correct_login_new(self, mock_obj):
+
+		# Prepare mock ldap.
+		self.mocked_inst = mock_obj.return_value
+		self.mocked_inst.bind_s = MagicMock()
+
+		# Create expected ldap result.
+		result_ldap = [('',{'uid': [b'test'], 'givenName': [b'Test'], 'sn': [b'User'], 'mail': [b'testuser@test.edu']})]
+		self.mocked_inst.search_s.return_value = result_ldap
+
+		self.socketio.emit("auth", {"username":"test","password":"testuser"})
+		received = self.socketio.get_received()
+		assert 'token' in received[0]["args"][0]
+
+	# Correct login existing user.
+	@patch('ldap.initialize')
+	def test_correct_login(self, mock_obj):
+
+		# Prepare mock ldap.
+		self.mocked_inst = mock_obj.return_value
+		self.mocked_inst.bind_s = MagicMock()
+
+		# Create expected ldap result.
+		result_ldap = [('',{'uid': [b'test'], 'givenName': [b'Test'], 'sn': [b'User'], 'mail': [b'testuser@test.edu']})]
+		self.mocked_inst.search_s.return_value = result_ldap
+		self.socketio.emit("auth", {"username":"test","password":"testuser"})
+
+		# Request existing user.
+		received = self.socketio.get_received()
+		assert 'token' in received[0]["args"][0]
+
+	@patch('ldap.initialize')
+	def test_token_authentication(self, mock_obj):
+		# Prepare mock ldap.
+		self.mocked_inst = mock_obj.return_value
+		self.mocked_inst.bind_s = MagicMock()
+
+		# Create expected ldap result.
+		result_ldap = [('',{'uid': [b'test'], 'givenName': [b'Test'], 'sn': [b'User'], 'mail': [b'testuser@test.edu']})]
+		self.mocked_inst.search_s.return_value = result_ldap
+		self.socketio.emit("auth", {"username":"test","password":"testuser"})
+
+		# Request token.
+		received = self.socketio.get_received()
+		token = received[0]["args"][0]["token"]
+
+
+
+
+	
+
+
+
+
+
+
+

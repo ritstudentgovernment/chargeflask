@@ -20,8 +20,8 @@ db = SQLAlchemy(app)
 
 # Import each module created.
 from app.users.controllers import *
+from app.committees.controllers import *
 from app.charges.models import Charges
-from app.committees.models import Committees
 from app.members.models import Members
 from app.actions.models import Actions
 from app.notes.models import Notes

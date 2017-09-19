@@ -1,5 +1,5 @@
 """
-filename: tests.py
+filename: test_user.py
 description: Tests for Users.
 created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 09/12/17

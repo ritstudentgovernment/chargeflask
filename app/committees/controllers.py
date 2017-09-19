@@ -69,5 +69,7 @@ def create_committee(user_data):
 
 		db.session.add(new_committee)
 		db.session.commit()
-		emit('create_committee', 'Committee succesfully created')
+		emit('create_committee', {'success': 'Committee succesfully created'})
 		get_committees(broadcast= True)
+	else:
+		emit('error', "User doesn't exist or is not admin.")

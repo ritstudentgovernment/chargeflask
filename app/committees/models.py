@@ -8,8 +8,11 @@ from app import db
 
 class Committees(db.Model):
 	__tablename__ = 'committees'
-	id = db.Column(db.Integer, primary_key=True, unique= True)
+	id = db.Column(db.String(255), primary_key=True, unique= True)
 	title = db.Column(db.String(255))
 	description = db.Column(db.String(255))
 	head = db.Column(db.ForeignKey('users.id'))
+	location = db.Column(db.String(255))
+	meeting_day = db.Column(db.Integer)
+	meeting_time = db.Column(db.Time)
 	members = db.relationship('Members', backref='committees', lazy='dynamic')

@@ -20,7 +20,7 @@ from app.users.models import Users
 @socketio.on('get_committees')
 def get_committees(broadcast = False):
 	committees = Committees.query.all()
-	comm_ser = [{"committee_id": c.id, "committee_title": c.title, "committee_description": c.description} for c in committees]
+	comm_ser = [{"committee_id": c.id, "committee_title": c.title} for c in committees]
 	emit("get_committees", {"committees": comm_ser, "count": len(committees)}, broadcast= broadcast)
 	
 
@@ -42,9 +42,10 @@ def get_committee(committee_id):
 		emit("get_committee", {"committee_id": committee.id,
 							   "committee_title": committee.title, 
 							   "committee_description": committee.description,
+							   "committee_location": committee.location,
 							   "committee_head": committee.head})
 	else:
-		emit("error", "Committee doesn't exist.")
+		emit('get_committee', {'error', "Committee doesn't exist."})
 
 
 ##
@@ -63,13 +64,23 @@ def create_committee(user_data):
 
 	if user is not None and user.is_admin:
 
-		new_committee = Committees(title= user_data["committee_title"])
-		new_committee.description = user_data["committee_description"]
-		new_committee.head = user_data["head_id"]
+		# Build committee id string.
+		committee_id = user_data["committee_title"].replace(" ", "")
+		committee_id = committee_id.lower()
 
-		db.session.add(new_committee)
-		db.session.commit()
-		emit('create_committee', {'success': 'Committee succesfully created'})
-		get_committees(broadcast= True)
+		if Committees.query.filter_by(id = committee_id).first() is None:
+
+			new_committee = Committees(id = committee_id)
+			new_committee.title = user_data["committee_title"]
+			new_committee.description = user_data["committee_description"]
+			new_committee.location = user_data["committee_location"]
+			new_committee.head = user_data["head_id"]
+
+			db.session.add(new_committee)
+			db.session.commit()
+			emit('create_committee', {'success': 'Committee succesfully created'})
+			get_committees(broadcast= True)
+		else:
+			emit('create_committee', {'error', "Committee already exists."})
 	else:
-		emit('error', "User doesn't exist or is not admin.")
+		emit('create_committee', {'error', "User doesn't exist or is not admin."})

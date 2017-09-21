@@ -15,13 +15,13 @@ from app.users.models import Users
 ##
 ## @param      broadcast  Flag to broadcast list of committees to all users.
 ##
-## @emit       Emits a list of committees and the committee count.
+## @emit       Emits a list of committees.
 ##
 @socketio.on('get_committees')
 def get_committees(broadcast = False):
 	committees = Committees.query.all()
 	comm_ser = [{"id": c.id, "title": c.title} for c in committees]
-	emit("get_committees", {"committees": comm_ser, "count": len(committees)}, broadcast= broadcast)
+	emit("get_committees", comm_ser, broadcast= broadcast)
 	
 
 ##
@@ -43,9 +43,9 @@ def get_committee(committee_id, broadcast = False):
 							   "description": committee.description,
 							   "location": committee.location,
 							   "meeting_time": committee.meeting_time,
-							   "head": committee.head})
+							   "head": committee.head}, broadcast= broadcast)
 	else:
-		emit('get_committee', {'error', "Committee doesn't exist."})
+		emit('get_committee', {'error': "Committee doesn't exist."})
 
 
 ##
@@ -53,7 +53,8 @@ def get_committee(committee_id, broadcast = False):
 ##
 ## @param      user_data  The user data required to create a committee.
 ## 			   			  Contains keys 'token', 'title', 
-## 			   			  'description' and 'head',
+## 			   			  'description', 'location', 'head',
+## 			   			  'meeting_time'
 ##
 ## @emit       Emits a success message if created, error if not.
 ##
@@ -78,13 +79,19 @@ def create_committee(user_data):
 			new_committee.head = user_data["head"]
 
 			db.session.add(new_committee)
-			db.session.commit()
-			emit('create_committee', {'success': 'Committee succesfully created'})
-			get_committees(broadcast= True)
+
+			try:
+				db.session.commit()
+				emit('create_committee', {'success': 'Committee succesfully created'})
+				get_committees(broadcast= True)
+			except Exception as e:
+				db.session.rollback()
+				db.session.flush()
+				emit("create_committee", {"error": "Committee couldn't be created, check data."})
 		else:
-			emit('create_committee', {'error', "Committee already exists."})
+			emit('create_committee', {'error': "Committee already exists."})
 	else:
-		emit('create_committee', {'error', "User doesn't exist or is not admin."})
+		emit('create_committee', {'error': "User doesn't exist or is not admin."})
 
 
 ##
@@ -126,11 +133,12 @@ def edit_committee(user_data):
 				# Send successful edit notification to user 
 				# and broadcast committee changes.
 				emit("edit_committee", {"success": "Committee succesfully edited."})
-				get_committees(committee.id, broadcast= True)
+				get_committee(committee.id, broadcast= True)
+				get_committees(broadcast= True)
 			except Exception as e:
 				db.session.rollback()
 				emit("edit_committee", {"error": "Committee couldn't be edited, check data."})
 		else:
-			emit('edit_committee', {'error', "Committee doesn't exist."})
+			emit('edit_committee', {'error': "Committee doesn't exist."})
 	else:
-		emit('edit_committee', {'error', "User doesn't exist or is not admin."})
+		emit('edit_committee', {'error': "User doesn't exist or is not admin."})

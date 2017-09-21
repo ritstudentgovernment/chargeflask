@@ -52,60 +52,96 @@ class TestCommittees(object):
 		self.db.drop_all()
 		self.socketio.disconnect()
 
+	def setup_method(self, method):
+
+		self.test_committee = {"title": "Test Committee",
+						       "description": "Test Description",
+						       "location": "Test Location",
+						       "meeting_time": 1506008454327,
+						       "head": "adminuser"}
+
+	def teardown_method(self, method):
+		self.test_committee = None
+
 	# Test when an admin creates a committee.
 	def test_admin_create_committee(self):
 
-		test_committee = {"token": self.admin_token, 
-						  "committee_title": "Test Committee",
-						  "committee_description": "Test Description",
-						  "committee_location": "Test Location",
-						  "head_id": "adminuser"}
-
-		self.socketio.emit('create_committee', test_committee)
+		self.test_committee["token"] = self.admin_token
+		self.socketio.emit('create_committee', self.test_committee)
 		received = self.socketio.get_received()
 		assert received[0]["args"][0] == {'success': 'Committee succesfully created'}
 
 	# Test when creating a committee that already exists.
 	def test_create_committee_exists(self):
 
-		test_committee = {"token": self.admin_token, 
-						  "committee_title": "Test Committee",
-						  "committee_description": "Test Description",
-						  "committee_location": "Test Location",
-						  "head_id": "adminuser"}
-
-		self.socketio.emit('create_committee', test_committee)
+		self.test_committee["token"] = self.admin_token
+		self.socketio.emit('create_committee', self.test_committee)
 		received = self.socketio.get_received()
 		assert received[0]["args"][0] == {'error', "Committee already exists."}
 
 	# Test when a non-admin user tries to create a committee.
 	def test_non_admin_create_committee(self):
 
-		test_committee = {"token": self.user_token, 
-						  "committee_title": "Test Petition",
-						  "committee_description": "Test Description",
-						  "committee_location": "Test Location",
-						  "head_id": "adminuser"}
-
-		self.socketio.emit('create_committee', test_committee)
+		self.test_committee["token"] = self.user_token
+		self.socketio.emit('create_committee', self.test_committee)
 		received = self.socketio.get_received()
 		assert received[0]["args"][0] == {'error', "User doesn't exist or is not admin."}
 
 	# Test get an specific committee.
 	def test_get_committee(self):
 
-		test_committee = {"committee_id": "testcommittee", 
-						  "committee_title": "Test Committee",
-						  "committee_description": "Test Description",
-						  "committee_location": "Test Location",
-						  "committee_head": "adminuser"}
-
+		self.test_committee["id"] = "testcommittee"
 		self.socketio.emit('get_committee', "testcommittee")
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == test_committee
+		assert received[0]["args"][0] == self.test_committee
 
 	# Test getting a nonexistent committee
 	def test_get_nonexistent_committee(self):
+
 		self.socketio.emit('get_committee', "dontexist")
 		received = self.socketio.get_received()
 		assert received[0]["args"][0] == {'error', "Committee doesn't exist."}
+
+	# Test admin editing a committee.
+	def test_admin_edit_committee(self):
+		edit_fields = {"token": self.admin_token, 
+		               "id": "testcommittee",
+		               "description": "New Description"}
+
+		self.socketio.emit('edit_committee', edit_fields)
+		received = self.socketio.get_received()
+		assert received[0]["args"][0] == {"success": "Committee succesfully edited."}
+
+	# Test not admin editing a committee.
+	def test_nonadmin_edit_committee(self):
+		edit_fields = {"token": self.user_token, 
+		               "id": "testcommittee",
+		               "description": "New Description"}
+
+		self.socketio.emit('edit_committee', edit_fields)
+		received = self.socketio.get_received()
+		assert received[0]["args"][0] == {'error', "User doesn't exist or is not admin."}
+
+	# Test edit nonexistent committee
+	def test_edit_nonexistent(self):
+		edit_fields = {"token": self.admin_token, 
+		               "id": "nonexistent",
+		               "description": "New Description"}
+
+		self.socketio.emit('edit_committee', edit_fields)
+		received = self.socketio.get_received()
+		assert received[0]["args"][0] == {'error', "Committee doesn't exist."}
+
+
+	# Test editing incorrect data type.
+	def test_edit_incorrect(self):
+		edit_fields = {"token": self.admin_token, 
+		               "id": "testcommittee",
+		               "meeting_time": "incorrect_type"}
+
+		self.socketio.emit('edit_committee', edit_fields)
+		received = self.socketio.get_received()
+		assert received[0]["args"][0] == {"error": "Committee couldn't be edited, check data."}
+
+	
+	

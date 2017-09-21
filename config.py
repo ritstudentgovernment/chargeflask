@@ -5,6 +5,7 @@ author: Omar De La Hoz (oed7416@rit.edu)
 created on: 09/05/17
 """
 import os
+import secrets
 
 DEBUG = True
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -15,4 +16,4 @@ SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Secret key for signing tokens
-SECRET_KEY = "secret"
+SECRET_KEY = secrets.APP_SECRET_KEY

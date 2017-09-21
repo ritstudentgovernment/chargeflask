@@ -13,6 +13,5 @@ class Committees(db.Model):
 	description = db.Column(db.String(255))
 	head = db.Column(db.ForeignKey('users.id'))
 	location = db.Column(db.String(255))
-	meeting_day = db.Column(db.Integer)
-	meeting_time = db.Column(db.Time)
+	meeting_time = db.Column(db.BigInteger)	# Number of milliseconds since 1970/01/01.
 	members = db.relationship('Members', backref='committees', lazy='dynamic')

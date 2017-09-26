@@ -101,6 +101,7 @@ class TestCommittees(object):
 	def test_get_committee(self):
 
 		self.test_committee["id"] = "testcommittee"
+		self.test_committee["head_name"] = "Admin User"
 		self.socketio.emit('get_committee', "testcommittee")
 		received = self.socketio.get_received()
 		assert received[0]["args"][0] == self.test_committee

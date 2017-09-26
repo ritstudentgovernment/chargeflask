@@ -29,7 +29,7 @@ def get_committees(broadcast = False):
 ##
 ## @param      committee_id  The committee identifier
 ##
-## @emit       Committee Id, Title, Description and Committee Head.
+## @emit       Committee Id, Title, Description, Committee Head Id and Commitee Head Name.
 ##
 @socketio.on('get_committee')
 def get_committee(committee_id, broadcast = False):
@@ -38,12 +38,16 @@ def get_committee(committee_id, broadcast = False):
 
 	if committee is not None:
 
+		head = Users.query.filter_by(id = committee.head).first()
+		head_name = head.first_name + " " + head.last_name
+
 		emit("get_committee", {"id": committee.id,
 							   "title": committee.title, 
 							   "description": committee.description,
 							   "location": committee.location,
 							   "meeting_time": committee.meeting_time,
-							   "head": committee.head}, broadcast= broadcast)
+							   "head": committee.head,
+							   "head_name": head_name}, broadcast= broadcast)
 	else:
 		emit('get_committee', {'error': "Committee doesn't exist."})
 

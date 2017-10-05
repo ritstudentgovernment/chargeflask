@@ -53,7 +53,7 @@ def add_to_committee(user_data):
 		if committee.head == user.id or user.is_admin:
 
 			try:
-
+				
 				committee.members.append(new_user)
 				get_committee_members(committee.id, broadcast = True)
 				emit("add_member_committee", {"success": "User has been added to committee"})

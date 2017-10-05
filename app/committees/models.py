@@ -16,4 +16,4 @@ class Committees(db.Model):
 	location = db.Column(db.String(255))
 	committee_img = db.Column(db.String(255))
 	meeting_time = db.Column(db.BigInteger)	# Number of milliseconds since 1970/01/01.
-	members = db.relationship('Users', secondary= members_table, backref=db.backref('members', lazy='dynamic'))
+	members = db.relationship('Users', secondary= members_table, back_populates="committees")

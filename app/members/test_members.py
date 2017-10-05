@@ -124,7 +124,7 @@ class TestMembers(object):
 		self.user_data["token"] = self.admin_token
 		self.socketio.emit("remove_member_committee", self.user_data)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {"success": "Member has been removed from committee"}
+		assert received[1]["args"][0] == {"success": "Member has been removed from committee"}
 
 
 	# Test remove nonexistent member.

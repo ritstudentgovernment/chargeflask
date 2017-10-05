@@ -6,14 +6,10 @@ created on: 08/31/17
 """
 
 from app import db
-from sqlalchemy_utils import ChoiceType
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 
-class Members(db.Model):
-	__tablename__ = 'members'
-	id = db.Column(db.Integer, primary_key=True, unique= True)
-	committee = db.Column(db.ForeignKey('committees.id'))
-	member = db.Column(db.ForeignKey('users.id'))
-	member_types = [(0, "Head"), (1, "Member")]
-	member_type = db.Column(ChoiceType(member_types))
+members_table = db.Table('members', db.Model.metadata,
+	db.Column('committees_id', db.String(255), db.ForeignKey('committees.id')),
+	db.Column('users_id', db.String(255), db.ForeignKey('users.id'))
+)

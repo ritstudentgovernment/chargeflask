@@ -17,3 +17,9 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Secret key for signing tokens
 SECRET_KEY = secrets.APP_SECRET_KEY
+
+# Email configuration
+MAIL_SERVER = 'mymail.ad.rit.edu'
+MAIL_PORT = 587
+MAIL_USERNAME = secrets.MAIL_USERNAME
+MAIL_PASSWORD = secrets.MAIL_PASSWORD

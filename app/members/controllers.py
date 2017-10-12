@@ -36,8 +36,16 @@ def get_committee_members(committee_id, broadcast= False):
 ##
 ## @brief      Adds to committee.
 ##
-## @param      user_data  The user data
-##
+## @param      user_data  Contains the data needed to add a member to a committee.
+##                        This can contain:
+##                        
+##                        - token (required): Token of current user.
+##                        - user_id (optional): Id of user to be added, if not
+##                          specified, current user will be added to committee. 
+##                        - committee_id (required): Id of committee.
+##                          
+##                        Any other parameters will be ignored.
+##                          
 ## @emit     Success if user could be added to committee, error if not.
 ##
 @socketio.on('add_member_committee')
@@ -73,8 +81,15 @@ def add_to_committee(user_data):
 ##
 ## @brief      Removes a member from a committee.
 ##
-## @param      user_data  The user data
-##
+## @param      user_data  Contains the data needed to add a member to a committee.
+##                        This can contain:
+##                        
+##                        - token (required): Token of current user.
+##                        - user_id (required): Id of user to be deleted.
+##                        - committee_id (required): Id of committee.
+##                          
+##                        Any other parameters will be ignored.
+##                          
 ## @emit       Success if member could be deleted, error if not.
 ##
 @socketio.on('remove_member_committee')

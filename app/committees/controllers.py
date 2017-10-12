@@ -7,6 +7,7 @@ created on: 09/19/17
 
 from flask_socketio import emit
 from app import socketio, db
+from app.committees.committees_response import Response
 from app.committees.models import Committees
 from app.users.models import Users
 
@@ -49,7 +50,7 @@ def get_committee(committee_id, broadcast = False):
 							   "head": committee.head,
 							   "head_name": head_name}, broadcast= broadcast)
 	else:
-		emit('get_committee', {'error': "Committee doesn't exist."})
+		emit('get_committee', Response.ComDoesntExist)
 
 
 ##
@@ -86,16 +87,16 @@ def create_committee(user_data):
 
 			try:
 				db.session.commit()
-				emit('create_committee', {'success': 'Committee succesfully created'})
+				emit('create_committee', Response.AddSuccess)
 				get_committees(broadcast= True)
 			except Exception as e:
 				db.session.rollback()
 				db.session.flush()
-				emit("create_committee", {"error": "Committee couldn't be created, check data."})
+				emit("create_committee", Response.AddError)
 		else:
-			emit('create_committee', {'error': "Committee already exists."})
+			emit('create_committee', Response.AddExists)
 	else:
-		emit('create_committee', {'error': "User doesn't exist or is not admin."})
+		emit('create_committee', Response.UsrDoesntExist)
 
 
 ##
@@ -136,13 +137,13 @@ def edit_committee(user_data):
 
 				# Send successful edit notification to user 
 				# and broadcast committee changes.
-				emit("edit_committee", {"success": "Committee succesfully edited."})
+				emit("edit_committee", Response.EditSuccess)
 				get_committee(committee.id, broadcast= True)
 				get_committees(broadcast= True)
 			except Exception as e:
 				db.session.rollback()
-				emit("edit_committee", {"error": "Committee couldn't be edited, check data."})
+				emit("edit_committee", Response.EditError)
 		else:
-			emit('edit_committee', {'error': "Committee doesn't exist."})
+			emit('edit_committee', Response.ComDoesntExist)
 	else:
-		emit('edit_committee', {'error': "User doesn't exist or is not admin."})
+		emit('edit_committee', Response.UsrDoesntExist)

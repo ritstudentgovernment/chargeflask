@@ -8,8 +8,11 @@ from app import db
 
 class Committees(db.Model):
 	__tablename__ = 'committees'
-	id = db.Column(db.Integer, primary_key=True, unique= True)
+	id = db.Column(db.String(255), primary_key=True, unique= True)
 	title = db.Column(db.String(255))
 	description = db.Column(db.String(255))
 	head = db.Column(db.ForeignKey('users.id'))
+	location = db.Column(db.String(255))
+	committee_img = db.Column(db.String(255))
+	meeting_time = db.Column(db.BigInteger)	# Number of milliseconds since 1970/01/01.
 	members = db.relationship('Members', backref='committees', lazy='dynamic')

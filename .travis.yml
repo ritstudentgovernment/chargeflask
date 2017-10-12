@@ -3,6 +3,8 @@ language: python
 services:
  - postgresql
 
+before_install:
+ - openssl aes-256-cbc -K $encrypted_ca57650a292c_key -iv $encrypted_ca57650a292c_iv -in secrets.py.enc -out secrets.py -d
 install:
  - pip install -r requirements.txt
  - pip install coverage

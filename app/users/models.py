@@ -14,6 +14,7 @@ class Users(db.Model):
 	first_name = db.Column(db.String(255))
 	last_name = db.Column(db.String(255))
 	email = db.Column(db.String(255))
+	is_admin = db.Column(db.Boolean)
 
 	# Generate an API token for user authentication.
 	def generate_auth(self, expiration = 600):

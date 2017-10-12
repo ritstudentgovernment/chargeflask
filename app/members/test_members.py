@@ -11,6 +11,7 @@ from mock import patch, MagicMock
 from app.users.models import Users
 from app.committees.models import Committees
 from flask_socketio import SocketIOTestClient
+from app.members.members_response import Response
 
 class TestMembers(object):
 
@@ -76,7 +77,7 @@ class TestMembers(object):
 	def test_get_committee_members_nonexistent(self):
 		self.socketio.emit("get_members", "nonexistent")
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {"error": "Committee doesn't exist."}
+		assert received[0]["args"][0] == Response.ComDoesntExist
 
 
 	# Test get members of committee.
@@ -91,7 +92,7 @@ class TestMembers(object):
 		self.user_data["token"] = self.user_token
 		self.socketio.emit("add_member_committee", self.user_data)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {"success": "Request to join has been sent"}
+		assert received[0]["args"][0] == Response.RequestSent
 
 
 	# Test add to committee when admin.
@@ -99,7 +100,7 @@ class TestMembers(object):
 		self.user_data["token"] = self.admin_token
 		self.socketio.emit("add_member_committee", self.user_data)
 		received = self.socketio.get_received()
-		assert received[1]["args"][0] == {"success": "User has been added to committee"}
+		assert received[1]["args"][0] == Response.AddSuccess
 
 
 	# Test add committee doesnt exist.
@@ -108,7 +109,7 @@ class TestMembers(object):
 		self.user_data["committee_id"] = "nonexistent"
 		self.socketio.emit("add_member_committee", self.user_data)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {"error": "User or committee don't exist."}
+		assert received[0]["args"][0] == Response.UserDoesntExist
 
 
 	# Test trying to remove not admin.
@@ -116,7 +117,7 @@ class TestMembers(object):
 		self.user_data["token"] = self.user_token
 		self.socketio.emit("remove_member_committee", self.user_data)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {"error": "User doesn't have permissions to remove members."}
+		assert received[0]["args"][0] == Response.PermError
 
 
 	# Test remove member not admin
@@ -124,7 +125,7 @@ class TestMembers(object):
 		self.user_data["token"] = self.admin_token
 		self.socketio.emit("remove_member_committee", self.user_data)
 		received = self.socketio.get_received()
-		assert received[1]["args"][0] == {"success": "Member has been removed from committee"}
+		assert received[1]["args"][0] == Response.RemoveSuccess
 
 
 	# Test remove nonexistent member.
@@ -133,7 +134,7 @@ class TestMembers(object):
 		self.user_data["user_id"] = "nonexistent"
 		self.socketio.emit("remove_member_committee", self.user_data)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {"error": "User or committee don't exist."}
+		assert received[0]["args"][0] == Response.UserDoesntExist
 
 
 	# Test remove member nonexistent committee.
@@ -142,4 +143,4 @@ class TestMembers(object):
 		self.user_data["committee_id"] = "nonexistent"
 		self.socketio.emit("remove_member_committee", self.user_data)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {"error": "User or committee don't exist."}
+		assert received[0]["args"][0] == Response.UserDoesntExist

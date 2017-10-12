@@ -9,6 +9,7 @@ from flask_socketio import emit
 from app import socketio, db
 from app.committees.models import Committees
 from app.users.models import Users
+from app.members.members_response import Response
 
 
 ##
@@ -29,7 +30,7 @@ def get_committee_members(committee_id, broadcast= False):
 		mem_data = {"committee_id": committee.id, "members": mem_arr}
 		emit("get_members", mem_data, broadcast= broadcast)
 	else:
-		emit("get_members", {"error": "Committee doesn't exist."})
+		emit("get_members", Response.ComDoesntExist)
 
 
 ##
@@ -56,17 +57,17 @@ def add_to_committee(user_data):
 				
 				committee.members.append(new_user)
 				get_committee_members(committee.id, broadcast = True)
-				emit("add_member_committee", {"success": "User has been added to committee"})
+				emit("add_member_committee", Response.AddSuccess)
 			except Exception as e:
 
 				db.session.rollback()
-				emit("add_member_committee", {"error": "User couldn't be added to committee"})
+				emit("add_member_committee", Response.AddError)
 		else:
 
 			# Send request to join.
-			emit("add_member_committee", {"success": "Request to join has been sent"})
+			emit("add_member_committee", Response.RequestSent)
 	else:
-		emit("add_member_committee", {"error": "User or committee don't exist."})
+		emit("add_member_committee", Response.UserDoesntExist)
 
 
 ##
@@ -91,12 +92,12 @@ def remove_from_committee(user_data):
 
 				committee.members.remove(delete_user)
 				get_committee_members(committee.id, broadcast = True)
-				emit("remove_member_committee", {"success": "Member has been removed from committee"})
+				emit("remove_member_committee", Response.RemoveSuccess)
 			except Exception as e:
 				db.session.rollback()
-				emit("remove_member_committee", {"error": "Member couldn't be removed from committee."})
+				emit("remove_member_committee", Response.RemoveError)
 		else:
 
-			emit("remove_member_committee", {"error": "User doesn't have permissions to remove members."})
+			emit("remove_member_committee", Response.PermError)
 	else:
-		emit("remove_member_committee", {"error": "User or committee don't exist."})
+		emit("remove_member_committee", Response.UserDoesntExist)

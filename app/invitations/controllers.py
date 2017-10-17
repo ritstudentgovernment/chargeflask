@@ -10,10 +10,10 @@ from flask_mail import Message
 
 
 def send_invite(invited_by, send_to):
-	msg = Message("You're Invited", recipients = ["oed7416@rit.edu"])
-	msg.body = "You were invited!"
+    msg = Message("You're Invited", sender=("SG TigerTracker","sgnoreply@rit.edu"), recipients = ["oed7416@rit.edu"])
+    msg.body = "You were invited!"
 
-	try:
-		mail.send(msg)
-	except Exception as e:
-		print(e)
+    try:
+        mail.send(msg)
+    except Exception as e:
+        print(e)

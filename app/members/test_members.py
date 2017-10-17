@@ -144,3 +144,23 @@ class TestMembers(object):
 		self.socketio.emit("remove_member_committee", self.user_data)
 		received = self.socketio.get_received()
 		assert received[0]["args"][0] == Response.UserDoesntExist
+
+
+	# Test adding a member raises an Exception.
+	@patch('app.committees.models.Committees.members')
+	def test_add_exception(self, mock_obj):
+		mock_obj.append.side_effect = Exception("User couldn't be added.")
+		self.user_data["token"] = self.admin_token
+		self.socketio.emit("add_member_committee", self.user_data)
+		received = self.socketio.get_received()
+		assert received[0]["args"][0] == Response.AddError
+
+
+	# Test removing a member raises an Exception.
+	@patch('app.committees.models.Committees.members')
+	def test_remove_exception(self, mock_obj):
+		mock_obj.remove.side_effect = Exception("User couldn't be removed.")
+		self.user_data["token"] = self.admin_token
+		self.socketio.emit("remove_member_committee", self.user_data)
+		received = self.socketio.get_received()
+		assert received[0]["args"][0] == Response.RemoveError

@@ -57,9 +57,14 @@ def get_committee(committee_id, broadcast = False):
 ## @brief      Creates a committee. (Must be admin user)
 ##
 ## @param      user_data  The user data required to create a committee.
-## 			   			  Contains keys 'token', 'title', 
-## 			   			  'description', 'location', 'head',
-## 			   			  'meeting_time'
+## 			   			  Contains keys: 
+## 			   			  'token' - Token of the current user
+## 			   			  'title' - The title of the new committee 
+## 			   			  'head' - Head of committee (Must exist in app)
+## 			   			  'description' - Description of new committee
+## 			   			  'location' - Location of committee meetings
+## 			   			  'meeting_time' - Time of committee meeting
+## 			   			  
 ##
 ## @emit       Emits a success message if created, error if not.
 ##

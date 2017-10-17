@@ -14,7 +14,7 @@ from flask_mail import Mail
 
 
 # Create the app and add configuration.
-app = Flask(__name__)
+app = Flask(__name__, template_folder='static')
 app.config.from_object('config')
 socketio = SocketIO(app)
 db = SQLAlchemy(app)

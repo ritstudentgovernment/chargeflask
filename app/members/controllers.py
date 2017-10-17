@@ -10,7 +10,7 @@ from app import socketio, db
 from app.committees.models import Committees
 from app.users.models import Users
 from app.members.members_response import Response
-from app.invitations.controllers import send_invite
+from app.invitations.controllers import send_invite, send_request
 
 
 ##
@@ -74,7 +74,7 @@ def add_to_committee(user_data):
 		else:
 
 			# Send request to join.
-			send_invite(None, "oed7416")
+			send_request(new_user.id, committee)
 			emit("add_member_committee", Response.RequestSent)
 	else:
 		emit("add_member_committee", Response.UserDoesntExist)

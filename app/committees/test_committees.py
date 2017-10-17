@@ -7,6 +7,7 @@ created on: 09/19/17
 
 import pytest
 from app import app, db, socketio
+from app.committees.committees_response import Response
 from app.committees.models import Committees
 from app.users.models import Users
 from flask_socketio import SocketIOTestClient
@@ -69,7 +70,7 @@ class TestCommittees(object):
 		self.test_committee["token"] = self.admin_token
 		self.socketio.emit('create_committee', self.test_committee)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {'success': 'Committee succesfully created'}
+		assert received[0]["args"][0] == Response.AddSuccess
 
 	# Test when creating a committee that already exists.
 	def test_create_committee_exists(self):
@@ -77,7 +78,7 @@ class TestCommittees(object):
 		self.test_committee["token"] = self.admin_token
 		self.socketio.emit('create_committee', self.test_committee)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {'error': "Committee already exists."}
+		assert received[0]["args"][0] == Response.AddExists
 
 	# Test create incorrect data type.
 	def test_create_incorrect_type(self):
@@ -87,7 +88,7 @@ class TestCommittees(object):
 
 		self.socketio.emit('create_committee', self.test_committee)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {"error": "Committee couldn't be created, check data."}
+		assert received[0]["args"][0] == Response.AddError
 
 	# Test when a non-admin user tries to create a committee.
 	def test_non_admin_create_committee(self):
@@ -95,7 +96,7 @@ class TestCommittees(object):
 		self.test_committee["token"] = self.user_token
 		self.socketio.emit('create_committee', self.test_committee)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {'error': "User doesn't exist or is not admin."}
+		assert received[0]["args"][0] == Response.UsrDoesntExist
 
 	# Test get an specific committee.
 	def test_get_committee(self):
@@ -111,7 +112,7 @@ class TestCommittees(object):
 
 		self.socketio.emit('get_committee', "dontexist")
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {'error': "Committee doesn't exist."}
+		assert received[0]["args"][0] == Response.ComDoesntExist
 
 	# Test admin editing a committee.
 	def test_admin_edit_committee(self):
@@ -121,7 +122,7 @@ class TestCommittees(object):
 
 		self.socketio.emit('edit_committee', edit_fields)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {"success": "Committee succesfully edited."}
+		assert received[0]["args"][0] == Response.EditSuccess
 
 	# Test not admin editing a committee.
 	def test_nonadmin_edit_committee(self):
@@ -131,7 +132,7 @@ class TestCommittees(object):
 
 		self.socketio.emit('edit_committee', edit_fields)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {'error': "User doesn't exist or is not admin."}
+		assert received[0]["args"][0] == Response.UsrDoesntExist
 
 	# Test edit nonexistent committee
 	def test_edit_nonexistent(self):
@@ -141,7 +142,7 @@ class TestCommittees(object):
 
 		self.socketio.emit('edit_committee', edit_fields)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {'error': "Committee doesn't exist."}
+		assert received[0]["args"][0] == Response.ComDoesntExist
 
 
 	# Test editing incorrect data type.
@@ -152,7 +153,7 @@ class TestCommittees(object):
 
 		self.socketio.emit('edit_committee', edit_fields)
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {"error": "Committee couldn't be edited, check data."}
+		assert received[0]["args"][0] == Response.EditError
 
 	
 	

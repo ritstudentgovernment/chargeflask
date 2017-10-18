@@ -5,6 +5,7 @@ created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 08/31/17
 """
 from app import app, db
+from app.members.models import members_table
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 
@@ -15,6 +16,7 @@ class Users(db.Model):
 	last_name = db.Column(db.String(255))
 	email = db.Column(db.String(255))
 	is_admin = db.Column(db.Boolean)
+	committees = db.relationship('Committees', secondary= members_table, back_populates= 'members')
 
 	# Generate an API token for user authentication.
 	def generate_auth(self, expiration = 600):

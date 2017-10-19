@@ -86,10 +86,12 @@ def create_committee(user_data):
 			db.session.add(new_committee)
 
 			try:
+
 				db.session.commit()
 				emit('create_committee', Response.AddSuccess)
 				get_committees(broadcast= True)
 			except Exception as e:
+
 				db.session.rollback()
 				db.session.flush()
 				emit("create_committee", Response.AddError)
@@ -141,6 +143,7 @@ def edit_committee(user_data):
 				get_committee(committee.id, broadcast= True)
 				get_committees(broadcast= True)
 			except Exception as e:
+				
 				db.session.rollback()
 				emit("edit_committee", Response.EditError)
 		else:

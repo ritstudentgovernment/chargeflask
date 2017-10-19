@@ -58,6 +58,7 @@ class TestMembers(object):
 		db.session.add(committee)
 		db.session.commit()
 
+
 	@classmethod
 	def teardown_class(self):
 		self.db.session.close()
@@ -85,14 +86,6 @@ class TestMembers(object):
 		self.socketio.emit("get_members", "testcommittee")
 		received = self.socketio.get_received()
 		assert received[0]["args"][0] == {"committee_id": "testcommittee", "members":[]}
-
-
-	# Test add to committee when not admin.
-	def test_add_to_committee_not_admin(self):
-		self.user_data["token"] = self.user_token
-		self.socketio.emit("add_member_committee", self.user_data)
-		received = self.socketio.get_received()
-		assert received[0]["args"][0] == Response.RequestSent
 
 
 	# Test add to committee when admin.

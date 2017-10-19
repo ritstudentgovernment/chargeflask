@@ -74,8 +74,8 @@ def add_to_committee(user_data):
 		else:
 
 			# Send request to join.
-			send_request(new_user.id, committee)
-			emit("add_member_committee", Response.RequestSent)
+			request_result = send_request(new_user, committee)
+			emit("add_member_committee", request_result)
 	else:
 		emit("add_member_committee", Response.UserDoesntExist)
 
@@ -111,6 +111,7 @@ def remove_from_committee(user_data):
 				get_committee_members(committee.id, broadcast = True)
 				emit("remove_member_committee", Response.RemoveSuccess)
 			except Exception as e:
+
 				db.session.rollback()
 				emit("remove_member_committee", Response.RemoveError)
 		else:

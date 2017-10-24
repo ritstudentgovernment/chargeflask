@@ -175,9 +175,4 @@ class TestCommittees(object):
 
         self.socketio.emit('edit_committee', edit_fields)
         received = self.socketio.get_received()
-        assert received[0]["args"][0] == Response.EditSuccess
-
-
-
-    
-    
+        assert received[0]["args"][0] == Response.EditSuccess    

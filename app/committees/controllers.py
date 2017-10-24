@@ -10,6 +10,7 @@ from app import socketio, db
 from app.committees.committees_response import Response
 from app.committees.models import Committees
 from app.users.models import Users
+import base64
 
 ##
 ## @brief      Gets list of all committees.
@@ -41,16 +42,23 @@ def get_committee(committee_id, broadcast = False):
     if committee is not None:
 
         head = Users.query.filter_by(id = committee.head).first()
-        head_name = head.first_name + " " + head.last_name
 
-        emit("get_committee", {"id": committee.id,
-                               "title": committee.title, 
-                               "description": committee.description,
-                               "location": committee.location,
-                               "meeting_time": committee.meeting_time,
-                               "meeting_day": committee.meeting_day,
-                               "head": committee.head,
-                               "head_name": head_name}, broadcast= broadcast)
+        committee_info = {
+            "id": committee.id,
+            "title": committee.title, 
+            "description": committee.description,
+            "location": committee.location,
+            "meeting_time": committee.meeting_time,
+            "meeting_day": committee.meeting_day,
+            "head": committee.head,
+            "head_name": head.first_name + " " + head.last_name
+        }
+
+        if committee.committee_img is not None:
+            com_img = base64.b64encode(committee.committee_img).decode('utf-8')
+            committee_info["committee_img"] = com_img
+
+        emit("get_committee", committee_info, broadcast= broadcast)
     else:
         emit('get_committee', Response.ComDoesntExist)
 
@@ -93,6 +101,11 @@ def create_committee(user_data):
             new_committee.meeting_day = user_data["meeting_day"]
             new_committee.head = user_data["head"]
 
+            if "committee_img" in user_data:
+                com_img = base64.b64decode(user_data["committee_img"])
+                new_committee.committee_img = com_img
+
+
             db.session.add(new_committee)
 
             try:
@@ -102,6 +115,7 @@ def create_committee(user_data):
             except Exception as e:
                 db.session.rollback()
                 db.session.flush()
+                print(e)
                 emit("create_committee", Response.AddError)
         else:
             emit('create_committee', Response.AddExists)

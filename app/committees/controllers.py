@@ -138,21 +138,11 @@ def edit_committee(user_data):
 
             for key in user_data:
 
-                if (key == "description" or key == "location"
-                    or key == "meeting_time"):
+                if (key == "description" or key == "head" or key == "location"
+                    or key == "meeting_time" or key == "enabled"):
 
                     setattr(committee, key, user_data[key])
 
-                elif key == "head":
-
-                    if Users.query.filter_by(id= head).first() is not None:
-
-                        setattr(committee, key, user_data["head"])
-
-                elif key == "enabled":
-
-                    status = True if user_data["enabled"] == "True" else False
-                    committee.enabled = status
             try:
                 db.session.commit()
 

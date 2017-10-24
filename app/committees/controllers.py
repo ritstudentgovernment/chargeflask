@@ -24,7 +24,7 @@ def get_committees(broadcast = False):
     committees = Committees.query.filter_by(enabled = True).all()
     comm_ser = [{"id": c.id, "title": c.title} for c in committees]
     emit("get_committees", comm_ser, broadcast= broadcast)
-    
+
 
 ##
 ## @brief      Gets a specific committee by its id.
@@ -105,14 +105,15 @@ def create_committee(user_data):
                 com_img = base64.b64decode(user_data["committee_img"])
                 new_committee.committee_img = com_img
 
-
             db.session.add(new_committee)
 
             try:
+
                 db.session.commit()
                 emit('create_committee', Response.AddSuccess)
                 get_committees(broadcast= True)
             except Exception as e:
+
                 db.session.rollback()
                 db.session.flush()
                 print(e)
@@ -134,6 +135,7 @@ def create_committee(user_data):
 ##                        - location
 ##                        - meeting_time
 ##                        - enabled
+##                        - committee_img
 ##                        
 ##                        Any other field will be ignored.
 ##
@@ -152,10 +154,16 @@ def edit_committee(user_data):
 
             for key in user_data:
 
-                if (key == "description" or key == "head" or key == "location"
-                    or key == "meeting_time" or key == "enabled"):
+                if (key == "description" or key == "head" or key == "location" or
+                    key == "meeting_time" or key == "enabled" or key == "committee_img"):
 
-                    setattr(committee, key, user_data[key])
+                    if key == "committee_img":
+                        
+                        com_img = base64.b64decode(user_data["committee_img"])
+                        setattr(committee, key, com_img)
+                    else:
+
+                        setattr(committee, key, user_data[key])
 
             try:
                 db.session.commit()

@@ -30,7 +30,8 @@ def get_committees(broadcast = False):
 ##
 ## @param      committee_id  The committee identifier
 ##
-## @emit       Committee Id, Title, Description, Committee Head Id and Commitee Head Name.
+## @emit       An object containing a detailed view of a specific
+##             committee.
 ##
 @socketio.on('get_committee')
 def get_committee(committee_id, broadcast = False):
@@ -47,6 +48,7 @@ def get_committee(committee_id, broadcast = False):
                                "description": committee.description,
                                "location": committee.location,
                                "meeting_time": committee.meeting_time,
+                               "meeting_day": committee.meeting_day,
                                "head": committee.head,
                                "head_name": head_name}, broadcast= broadcast)
     else:

@@ -58,7 +58,8 @@ class TestCommittees(object):
 		self.test_committee = {"title": "Test Committee",
 						       "description": "Test Description",
 						       "location": "Test Location",
-						       "meeting_time": 1506008454327,
+						       "meeting_time": "1300",
+						       "meeting_day": 2,
 						       "head": "adminuser"}
 
 	def teardown_method(self, method):

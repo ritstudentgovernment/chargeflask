@@ -55,12 +55,15 @@ class TestCommittees(object):
 
     def setup_method(self, method):
 
-        self.test_committee = {"title": "Test Committee",
-                               "description": "Test Description",
-                               "location": "Test Location",
-                               "meeting_time": "1300",
-                               "meeting_day": 2,
-                               "head": "adminuser"}
+        self.test_committee = {
+            "title": "Test Committee",
+            "description": "Test Description",
+            "location": "Test Location",
+            "meeting_time": "1300",
+            "meeting_day": 2,
+            "head": "adminuser",
+            "committee_img": "R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+        }
 
     def teardown_method(self, method):
         self.test_committee = None
@@ -175,4 +178,17 @@ class TestCommittees(object):
 
         self.socketio.emit('edit_committee', edit_fields)
         received = self.socketio.get_received()
-        assert received[0]["args"][0] == Response.EditSuccess    
+        assert received[0]["args"][0] == Response.EditSuccess
+
+
+    # Test change committee image
+    def test_change_commiteimg(self):
+        edit_fields = {
+            "token": self.admin_token,
+            "id": "testcommittee",
+            "committee_img": "R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOz=="
+        }
+        
+        self.socketio.emit('edit_committee', edit_fields)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.EditSuccess

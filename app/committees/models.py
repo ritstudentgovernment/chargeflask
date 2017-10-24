@@ -17,4 +17,5 @@ class Committees(db.Model):
     committee_img = db.Column(db.String(255))
     meeting_time = db.Column(db.String(4))  # In the format of "1300" for 1:00PM
     meeting_day = db.Column(db.Integer)      # Where 0-Sunday and 6-Saturday
+    enabled = db.Column(db.Boolean, default= True)
     members = db.relationship('Users', secondary= members_table, back_populates="committees")

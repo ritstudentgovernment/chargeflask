@@ -20,7 +20,7 @@ from app.users.models import Users
 ##
 @socketio.on('get_committees')
 def get_committees(broadcast = False):
-    committees = Committees.query.all()
+    committees = Committees.query.filter_by(enabled = True).all()
     comm_ser = [{"id": c.id, "title": c.title} for c in committees]
     emit("get_committees", comm_ser, broadcast= broadcast)
     
@@ -119,6 +119,7 @@ def create_committee(user_data):
 ##                        - head
 ##                        - location
 ##                        - meeting_time
+##                        - enabled
 ##                        
 ##                        Any other field will be ignored.
 ##
@@ -137,11 +138,21 @@ def edit_committee(user_data):
 
             for key in user_data:
 
-                if (key == "description" or key == "head" or
-                   key == "location" or key == "meeting_time"):
+                if (key == "description" or key == "location"
+                    or key == "meeting_time"):
 
                     setattr(committee, key, user_data[key])
 
+                elif key == "head":
+
+                    if Users.query.filter_by(id= head).first() is not None:
+
+                        setattr(committee, key, user_data["head"])
+
+                elif key == "enabled":
+
+                    status = True if user_data["enabled"] == "True" else False
+                    committee.enabled = status
             try:
                 db.session.commit()
 

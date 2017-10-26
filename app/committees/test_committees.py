@@ -9,6 +9,7 @@ import pytest
 from app import app, db, socketio
 from app.committees.committees_response import Response
 from app.committees.models import Committees
+from app.users.permissions import Permissions
 from app.users.models import Users
 from flask_socketio import SocketIOTestClient
 
@@ -111,6 +112,7 @@ class TestCommittees(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == self.test_committee
 
+        
     # Test getting a nonexistent committee
     def test_get_nonexistent_committee(self):
 
@@ -192,3 +194,38 @@ class TestCommittees(object):
         self.socketio.emit('edit_committee', edit_fields)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.EditSuccess
+
+
+    # Test get permissions of admin user.
+    def test_admin_perms(self):
+
+        user_data = {
+            "token": self.admin_token,
+            "id": "testcommittee",
+        }
+        self.socketio.emit('get_permissions', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Permissions.CanEdit
+
+    # Test get permissions of committee head.
+    def test_head_perms(self):
+
+        user_data = {
+            "token": self.user_token,
+            "id": "testcommittee",
+        }
+        self.socketio.emit('get_permissions', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Permissions.CanCreate
+
+
+    # Test get permissions of no user authenticated.
+    def test_notoken_perms(self):
+
+        user_data = {
+            "id": "testcommittee"
+        }
+        self.socketio.emit('get_permissions', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Permissions.CanView
+

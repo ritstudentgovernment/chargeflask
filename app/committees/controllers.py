@@ -10,7 +10,9 @@ from app import socketio, db
 from app.committees.committees_response import Response
 from app.committees.models import Committees
 from app.users.models import Users
+from app.users.permissions import Permissions
 import base64
+
 
 ##
 ## @brief      Gets list of all committees.
@@ -24,6 +26,42 @@ def get_committees(broadcast = False):
     committees = Committees.query.filter_by(enabled = True).all()
     comm_ser = [{"id": c.id, "title": c.title} for c in committees]
     emit("get_committees", comm_ser, broadcast= broadcast)
+
+
+##
+## @brief      Get a users permissions for a specific committee.
+##
+## @param      user_data  Contains user "token" (optional) and
+##                        "id" of committee. (required.)
+##
+## @emit       Integer describing the user permissions.
+##
+@socketio.on('get_permissions')
+def get_permissions(user_data):
+    
+    user = Users.verify_auth(user_data["token"]) if "token" in user_data else None
+    committee = Committees.query.filter_by(id = user_data["id"]).first()
+    permission_level = Permissions.CanView
+
+    if committee is not None:
+
+        if user is not None:
+        
+            if user.is_admin:
+
+                permission_level = Permissions.CanEdit
+            elif user.id == committee.head:
+
+                permission_level = Permissions.CanCreate
+            elif user in committee.members:
+
+                permission_level = Permissions.CanContribute
+            else:
+
+                permission_level = Permissions.CanView
+        emit('get_permissions', permission_level)
+    else:
+        emit('get_permissions', Response.ComDoesntExist)
 
 
 ##

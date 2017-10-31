@@ -29,7 +29,7 @@ class TestInvitations(object):
         admin = Users(id = "adminuser")
         admin.first_name = "Admin"
         admin.last_name = "User"
-        admin.email = "oed7416@rit.edu"
+        admin.email = "adminuser@test.com"
         admin.is_admin = True
         db.session.add(admin)
         db.session.commit()

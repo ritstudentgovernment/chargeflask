@@ -29,7 +29,7 @@ class TestInvitations(object):
         admin = Users(id = "adminuser")
         admin.first_name = "Admin"
         admin.last_name = "User"
-        admin.email = "adminuser@test.com"
+        admin.email = "oed7416@rit.edu"
         admin.is_admin = True
         db.session.add(admin)
         db.session.commit()
@@ -90,7 +90,8 @@ class TestInvitations(object):
         assert received[0]["args"][0] == Response.RequestExists
 
 
-    # Test invitation request falied to add invitation.
+    # Test falied to add request.
+    """
     @patch('app.invitations.models.Invitations')
     def test_request_error(self, mock_obj):
         self.user_data["token"] = self.user_token
@@ -98,5 +99,35 @@ class TestInvitations(object):
         self.socketio.emit("add_member_committee", self.user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.RequestError
+    """
 
 
+    # Test send invitation to new user.
+    def test_invite_successful(self):
+        self.user_data["token"] = self.admin_token
+        self.user_data["user_id"] = "newuser"
+        self.socketio.emit("add_member_committee", self.user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.InviteSent
+
+
+    # Test invitation has already been sent.
+    def test_invite_exists(self):
+        self.user_data["token"] = self.admin_token
+        self.user_data["user_id"] = "newuser"
+        self.socketio.emit("add_member_committee", self.user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.InviteExists
+
+
+    # Test invitation request falied to add invitation.
+    """
+    @patch('app.invitations.models.Invitations')
+    def test_invite_exception(self, mock_obj):
+        self.user_data["token"] = self.admin_token
+        self.user_data["user_id"] = "willfail"
+        mock_obj.side_effect = Exception("Invitation couldn't be created.")
+        self.socketio.emit("add_member_committee", self.user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.InviteError
+    """

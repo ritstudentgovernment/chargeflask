@@ -58,7 +58,7 @@ def add_to_committee(user_data):
 	new_user_id = user_data["user_id"] if user_data["user_id"] != "" else user.id
 	new_user = Users.query.filter_by(id= new_user_id).first()
 
-	if committee is not None and new_user is not None:
+	if committee is not None and new_user is not None and user is not None:
 
 		if committee.head == user.id or user.is_admin:
 
@@ -76,6 +76,11 @@ def add_to_committee(user_data):
 			# Send request to join.
 			request_result = send_request(new_user, committee)
 			emit("add_member_committee", request_result)
+	elif committee is not None and user is not None:
+
+		# Send invitation to join.
+		invite_result = send_invite(new_user_id, committee)
+		emit("add_member_committee", invite_result)
 	else:
 		emit("add_member_committee", Response.UserDoesntExist)
 

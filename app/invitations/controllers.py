@@ -11,6 +11,7 @@ from app.invitations.invitations_response import Response
 from flask import render_template
 from flask_mail import Message
 from sqlalchemy import and_
+import time
 
 
 ##
@@ -18,7 +19,7 @@ from sqlalchemy import and_
 ##             when user doesn't exist in ChargeTracker.
 ##
 ## @param      committee       The committee to join.
-## @param      send_to         The user to be invited.
+## @param      new_user        The user to be invited.
 ##
 ## @return     True if email sent, False if not.
 ##
@@ -26,7 +27,8 @@ def send_invite(new_user, committee):
 
     invite = and_(
         Invitations.user_name == new_user,
-        Invitations.committee == committee.id
+        Invitations.committee == committee.id,
+        Invitations.isInvite == True
     )
 
     if Invitations.query.filter(invite).first() is not None:
@@ -45,12 +47,15 @@ def send_invite(new_user, committee):
 
         msg = Message("You're Invited")
         msg.sender=("SG TigerTracker", "sgnoreply@rit.edu")
-        msg.recipients = [send_to + "@rit.edu"]
+        msg.recipients = [new_user + "@rit.edu"]
         msg.html = render_template(
             'committee_invitation.html',
-            user_name= send_to,
+            user_name= new_user,
             committee_name= committee.title,
             committee_head= committee.head,
+            logo_url= 'http://localhost:5000/static/sg-logo.png',
+            paw_url= 'http://localhost:5000/static/paw.png',
+            time_stamp= time.time(),
             invite_url= invitation.id
         )
 
@@ -58,7 +63,6 @@ def send_invite(new_user, committee):
         return Response.InviteSent
     except Exception as e:
 
-        print(e)
         db.session.rollback()
         return Response.InviteError
 
@@ -76,7 +80,8 @@ def send_request(new_user, committee):
 
     invite = and_(
         Invitations.user_name == new_user.id,
-        Invitations.committee == committee.id
+        Invitations.committee == committee.id,
+        Invitations.isInvite == False
     )
 
     if Invitations.query.filter(invite).first() is not None:
@@ -101,6 +106,9 @@ def send_request(new_user, committee):
             user_name= new_user.id,
             committee_head= committee.head,
             committee_name= committee.title,
+            logo_url= 'http://localhost:5000/static/sg-logo.png',
+            paw_url= 'http://localhost:5000/static/paw.png',
+            time_stamp= time.time(),
             resquest_url= invitation.id
         )
 
@@ -108,6 +116,5 @@ def send_request(new_user, committee):
         return Response.RequestSent
     except Exception as e:
 
-        print(e)
         db.session.rollback()
         return Response.RequestError

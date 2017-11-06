@@ -56,9 +56,6 @@ def get_permissions(user_data):
             elif user in committee.members:
 
                 permission_level = Permissions.CanContribute
-            else:
-
-                permission_level = Permissions.CanView
         emit('get_permissions', permission_level)
     else:
         emit('get_permissions', Response.ComDoesntExist)

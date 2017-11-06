@@ -45,6 +45,7 @@ class TestCommittees(object):
         user.is_admin = False
         db.session.add(user)
         db.session.commit()
+        self.test_user = user
         self.user_token = user.generate_auth()
         self.user_token = self.user_token.decode('ascii')
 
@@ -111,7 +112,6 @@ class TestCommittees(object):
         self.socketio.emit('get_committee', "testcommittee")
         received = self.socketio.get_received()
         assert received[0]["args"][0] == self.test_committee
-
         
     # Test getting a nonexistent committee
     def test_get_nonexistent_committee(self):
@@ -150,7 +150,6 @@ class TestCommittees(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.ComDoesntExist
 
-
     # Test editing incorrect data type.
     def test_edit_incorrect(self):
         edit_fields = {"token": self.admin_token, 
@@ -171,7 +170,6 @@ class TestCommittees(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.EditSuccess
 
-
     # Test disable committee.
     def test_disable_committee(self):
         edit_fields = {"token": self.admin_token,
@@ -181,7 +179,6 @@ class TestCommittees(object):
         self.socketio.emit('edit_committee', edit_fields)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.EditSuccess
-
 
     # Test change committee image
     def test_change_commiteimg(self):
@@ -194,7 +191,6 @@ class TestCommittees(object):
         self.socketio.emit('edit_committee', edit_fields)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.EditSuccess
-
 
     # Test get permissions of admin user.
     def test_admin_perms(self):
@@ -218,7 +214,6 @@ class TestCommittees(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Permissions.CanCreate
 
-
     # Test get permissions of no user authenticated.
     def test_notoken_perms(self):
 
@@ -228,4 +223,31 @@ class TestCommittees(object):
         self.socketio.emit('get_permissions', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Permissions.CanView
+
+    # Test get permissions of committee member.
+    def test_member_perms(self):
+
+        testcomm = Committees(id="testcomm")
+        testcomm.title = "TestComm"
+        db.session.add(testcomm)
+        testcomm.members.append(self.test_user)
+
+        user_data = {
+            "token": self.user_token,
+            "id": "testcomm",
+        }
+
+        self.socketio.emit('get_permissions', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Permissions.CanContribute
+
+    # Test get permissions fail.
+    def test_noexistent_perms(self):
+
+        user_data = {
+            "id": "nonexistentcommittee"
+        }
+        self.socketio.emit('get_permissions', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.ComDoesntExist
 

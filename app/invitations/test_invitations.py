@@ -47,6 +47,16 @@ class TestInvitations(object):
         self.user_token = user.generate_auth()
         self.user_token = self.user_token.decode('ascii')
 
+        # Create second normal user for tests.
+        user2 = Users(id = "testuser2")
+        user2.first_name = "Test2"
+        user2.last_name = "User2"
+        db.session.add(user2)
+        db.session.commit()
+
+        self.user_token2 = user2.generate_auth()
+        self.user_token2 = self.user_token2.decode('ascii')
+
         # Create a test committee.
         committee = Committees(id = "testcommittee")
         committee.title = "Test Committee"
@@ -89,17 +99,19 @@ class TestInvitations(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.RequestExists
 
-
-    # Test falied to add request.
-    """
+    
+    # Test failed to add request.
     @patch('app.invitations.models.Invitations')
-    def test_request_error(self, mock_obj):
-        self.user_data["token"] = self.user_token
+    @patch('app.mail.send')
+    def test_request_error(self, mock_obj, mock_mail):
         mock_obj.side_effect = Exception("Invitation couldn't be created.")
+        mock_mail.side_effect = Exception("Mail couldn't be sent.")
+
+        self.user_data["token"] = self.user_token2
+        self.user_data["user_id"] = ""
         self.socketio.emit("add_member_committee", self.user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.RequestError
-    """
 
 
     # Test send invitation to new user.
@@ -121,13 +133,13 @@ class TestInvitations(object):
 
 
     # Test invitation request falied to add invitation.
-    """
     @patch('app.invitations.models.Invitations')
-    def test_invite_exception(self, mock_obj):
+    @patch('app.mail.send')
+    def test_invite_exception(self, mock_obj, mock_mail):
         self.user_data["token"] = self.admin_token
         self.user_data["user_id"] = "willfail"
         mock_obj.side_effect = Exception("Invitation couldn't be created.")
+        mock_mail.side_effect = Exception("Mail couldn't be sent.")
         self.socketio.emit("add_member_committee", self.user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.InviteError
-    """

@@ -54,8 +54,6 @@ def send_invite(new_user, committee):
             user_name= new_user,
             committee_name= committee.title,
             committee_head= committee.head,
-            logo_url= 'cid:sg-logo',
-            paw_url= 'cid:sg-paw',
             time_stamp= time.time(),
             invite_url= invitation.id
         )
@@ -116,8 +114,6 @@ def send_request(new_user, committee):
             user_name= new_user.id,
             committee_head= committee.head,
             committee_name= committee.title,
-            logo_url= 'cid:sg-logo',
-            paw_url= 'cid:sg-paw',
             time_stamp= time.time(),
             resquest_url= invitation.id
         )
@@ -129,7 +125,7 @@ def send_request(new_user, committee):
         # Attach paw to email.
         with app.open_resource("static/paw.png") as fp:
             msg.attach("static/paw.png", "image/png", fp.read(), headers={'Content-ID': '<sg-paw>'})
-        
+
         mail.send(msg)
         return Response.RequestSent
     except Exception as e:

@@ -48,16 +48,25 @@ def send_invite(new_user, committee):
         msg = Message("You're Invited")
         msg.sender=("SG TigerTracker", "sgnoreply@rit.edu")
         msg.recipients = [new_user + "@rit.edu"]
+        msg.subtype = "related"
         msg.html = render_template(
             'committee_invitation.html',
             user_name= new_user,
             committee_name= committee.title,
             committee_head= committee.head,
-            logo_url= 'http://localhost:5000/static/sg-logo.png',
-            paw_url= 'http://localhost:5000/static/paw.png',
+            logo_url= 'cid:sg-logo',
+            paw_url= 'cid:sg-paw',
             time_stamp= time.time(),
             invite_url= invitation.id
         )
+
+        # Attach sglogo to email.
+        with app.open_resource("static/sg-logo.png") as fp:
+            msg.attach("static/sg-logo.png", "image/png", fp.read(), headers={'Content-ID': '<sg-logo>'})
+
+        # Attach paw to email.
+        with app.open_resource("static/paw.png") as fp:
+            msg.attach("static/paw.png", "image/png", fp.read(), headers={'Content-ID': '<sg-paw>'})
 
         mail.send(msg)
         return Response.InviteSent
@@ -96,25 +105,35 @@ def send_request(new_user, committee):
     try:
 
         db.session.add(invitation)
-        db.session.commit()
+        db.session.commit() 
 
         msg = Message("Great news, " + new_user.id + " wants to join!")
         msg.sender = ("SG TigerTracker", "sgnoreply@rit.edu")
-        msg.recipients = [committee.head + "@rit.edu"]        
+        msg.recipients = [committee.head + "@rit.edu"]
+        msg.subtype = "related"
         msg.html = render_template(
             'committee_request.html', 
             user_name= new_user.id,
             committee_head= committee.head,
             committee_name= committee.title,
-            logo_url= 'http://localhost:5000/static/sg-logo.png',
-            paw_url= 'http://localhost:5000/static/paw.png',
+            logo_url= 'cid:sg-logo',
+            paw_url= 'cid:sg-paw',
             time_stamp= time.time(),
             resquest_url= invitation.id
         )
 
+        # Attach sglogo to email.
+        with app.open_resource("static/sg-logo.png") as fp:
+            msg.attach("static/sg-logo.png", "image/png", fp.read(), headers={'Content-ID': '<sg-logo>'})
+
+        # Attach paw to email.
+        with app.open_resource("static/paw.png") as fp:
+            msg.attach("static/paw.png", "image/png", fp.read(), headers={'Content-ID': '<sg-paw>'})
+        
         mail.send(msg)
         return Response.RequestSent
     except Exception as e:
 
+        print(e)
         db.session.rollback()
         return Response.RequestError

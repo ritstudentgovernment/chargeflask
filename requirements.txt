@@ -7,7 +7,7 @@ coverage==4.4.1
 enum-compat==0.0.2
 eventlet==0.21.0
 Flask==0.12.2
-Flask-Mail==0.9.1
+git+https://github.com/amikholap/flask-mail.git
 Flask-SocketIO==2.9.2
 Flask-SQLAlchemy==2.2
 greenlet==0.4.12

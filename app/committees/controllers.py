@@ -10,6 +10,9 @@ from app import socketio, db
 from app.committees.committees_response import Response
 from app.committees.models import Committees
 from app.users.models import Users
+from app.users.permissions import Permissions
+import base64
+
 
 ##
 ## @brief      Gets list of all committees.
@@ -20,138 +23,195 @@ from app.users.models import Users
 ##
 @socketio.on('get_committees')
 def get_committees(broadcast = False):
-	committees = Committees.query.all()
-	comm_ser = [{"id": c.id, "title": c.title} for c in committees]
-	emit("get_committees", comm_ser, broadcast= broadcast)
-	
+    committees = Committees.query.filter_by(enabled = True).all()
+    comm_ser = [{"id": c.id, "title": c.title} for c in committees]
+    emit("get_committees", comm_ser, broadcast= broadcast)
+
+
+##
+## @brief      Get a users permissions for a specific committee.
+##
+## @param      user_data  Contains user "token" (optional) and
+##                        "id" of committee. (required.)
+##
+## @emit       Integer describing the user permissions.
+##
+@socketio.on('get_permissions')
+def get_permissions(user_data):
+    
+    user = Users.verify_auth(user_data["token"]) if "token" in user_data else None
+    committee = Committees.query.filter_by(id = user_data["id"]).first()
+    permission_level = Permissions.CanView
+
+    if committee is not None:
+
+        if user is not None:
+        
+            if user.is_admin:
+
+                permission_level = Permissions.CanEdit
+            elif user.id == committee.head:
+
+                permission_level = Permissions.CanCreate
+            elif user in committee.members:
+
+                permission_level = Permissions.CanContribute
+        emit('get_permissions', permission_level)
+    else:
+        emit('get_permissions', Response.ComDoesntExist)
+
 
 ##
 ## @brief      Gets a specific committee by its id.
 ##
 ## @param      committee_id  The committee identifier
 ##
-## @emit       Committee Id, Title, Description, Committee Head Id and Commitee Head Name.
+## @emit       An object containing a detailed view of a specific
+##             committee.
 ##
 @socketio.on('get_committee')
 def get_committee(committee_id, broadcast = False):
 
-	committee = Committees.query.filter_by(id = committee_id).first()
+    committee = Committees.query.filter_by(id = committee_id).first()
 
-	if committee is not None:
+    if committee is not None:
 
-		head = Users.query.filter_by(id = committee.head).first()
-		head_name = head.first_name + " " + head.last_name
+        head = Users.query.filter_by(id = committee.head).first()
 
-		emit("get_committee", {"id": committee.id,
-							   "title": committee.title, 
-							   "description": committee.description,
-							   "location": committee.location,
-							   "meeting_time": committee.meeting_time,
-							   "head": committee.head,
-							   "head_name": head_name}, broadcast= broadcast)
-	else:
-		emit('get_committee', Response.ComDoesntExist)
+        committee_info = {
+            "id": committee.id,
+            "title": committee.title, 
+            "description": committee.description,
+            "location": committee.location,
+            "meeting_time": committee.meeting_time,
+            "meeting_day": committee.meeting_day,
+            "head": committee.head,
+            "head_name": head.first_name + " " + head.last_name
+        }
+
+        if committee.committee_img is not None:
+            com_img = base64.b64encode(committee.committee_img).decode('utf-8')
+            committee_info["committee_img"] = com_img
+
+        emit("get_committee", committee_info, broadcast= broadcast)
+    else:
+        emit('get_committee', Response.ComDoesntExist)
 
 
 ##
 ## @brief      Creates a committee. (Must be admin user)
 ##
 ## @param      user_data  The user data required to create a committee.
-## 			   			  Contains keys: 
-## 			   			  'token' - Token of the current user
-## 			   			  'title' - The title of the new committee 
-## 			   			  'head' - Head of committee (Must exist in app)
-## 			   			  'description' - Description of new committee
-## 			   			  'location' - Location of committee meetings
-## 			   			  'meeting_time' - Time of committee meeting
-## 			   			  
+##                        
+##                        All the following fields are required:
+##                        
+##                        token - Token of the current user
+##                        title - The title of the new committee 
+##                        head - Head of committee (Must exist in app)
+##                        description - Description of new committee
+##                        location - Location of committee meetings
+##                        meeting_time - Time of committee meeting
+##                        meeting_day - Day of the week of committee meeting
 ##
 ## @emit       Emits a success message if created, error if not.
 ##
 @socketio.on('create_committee')
 def create_committee(user_data):
 
-	user = Users.verify_auth(user_data["token"])
+    user = Users.verify_auth(user_data["token"])
 
-	if user is not None and user.is_admin:
+    if user is not None and user.is_admin:
 
-		# Build committee id string.
-		committee_id = user_data["title"].replace(" ", "")
-		committee_id = committee_id.lower()
+        # Build committee id string.
+        committee_id = user_data["title"].replace(" ", "")
+        committee_id = committee_id.lower()
 
-		if Committees.query.filter_by(id = committee_id).first() is None:
+        if Committees.query.filter_by(id = committee_id).first() is None:
 
-			new_committee = Committees(id = committee_id)
-			new_committee.title = user_data["title"]
-			new_committee.description = user_data["description"]
-			new_committee.location = user_data["location"]
-			new_committee.meeting_time = user_data["meeting_time"]
-			new_committee.head = user_data["head"]
+            new_committee = Committees(id = committee_id)
+            new_committee.title = user_data["title"]
+            new_committee.description = user_data["description"]
+            new_committee.location = user_data["location"]
+            new_committee.meeting_time = user_data["meeting_time"]
+            new_committee.meeting_day = user_data["meeting_day"]
+            new_committee.head = user_data["head"]
 
-			db.session.add(new_committee)
+            if "committee_img" in user_data:
+                com_img = base64.b64decode(user_data["committee_img"])
+                new_committee.committee_img = com_img
 
-			try:
+            db.session.add(new_committee)
 
-				db.session.commit()
-				emit('create_committee', Response.AddSuccess)
-				get_committees(broadcast= True)
-			except Exception as e:
+            try:
 
-				db.session.rollback()
-				db.session.flush()
-				emit("create_committee", Response.AddError)
-		else:
-			emit('create_committee', Response.AddExists)
-	else:
-		emit('create_committee', Response.UsrDoesntExist)
+                db.session.commit()
+                emit('create_committee', Response.AddSuccess)
+                get_committees(broadcast= True)
+            except Exception as e:
+
+                db.session.rollback()
+                db.session.flush()
+                print(e)
+                emit("create_committee", Response.AddError)
+        else:
+            emit('create_committee', Response.AddExists)
+    else:
+        emit('create_committee', Response.UsrDoesntExist)
 
 
 ##
 ## @brief      Edits a committee (Must be admin user)
 ##
 ## @param      user_data  The user data to edit a committee, must
-## 						  contain a token and any of the following
-## 						  fields:
-## 						  - description
-## 						  - head
-## 						  - location
-## 						  - meeting_time
-## 						  
-## 						  Any other field will be ignored.
+##                        contain a token and any of the following
+##                        fields:
+##                        - description
+##                        - head
+##                        - location
+##                        - meeting_time
+##                        - enabled
+##                        - committee_img
+##                        
+##                        Any other field will be ignored.
 ##
 ## @emit       Emits a success mesage if edited, errors otherwise.
 ##
 @socketio.on('edit_committee')
 def edit_committee(user_data):
 
-	user = Users.verify_auth(user_data["token"])
+    user = Users.verify_auth(user_data["token"])
 
-	if user is not None and user.is_admin:
+    if user is not None and user.is_admin:
 
-		committee = Committees.query.filter_by(id= user_data["id"]).first()
+        committee = Committees.query.filter_by(id= user_data["id"]).first()
 
-		if committee is not None:
+        if committee is not None:
 
-			for key in user_data:
+            for key in user_data:
 
-				if (key == "description" or key == "head" or
-				   key == "location" or key == "meeting_time"):
+                if (key == "description" or key == "head" or key == "location" or
+                    key == "meeting_time" or key == "enabled" or key == "committee_img"):
 
-					setattr(committee, key, user_data[key])
+                    if key == "committee_img":
+                        
+                        com_img = base64.b64decode(user_data["committee_img"])
+                        setattr(committee, key, com_img)
+                    else:
 
-			try:
-				db.session.commit()
+                        setattr(committee, key, user_data[key])
 
-				# Send successful edit notification to user 
-				# and broadcast committee changes.
-				emit("edit_committee", Response.EditSuccess)
-				get_committee(committee.id, broadcast= True)
-				get_committees(broadcast= True)
-			except Exception as e:
-				
-				db.session.rollback()
-				emit("edit_committee", Response.EditError)
-		else:
-			emit('edit_committee', Response.ComDoesntExist)
-	else:
-		emit('edit_committee', Response.UsrDoesntExist)
+            try:
+                db.session.commit()
+
+                # Send successful edit notification to user 
+                # and broadcast committee changes.
+                emit("edit_committee", Response.EditSuccess)
+                get_committee(committee.id, broadcast= True)
+                get_committees(broadcast= True)
+            except Exception as e:
+                db.session.rollback()
+                emit("edit_committee", Response.EditError)
+        else:
+            emit('edit_committee', Response.ComDoesntExist)
+    else:
+        emit('edit_committee', Response.UsrDoesntExist)

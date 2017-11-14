@@ -53,7 +53,8 @@ class TestMembers(object):
 		committee.title = "Test Committee"
 		committee.description = "Test Description"
 		committee.location = "Test Location"
-		committee.meeting_time = 1506008454327
+		committee.meeting_time = "1200"
+		committee.meeting_day = 2
 		committee.head = "adminuser"
 		db.session.add(committee)
 		db.session.commit()

@@ -92,7 +92,7 @@ class TestInvitations(object):
         assert received[0]["args"][0] == Response.RequestSent
 
 
-    # Test seding a request to join a committee
+    # Test sending a request to join a committee
     # but request already exists.
     def test_request_exists(self):
         self.user_data["token"] = self.user_token
@@ -133,7 +133,7 @@ class TestInvitations(object):
         assert received[0]["args"][0] == Response.InviteExists
 
 
-    # Test invitation request falied to add invitation.
+    # Test invitation request failed to add invitation.
     @patch('app.invitations.models.Invitations')
     @patch('app.mail.send')
     def test_invite_exception(self, mock_obj, mock_mail):
@@ -144,3 +144,138 @@ class TestInvitations(object):
         self.socketio.emit("add_member_committee", self.user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.InviteError
+
+
+    # Test view a request success.
+    def test_get_invite_success(self):
+
+    	request_data = {
+    		"token": self.admin_token,
+    		"invitation_id": 1 
+    	}
+
+    	invite_data = {
+    		"committee_head": "adminuser",
+    		"committee_id": "testcommittee",
+    		"committee_title": "Test Committee",
+    		"current_user": "adminuser",
+    		"invite_user": "testuser",
+    		"is_invite": False
+    	}
+
+    	self.socketio.emit("get_invitation", request_data)
+    	received = self.socketio.get_received()
+    	assert received[0]["args"][0] == invite_data
+
+
+    # Test get non existent invitation.
+    def test_get_invite_404(self):
+    	request_data = {
+    		"token": self.admin_token,
+    		"invitation_id": 20
+    	}
+
+    	self.socketio.emit("get_invitation", request_data)
+    	received = self.socketio.get_received()
+    	assert received[0]["args"][0] == Response.InviteDoesntExist
+
+
+    # Test get with non-existent user.
+    def test_get_invite_nouser(self):
+    	request_data = {
+    		"token": "",
+    		"invitation_id": 1
+    	}
+
+    	self.socketio.emit("get_invitation", request_data)
+    	received = self.socketio.get_received()
+    	assert received[0]["args"][0] == Response.NotAuthenticated
+
+
+    # Test get invite not allowed.
+    def test_get_invite_noperms(self):
+    	request_data = {
+    		"token": self.user_token2,
+    		"invitation_id": 1
+    	}
+
+    	self.socketio.emit("get_invitation", request_data)
+    	received = self.socketio.get_received()
+    	assert received[0]["args"][0] == Response.IncorrectPerms
+
+
+    # Test set invitation doesn't exist.
+    def test_set_invite_404(self):
+    	request_data = {
+    		"token": self.user_token2,
+    		"invitation_id": 10,
+    		"status": True
+    	}
+
+    	self.socketio.emit("set_invitation", request_data)
+    	received = self.socketio.get_received()
+    	assert received[0]["args"][0] == Response.InviteDoesntExist
+
+
+    # Test set user doesn't exist.
+    def test_set_invite_nouser(self):
+    	request_data = {
+    		"token": "",
+    		"invitation_id": 1,
+    		"status": True
+    	}
+
+    	self.socketio.emit("set_invitation", request_data)
+    	received = self.socketio.get_received()
+    	assert received[0]["args"][0] == Response.NotAuthenticated
+
+
+    # Test set no status.
+    def test_set_invite_status404(self):
+    	request_data = {
+    		"token": self.admin_token,
+    		"invitation_id": 1
+    	}
+
+    	self.socketio.emit("set_invitation", request_data)
+    	received = self.socketio.get_received()
+    	assert received[0]["args"][0] == Response.InvalidStatus
+
+
+    # Test incorrect status type.
+    def test_set_invite_incorstatus(self):
+    	request_data = {
+    		"token": self.admin_token,
+    		"invitation_id": 1,
+    		"status": "True"
+    	}
+
+    	self.socketio.emit("set_invitation", request_data)
+    	received = self.socketio.get_received()
+    	assert received[0]["args"][0] == Response.InvalidStatus
+
+
+    # Test user shouldn't set invitation.
+    def test_set_invite_noperms(self):
+    	request_data = {
+    		"token": self.user_token,
+    		"invitation_id": 1,
+    		"status": True
+    	}
+
+    	self.socketio.emit("set_invitation", request_data)
+    	received = self.socketio.get_received()
+    	assert received[0]["args"][0] == Response.IncorrectPerms
+
+    
+    # Test set invitation True.
+    def test_set_invite_success(self):
+    	request_data = {
+    		"token": self.admin_token,
+    		"invitation_id": 1,
+    		"status": True
+    	}
+
+    	self.socketio.emit("set_invitation", request_data)
+    	received = self.socketio.get_received()
+    	assert received[2]["args"][0] == Response.InviteAccept

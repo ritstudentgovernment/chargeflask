@@ -279,3 +279,25 @@ class TestInvitations(object):
     	self.socketio.emit("set_invitation", request_data)
     	received = self.socketio.get_received()
     	assert received[2]["args"][0] == Response.InviteAccept
+
+    # Test set invitation False.
+    def test_set_invite_false(self):
+
+        newuser = Users(id = "newuser")
+        newuser.first_name = "New"
+        newuser.last_name = "User"
+        db.session.add(newuser)
+        db.session.commit()
+
+        new_token = newuser.generate_auth()
+        new_token = new_token.decode('ascii')
+
+        request_data = {
+            "token": new_token,
+            "invitation_id": 3,
+            "status": False
+        }
+
+        self.socketio.emit("set_invitation", request_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.InviteDeny

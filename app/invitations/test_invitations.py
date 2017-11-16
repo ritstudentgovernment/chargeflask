@@ -279,6 +279,7 @@ class TestInvitations(object):
     	self.socketio.emit("set_invitation", request_data)
     	received = self.socketio.get_received()
     	assert received[2]["args"][0] == Response.InviteAccept
+    
 
     # Test set invitation False.
     def test_set_invite_false(self):

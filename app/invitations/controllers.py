@@ -58,7 +58,7 @@ def send_invite(new_user, committee):
             committee_name= committee.title,
             committee_head= committee.head,
             time_stamp= time.time(),
-            invite_url= invitation.id
+            app_url= app.config['CLIENT_URL'] + str(invitation.id)
         )
 
         # Attach sglogo to email.
@@ -119,7 +119,7 @@ def send_request(new_user, committee):
             committee_head= committee.head,
             committee_name= committee.title,
             time_stamp= time.time(),
-            resquest_url= invitation.id
+            request_url= app.config['CLIENT_URL'] + str(invitation.id)
         )
 
         # Attach sglogo to email.

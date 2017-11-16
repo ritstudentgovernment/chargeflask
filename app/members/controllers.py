@@ -10,6 +10,7 @@ from app import socketio, db
 from app.committees.models import Committees
 from app.users.models import Users
 from app.members.members_response import Response
+from app.invitations.controllers import send_invite, send_request
 
 
 ##
@@ -54,10 +55,10 @@ def add_to_committee(user_data):
 	user = Users.verify_auth(user_data["token"])
 	committee = Committees.query.filter_by(id= user_data["committee_id"]).first()
 
-	new_user_id = user_data["user_id"] if "user_id" in user_data else user.id
+	new_user_id = user_data["user_id"] if user_data["user_id"] != "" else user.id
 	new_user = Users.query.filter_by(id= new_user_id).first()
 
-	if committee is not None and new_user is not None:
+	if committee is not None and new_user is not None and user is not None:
 
 		if committee.head == user.id or user.is_admin:
 
@@ -73,7 +74,13 @@ def add_to_committee(user_data):
 		else:
 
 			# Send request to join.
-			emit("add_member_committee", Response.RequestSent)
+			request_result = send_request(new_user, committee)
+			emit("add_member_committee", request_result)
+	elif committee is not None and user is not None:
+
+		# Send invitation to join.
+		invite_result = send_invite(new_user_id, committee)
+		emit("add_member_committee", invite_result)
 	else:
 		emit("add_member_committee", Response.UserDoesntExist)
 
@@ -109,6 +116,7 @@ def remove_from_committee(user_data):
 				get_committee_members(committee.id, broadcast = True)
 				emit("remove_member_committee", Response.RemoveSuccess)
 			except Exception as e:
+
 				db.session.rollback()
 				emit("remove_member_committee", Response.RemoveError)
 		else:

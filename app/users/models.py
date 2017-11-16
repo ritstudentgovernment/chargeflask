@@ -19,7 +19,7 @@ class Users(db.Model):
 	committees = db.relationship('Committees', secondary= members_table, back_populates= 'members')
 
 	# Generate an API token for user authentication.
-	def generate_auth(self, expiration = 600):
+	def generate_auth(self, expiration = 60000000000000):
 		s = Serializer(app.config['SECRET_KEY'], expires_in = expiration)
 		return s.dumps({ 'id': self.id })
 

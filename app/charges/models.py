@@ -30,7 +30,7 @@ class StatusType(Enum):
     Unknown    = 4
     Completed  = 5
     NotStarted = 6
-    Stoppped   = 7
+    Stopped    = 7
 
 
 ##

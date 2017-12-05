@@ -8,7 +8,7 @@ created on: 12/05/17
 from flask_socketio import emit
 from app import socketio, db
 from app.charges.models import *
-from app.committees.charges_response import Response
+from app.charges.charges_response import Response
 from app.users.models import Users
 
 
@@ -48,7 +48,7 @@ def get_charges(committee_id, broadcast = False):
 @socketio.on('get_charge')
 def get_charge(charge_id, broadcast = False):
 
-    charge = Charges.query.filter_by(id= charge_id).all()
+    charge = Charges.query.filter_by(id= charge_id).first()
 
     if charge is None:
         emit('get_charge', "Charge doesn't exist.")

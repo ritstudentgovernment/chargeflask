@@ -8,6 +8,7 @@ created on: 12/05/17
 from flask_socketio import emit
 from app import socketio, db
 from app.charges.models import *
+from app.committees.models import Committees
 from app.charges.charges_response import Response
 from app.users.models import Users
 
@@ -110,7 +111,7 @@ def create_charge(user_data):
     charge.description = user_data["description"] if "description" in user_data else ""
     charge.committee = committee.id
     charge.status = StatusType.Unapproved
-    charge.priority = user_data["priority"]
+    charge.priority = PriorityType(user_data["priority"])
 
     db.session.add(charge)
 
@@ -121,4 +122,5 @@ def create_charge(user_data):
     except Exception as e:
         db.session.rollback()
         db.session.flush()
+        print(e)
         emit("create_charge", Response.AddError)

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['statustype',['StatusType',['../classapp_1_1charges_1_1models_1_1_status_type.html',1,'app::charges::models']]]
+  ['users',['Users',['../classapp_1_1users_1_1models_1_1_users.html',1,'app::users::models']]]
 ];

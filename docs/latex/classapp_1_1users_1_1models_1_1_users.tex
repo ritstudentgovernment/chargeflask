@@ -1,0 +1,46 @@
+\hypertarget{classapp_1_1users_1_1models_1_1_users}{}\section{app.\+users.\+models.\+Users Class Reference}
+\label{classapp_1_1users_1_1models_1_1_users}\index{app.\+users.\+models.\+Users@{app.\+users.\+models.\+Users}}
+Inheritance diagram for app.\+users.\+models.\+Users\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classapp_1_1users_1_1models_1_1_users}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classapp_1_1users_1_1models_1_1_users_a461b688805d8e521361ef1faf181b1ae}\label{classapp_1_1users_1_1models_1_1_users_a461b688805d8e521361ef1faf181b1ae}} 
+def {\bfseries generate\+\_\+auth} (self, expiration=60000000000000)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classapp_1_1users_1_1models_1_1_users_a1f04be66797fe5e857214ea0f4ab465d}\label{classapp_1_1users_1_1models_1_1_users_a1f04be66797fe5e857214ea0f4ab465d}} 
+def {\bfseries verify\+\_\+auth} (token)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classapp_1_1users_1_1models_1_1_users_aa414198ce22897dcc0cb164e1e630f2e}\label{classapp_1_1users_1_1models_1_1_users_aa414198ce22897dcc0cb164e1e630f2e}} 
+{\bfseries id} = db.\+Column(db.\+String, primary\+\_\+key=True, unique= True)
+\item 
+\mbox{\Hypertarget{classapp_1_1users_1_1models_1_1_users_a8a38223ace2166e20b7a1bbbd5d2fc16}\label{classapp_1_1users_1_1models_1_1_users_a8a38223ace2166e20b7a1bbbd5d2fc16}} 
+{\bfseries first\+\_\+name} = db.\+Column(db.\+String(255))
+\item 
+\mbox{\Hypertarget{classapp_1_1users_1_1models_1_1_users_ab8b402194d4ae9decb5e5a1f7afb7c86}\label{classapp_1_1users_1_1models_1_1_users_ab8b402194d4ae9decb5e5a1f7afb7c86}} 
+{\bfseries last\+\_\+name} = db.\+Column(db.\+String(255))
+\item 
+\mbox{\Hypertarget{classapp_1_1users_1_1models_1_1_users_a44d0472206bce2b5904fa1263f4c0349}\label{classapp_1_1users_1_1models_1_1_users_a44d0472206bce2b5904fa1263f4c0349}} 
+{\bfseries email} = db.\+Column(db.\+String(255))
+\item 
+\mbox{\Hypertarget{classapp_1_1users_1_1models_1_1_users_aea04a132efcb104036de3ed2e33172fc}\label{classapp_1_1users_1_1models_1_1_users_aea04a132efcb104036de3ed2e33172fc}} 
+{\bfseries is\+\_\+admin} = db.\+Column(db.\+Boolean)
+\item 
+\mbox{\Hypertarget{classapp_1_1users_1_1models_1_1_users_a1fbbe2145bdfa8ec81cdf8ebc270514b}\label{classapp_1_1users_1_1models_1_1_users_a1fbbe2145bdfa8ec81cdf8ebc270514b}} 
+{\bfseries committees} = db.\+relationship(\textquotesingle{}\mbox{\hyperlink{classapp_1_1committees_1_1models_1_1_committees}{Committees}}\textquotesingle{}, secondary= members\+\_\+table, back\+\_\+populates= \textquotesingle{}members\textquotesingle{})
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+app/users/models.\+py\end{DoxyCompactItemize}

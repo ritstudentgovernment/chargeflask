@@ -1,0 +1,87 @@
+\hypertarget{namespaceapp_1_1charges_1_1controllers}{}\section{app.\+charges.\+controllers Namespace Reference}
+\label{namespaceapp_1_1charges_1_1controllers}\index{app.\+charges.\+controllers@{app.\+charges.\+controllers}}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceapp_1_1charges_1_1controllers_a30141a884cf96a10060458e66e74aca9}{get\+\_\+charges}} (committee\+\_\+id, broadcast=False)
+\begin{DoxyCompactList}\small\item\em Gets the charges for a specific committee. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceapp_1_1charges_1_1controllers_acde694db95925313933db3ab5ebc3ad0}{get\+\_\+charge}} (charge\+\_\+id, broadcast=False)
+\begin{DoxyCompactList}\small\item\em Gets a charge by its ID. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceapp_1_1charges_1_1controllers_a5376e63b039cd45d5faae35d1d50d55b}{create\+\_\+charge}} (user\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Creates a charge for a Committee. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\begin{DoxyVerb}filename: controllers.py
+description: Cronrollers for charges.
+created by: Omar De La Hoz (oed7416@rit.edu)
+created on: 12/05/17
+\end{DoxyVerb}
+ 
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{namespaceapp_1_1charges_1_1controllers_a5376e63b039cd45d5faae35d1d50d55b}\label{namespaceapp_1_1charges_1_1controllers_a5376e63b039cd45d5faae35d1d50d55b}} 
+\index{app\+::charges\+::controllers@{app\+::charges\+::controllers}!create\+\_\+charge@{create\+\_\+charge}}
+\index{create\+\_\+charge@{create\+\_\+charge}!app\+::charges\+::controllers@{app\+::charges\+::controllers}}
+\subsubsection{\texorpdfstring{create\+\_\+charge()}{create\_charge()}}
+{\footnotesize\ttfamily def app.\+charges.\+controllers.\+create\+\_\+charge (\begin{DoxyParamCaption}\item[{}]{user\+\_\+data }\end{DoxyParamCaption})}
+
+
+
+Creates a charge for a Committee. 
+
+A charge for a committee is created, the default status for the charge will be Unapproved, which means that the charge is a Charge Initiative.
+
+
+\begin{DoxyParams}{Parameters}
+{\em user\+\_\+data} & The user data to create a charge for a committee. This can include\+:\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyItemize}
+\item token (required)\+: Token of creator.
+\item title (required)\+: Charge title.
+\item committee (required)\+: The charge\textquotesingle{}s committee.
+\item priority (required)\+: The charge\textquotesingle{}s priority.
+\item description\+: The purpose of the charge.
+\item objectives\+: The objectives of a charge (Array).
+\end{DoxyItemize}
+
+\begin{DoxyReturn}{Returns}
+\{ description\+\_\+of\+\_\+the\+\_\+return\+\_\+value \} 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespaceapp_1_1charges_1_1controllers_acde694db95925313933db3ab5ebc3ad0}\label{namespaceapp_1_1charges_1_1controllers_acde694db95925313933db3ab5ebc3ad0}} 
+\index{app\+::charges\+::controllers@{app\+::charges\+::controllers}!get\+\_\+charge@{get\+\_\+charge}}
+\index{get\+\_\+charge@{get\+\_\+charge}!app\+::charges\+::controllers@{app\+::charges\+::controllers}}
+\subsubsection{\texorpdfstring{get\+\_\+charge()}{get\_charge()}}
+{\footnotesize\ttfamily def app.\+charges.\+controllers.\+get\+\_\+charge (\begin{DoxyParamCaption}\item[{}]{charge\+\_\+id,  }\item[{}]{broadcast = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Gets a charge by its ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em charge\+\_\+id} & The charge identifier \\
+\hline
+{\em broadcast} & Flag to broadcast list of charges to all users.\\
+\hline
+\end{DoxyParams}
+An objet containing the detailed view of a charge. \mbox{\Hypertarget{namespaceapp_1_1charges_1_1controllers_a30141a884cf96a10060458e66e74aca9}\label{namespaceapp_1_1charges_1_1controllers_a30141a884cf96a10060458e66e74aca9}} 
+\index{app\+::charges\+::controllers@{app\+::charges\+::controllers}!get\+\_\+charges@{get\+\_\+charges}}
+\index{get\+\_\+charges@{get\+\_\+charges}!app\+::charges\+::controllers@{app\+::charges\+::controllers}}
+\subsubsection{\texorpdfstring{get\+\_\+charges()}{get\_charges()}}
+{\footnotesize\ttfamily def app.\+charges.\+controllers.\+get\+\_\+charges (\begin{DoxyParamCaption}\item[{}]{committee\+\_\+id,  }\item[{}]{broadcast = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Gets the charges for a specific committee. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em committee\+\_\+id} & The committee identifier \\
+\hline
+{\em broadcast} & Flag to broadcast list of charges to all users.\\
+\hline
+\end{DoxyParams}
+Emits a list of charges for committee. 

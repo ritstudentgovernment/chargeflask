@@ -11,3 +11,5 @@ class Response():
 	UsrCommDontExist = {'error': 'User or committee do not exist.'}
 	InvalidTitle = {'error': 'Charge title is invalid.'}
 	InvalidPriority = {'error': 'Invalid priority level.'}
+	EditError = {'error': 'Couldn\'t edit charge.'}
+	EditSuccess = {'success': 'Charce successfully edited.'}

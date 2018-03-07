@@ -11,7 +11,8 @@ DEBUG = True
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 #Define the databae URI (Postgres)
-SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/chargetracker'
+SQLALCHEMY_DATABASE_URI = secrets.SQLALCHEMY_DATABASE_URI
+SQLALCHEMY_TEST_DATABASE_URI = secrets.SQLALCHEMY_TEST_DATABASE_URI
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 

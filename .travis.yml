@@ -9,6 +9,7 @@ install:
 - pip install codecov
 before_script:
 - psql -c 'CREATE DATABASE chargetrackertest;' -U postgres
+- psql -c 'CREATE DATABASE chargetracker;' -U postgres
 script:
 - py.test --cov=./app
 after_script: codecov

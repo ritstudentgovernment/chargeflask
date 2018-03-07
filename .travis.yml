@@ -8,8 +8,8 @@ install:
 - pip install coverage
 - pip install codecov
 before_script:
-- psql -c 'CREATE DATABASE chargetrackertest;' -U postgres
-- psql -c 'CREATE DATABASE chargetracker;' -U postgres
+- psql -c 'CREATE DATABASE tigertracker;' -U postgres
+- psql -c 'CREATE DATABASE tigertrackertest;' -U postgres
 script:
 - py.test --cov=./app
 after_script: codecov

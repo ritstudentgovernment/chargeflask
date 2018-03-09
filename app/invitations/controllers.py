@@ -80,7 +80,7 @@ def send_invite(new_user, committee):
 
 
 ##
-## @brief      Sends a request email to join a committee 
+## @brief      Sends a request email to join a committee
 ##             to the committee head.
 ##
 ## @param      new_user   The user to be added.
@@ -105,37 +105,37 @@ def send_request(new_user, committee):
         committee_id = committee.id,
         isInvite= False
     )
-    
+
     try:
 
         db.session.add(invitation)
-        db.session.commit() 
+        db.session.commit()
 
         msg = Message("Great news, " + new_user.id + " wants to join!")
         msg.sender = ("SG TigerTracker", "sgnoreply@rit.edu")
         msg.recipients = [committee.head + "@rit.edu"]
         msg.subtype = "related"
         msg.html = render_template(
-            'committee_request.html', 
+            'committee_request.html',
             user_name= new_user.id,
             committee_head= committee.head,
             committee_name= committee.title,
             time_stamp= time.time(),
             request_url= app.config['CLIENT_URL'] + str(invitation.id)
         )
+        if not app.config['TESTING']:
+            # Attach sglogo to email.
+            with app.open_resource("static/sg-logo.png") as fp:
+                msg.attach("static/sg-logo.png", "image/png", fp.read(), headers={'Content-ID': '<sg-logo>'})
 
-        # Attach sglogo to email.
-        with app.open_resource("static/sg-logo.png") as fp:
-            msg.attach("static/sg-logo.png", "image/png", fp.read(), headers={'Content-ID': '<sg-logo>'})
+            # Attach paw to email.
+            with app.open_resource("static/paw.png") as fp:
+                msg.attach("static/paw.png", "image/png", fp.read(), headers={'Content-ID': '<sg-paw>'})
 
-        # Attach paw to email.
-        with app.open_resource("static/paw.png") as fp:
-            msg.attach("static/paw.png", "image/png", fp.read(), headers={'Content-ID': '<sg-paw>'})
-
-        mail.send(msg)
+            mail.send(msg)
         return Response.RequestSent
     except Exception as e:
-        
+
         db.session.rollback()
         return Response.RequestError
 
@@ -144,7 +144,7 @@ def send_request(new_user, committee):
 ## @brief      Gets the data for a specific invitation/request.
 ##
 ## @param      user_data  The data to display a specific invitation.
-## 
+##
 ##                        Contains the keys (all required):
 ##                        - token: The token of the authenticated user
 ##                        - invitation_id: Id of invitation/request.
@@ -192,7 +192,7 @@ def get_invitation(user_data):
 ## @brief      Changes the status of an invitation/request.
 ##
 ## @param      user_data  The data to modify a specific invitation.
-## 
+##
 ##                        Contains the keys (all required):
 ##                        - token: The token of the authenticated user
 ##                        - invitation_id:  Id of invitation/request.
@@ -202,7 +202,7 @@ def get_invitation(user_data):
 ##
 @socketio.on('set_invitation')
 def set_invitation(user_data):
-    
+
     invitation = Invitations.query.filter_by(id = user_data["invitation_id"]).first()
     user = Users.verify_auth(user_data["token"])
 
@@ -245,7 +245,8 @@ def set_invitation(user_data):
         }
 
         from app.members.controllers import add_to_committee
-        add_to_committee(add_data)
+        returnValue = add_to_committee(add_data)
+        print("got here")
 
         emit("set_invitation", Response.InviteAccept)
     else:

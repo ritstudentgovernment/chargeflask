@@ -61,15 +61,17 @@ def send_invite(new_user, committee):
             app_url= app.config['CLIENT_URL'] + str(invitation.id)
         )
 
-        # Attach sglogo to email.
-        with app.open_resource("static/sg-logo.png") as fp:
-            msg.attach("static/sg-logo.png", "image/png", fp.read(), headers={'Content-ID': '<sg-logo>'})
+        if not app.config['TESTING']:
 
-        # Attach paw to email.
-        with app.open_resource("static/paw.png") as fp:
-            msg.attach("static/paw.png", "image/png", fp.read(), headers={'Content-ID': '<sg-paw>'})
+            # Attach sglogo to email.
+            with app.open_resource("static/sg-logo.png") as fp:
+                msg.attach("static/sg-logo.png", "image/png", fp.read(), headers={'Content-ID': '<sg-logo>'})
 
-        mail.send(msg)
+            # Attach paw to email.
+            with app.open_resource("static/paw.png") as fp:
+                msg.attach("static/paw.png", "image/png", fp.read(), headers={'Content-ID': '<sg-paw>'})
+
+            mail.send(msg)
         return Response.InviteSent
     except Exception as e:
 

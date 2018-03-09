@@ -156,18 +156,6 @@ class TestInvitations(object):
         assert received[0]["args"][0] == Response.InviteExists
 
 
-    # Test invitation request failed to add invitation.
-    @patch('app.invitations.models.Invitations')
-    @patch('app.mail.send')
-    def test_invite_exception(self, mock_obj, mock_mail):
-        self.user_data["token"] = self.admin_token
-        self.user_data["user_id"] = "willfail"
-        mock_obj.side_effect = Exception("Invitation couldn't be created.")
-        mock_mail.side_effect = Exception("Mail couldn't be sent.")
-        self.socketio.emit("add_member_committee", self.user_data)
-        received = self.socketio.get_received()
-        assert received[0]["args"][0] == Response.InviteError
-
 
     # Test view a request success.
     def test_get_invite_success(self):
@@ -321,7 +309,7 @@ class TestInvitations(object):
 
         self.socketio.emit("set_invitation", request_data)
         received = self.socketio.get_received()
-        assert received[0]["args"][0] == Response.InviteAccept
+        assert received[1]["args"][0] == Response.InviteAccept
 
 
     # Test set invitation False.

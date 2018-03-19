@@ -22,7 +22,7 @@ class TestCommittees(object):
     def setup_class(self):
 
         app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE'] = config.SQLALCHEMY_TEST_DATABASE_URI;
+        app.config['SQLALCHEMY_DATABASE'] = config.SQLALCHEMY_TEST_DATABASE_URI
 
         self.app = app.test_client()
 
@@ -32,13 +32,7 @@ class TestCommittees(object):
         self.db.create_all()
         self.socketio = socketio.test_client(app);
         self.socketio.connect()
-
-    @classmethod
-    def teardown_class(self):
-        self.db.session.close()
-        self.db.drop_all()
-        self.socketio.disconnect()
-
+        
     @classmethod
     def teardown(self):
         self.db.session.close()

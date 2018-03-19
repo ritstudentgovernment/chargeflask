@@ -68,21 +68,21 @@ def get_charge(charge_id, broadcast = False):
 
 ##
 ## @brief      Creates a charge for a Committee.
-## 
+##
 ## A charge for a committee is created, the default
 ## status for the charge will be Unapproved, which
 ## means that the charge is a Charge Initiative.
 ##
 ## @param      user_data  The user data to create a
 ##             charge for a committee. This can include:
-##             
+##
 ##             - token (required): Token of creator.
 ##             - title (required): Charge title.
 ##             - committee (required): The charge's committee.
 ##             - priority (required): The charge's priority.
 ##             - description: The purpose of the charge.
 ##             - objectives: The objectives of a charge (Array).
-##                        
+##
 ##
 ## @return     { description_of_the_return_value }
 ##

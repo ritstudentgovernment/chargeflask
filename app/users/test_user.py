@@ -7,6 +7,7 @@ created on: 09/12/17
 
 
 import pytest
+import config
 from mock import patch, MagicMock
 from pytest_mock import mocker
 from app import app, db, socketio
@@ -20,17 +21,21 @@ class TestUser(object):
 	@classmethod
 	def setup_class(self):
 		app.config['TESTING'] = True
+		app.config['SQLALCHEMY_DATABASE'] = config.SQLALCHEMY_TEST_DATABASE_URI
 		self.app = app.test_client()
-
 		self.db = db
 		self.db.session.close()
 		self.db.drop_all()
 		self.db.create_all()
-
 		self.socketio = socketio.test_client(app);
 		self.socketio.connect()
 
-	@classmethod 
+	@classmethod
+	def setup_method(self, method):
+		db.drop_all()
+		db.create_all()
+
+	@classmethod
 	def teardown_class(self):
 		self.socketio.disconnect()
 
@@ -93,15 +98,3 @@ class TestUser(object):
 		# Request token.
 		received = self.socketio.get_received()
 		token = received[0]["args"][0]["token"]
-
-
-
-
-	
-
-
-
-
-
-
-

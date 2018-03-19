@@ -1,0 +1,43 @@
+\hypertarget{classapp_1_1committees_1_1models_1_1_committees}{}\section{app.\+committees.\+models.\+Committees Class Reference}
+\label{classapp_1_1committees_1_1models_1_1_committees}\index{app.\+committees.\+models.\+Committees@{app.\+committees.\+models.\+Committees}}
+Inheritance diagram for app.\+committees.\+models.\+Committees\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classapp_1_1committees_1_1models_1_1_committees}
+\end{center}
+\end{figure}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classapp_1_1committees_1_1models_1_1_committees_a3c8aed6bb6326fc3ac1331e650416d69}\label{classapp_1_1committees_1_1models_1_1_committees_a3c8aed6bb6326fc3ac1331e650416d69}} 
+{\bfseries id} = db.\+Column(db.\+String(255), primary\+\_\+key=True, unique= True)
+\item 
+\mbox{\Hypertarget{classapp_1_1committees_1_1models_1_1_committees_a0f6412a1d895d1c00128c7a3cf858854}\label{classapp_1_1committees_1_1models_1_1_committees_a0f6412a1d895d1c00128c7a3cf858854}} 
+{\bfseries title} = db.\+Column(db.\+String(255))
+\item 
+\mbox{\Hypertarget{classapp_1_1committees_1_1models_1_1_committees_a675ede01d1ee8ccf632ed50c3e02316e}\label{classapp_1_1committees_1_1models_1_1_committees_a675ede01d1ee8ccf632ed50c3e02316e}} 
+{\bfseries description} = db.\+Column(db.\+String(255))
+\item 
+\mbox{\Hypertarget{classapp_1_1committees_1_1models_1_1_committees_aca3664e78077e6605292261f99d3a645}\label{classapp_1_1committees_1_1models_1_1_committees_aca3664e78077e6605292261f99d3a645}} 
+{\bfseries head} = db.\+Column(db.\+Foreign\+Key(\textquotesingle{}users.\+id\textquotesingle{}))
+\item 
+\mbox{\Hypertarget{classapp_1_1committees_1_1models_1_1_committees_a84dc8b2bf2e7ea7eb56e6131d536f26e}\label{classapp_1_1committees_1_1models_1_1_committees_a84dc8b2bf2e7ea7eb56e6131d536f26e}} 
+{\bfseries location} = db.\+Column(db.\+String(255))
+\item 
+\mbox{\Hypertarget{classapp_1_1committees_1_1models_1_1_committees_add56310ed392f463e3827ba5d67cd945}\label{classapp_1_1committees_1_1models_1_1_committees_add56310ed392f463e3827ba5d67cd945}} 
+{\bfseries committee\+\_\+img} = db.\+Column(db.\+Large\+Binary)
+\item 
+\mbox{\Hypertarget{classapp_1_1committees_1_1models_1_1_committees_afe19cf4d32d65902f27b2ee42736bb2a}\label{classapp_1_1committees_1_1models_1_1_committees_afe19cf4d32d65902f27b2ee42736bb2a}} 
+{\bfseries meeting\+\_\+time} = db.\+Column(db.\+String(4))
+\item 
+\mbox{\Hypertarget{classapp_1_1committees_1_1models_1_1_committees_a6c8539a3799bf491d821df4c8aa1ef8f}\label{classapp_1_1committees_1_1models_1_1_committees_a6c8539a3799bf491d821df4c8aa1ef8f}} 
+{\bfseries meeting\+\_\+day} = db.\+Column(db.\+Integer)
+\item 
+\mbox{\Hypertarget{classapp_1_1committees_1_1models_1_1_committees_add464a66ef18f66a6129516fb6a507e3}\label{classapp_1_1committees_1_1models_1_1_committees_add464a66ef18f66a6129516fb6a507e3}} 
+{\bfseries enabled} = db.\+Column(db.\+Boolean, default= True)
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+app/committees/models.\+py\end{DoxyCompactItemize}

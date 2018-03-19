@@ -1,0 +1,56 @@
+\hypertarget{classapp_1_1actions_1_1models_1_1_actions}{}\section{app.\+actions.\+models.\+Actions Class Reference}
+\label{classapp_1_1actions_1_1models_1_1_actions}\index{app.\+actions.\+models.\+Actions@{app.\+actions.\+models.\+Actions}}
+Inheritance diagram for app.\+actions.\+models.\+Actions\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classapp_1_1actions_1_1models_1_1_actions}
+\end{center}
+\end{figure}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classapp_1_1actions_1_1models_1_1_actions_ad5102328491b54276b56c31d1f222f0c}\label{classapp_1_1actions_1_1models_1_1_actions_ad5102328491b54276b56c31d1f222f0c}} 
+{\bfseries id} = db.\+Column(db.\+Integer, primary\+\_\+key=True, unique=True)
+\item 
+\mbox{\Hypertarget{classapp_1_1actions_1_1models_1_1_actions_ad48ceed71ad831eb40c92f862d829c79}\label{classapp_1_1actions_1_1models_1_1_actions_ad48ceed71ad831eb40c92f862d829c79}} 
+{\bfseries title} = db.\+Column(db.\+String(255))
+\item 
+\mbox{\Hypertarget{classapp_1_1actions_1_1models_1_1_actions_a88fa96fe039a99483fa24bdcef4d3326}\label{classapp_1_1actions_1_1models_1_1_actions_a88fa96fe039a99483fa24bdcef4d3326}} 
+{\bfseries description} = db.\+Column(db.\+String)
+\item 
+\mbox{\Hypertarget{classapp_1_1actions_1_1models_1_1_actions_a9a101aea1ba6da349bdfc95385c02f67}\label{classapp_1_1actions_1_1models_1_1_actions_a9a101aea1ba6da349bdfc95385c02f67}} 
+{\bfseries assigned\+\_\+to} = db.\+Column(db.\+Foreign\+Key(\textquotesingle{}users.\+id\textquotesingle{}))
+\item 
+\mbox{\Hypertarget{classapp_1_1actions_1_1models_1_1_actions_a3e430c7d110773a03facd6e7284a6512}\label{classapp_1_1actions_1_1models_1_1_actions_a3e430c7d110773a03facd6e7284a6512}} 
+{\bfseries charge} = db.\+Column(db.\+Foreign\+Key(\textquotesingle{}charges.\+id\textquotesingle{}))
+\item 
+\mbox{\Hypertarget{classapp_1_1actions_1_1models_1_1_actions_af92e45f68009abdced71b9bb2f71a71b}\label{classapp_1_1actions_1_1models_1_1_actions_af92e45f68009abdced71b9bb2f71a71b}} 
+{\bfseries notes} = db.\+relationship(\textquotesingle{}\mbox{\hyperlink{classapp_1_1notes_1_1models_1_1_notes}{Notes}}\textquotesingle{}, backref=\textquotesingle{}actions\textquotesingle{}, lazy=\textquotesingle{}dynamic\textquotesingle{})
+\item 
+\mbox{\Hypertarget{classapp_1_1actions_1_1models_1_1_actions_a5d28004f4e6b3a38da8d522b3a984070}\label{classapp_1_1actions_1_1models_1_1_actions_a5d28004f4e6b3a38da8d522b3a984070}} 
+{\bfseries created\+\_\+at} = db.\+Column(db.\+Date\+Time, server\+\_\+default= db.\+func.\+now())
+\item 
+list {\bfseries status\+\_\+types}
+\item 
+\mbox{\Hypertarget{classapp_1_1actions_1_1models_1_1_actions_aec5f6fed0f4febda1e7dd3ac45af5026}\label{classapp_1_1actions_1_1models_1_1_actions_aec5f6fed0f4febda1e7dd3ac45af5026}} 
+{\bfseries action\+\_\+status} = db.\+Column(Choice\+Type(status\+\_\+types))
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{classapp_1_1actions_1_1models_1_1_actions_aff60531385518f41d1aec340f0e2cf2f}\label{classapp_1_1actions_1_1models_1_1_actions_aff60531385518f41d1aec340f0e2cf2f}} 
+\index{app\+::actions\+::models\+::\+Actions@{app\+::actions\+::models\+::\+Actions}!status\+\_\+types@{status\+\_\+types}}
+\index{status\+\_\+types@{status\+\_\+types}!app\+::actions\+::models\+::\+Actions@{app\+::actions\+::models\+::\+Actions}}
+\subsubsection{\texorpdfstring{status\+\_\+types}{status\_types}}
+{\footnotesize\ttfamily list app.\+actions.\+models.\+Actions.\+status\+\_\+types\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+=  [(0, \textcolor{stringliteral}{"In Progress"}), (1, \textcolor{stringliteral}{"Indefinite"}), (2, \textcolor{stringliteral}{"Unknown"}),
+                    (3, \textcolor{stringliteral}{"Completed"}), (4, \textcolor{stringliteral}{"Stopped"}), (5, \textcolor{stringliteral}{"Incomplete"}), (6, \textcolor{stringliteral}{"On Hold"})]
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+app/actions/models.\+py\end{DoxyCompactItemize}

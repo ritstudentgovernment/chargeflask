@@ -7,7 +7,7 @@ created on: 10/12/17
 
 class Response():
 	ComDoesntExist = {'error': "Committee doesn't exist."}
-	AddSuccess = {'success': 'Committee succesfully created'}
+	AddSuccess = {'success': 'Committee succesfully created.'}
 	AddError = {"error": "Committee couldn't be created, check data."}
 	AddExists = {'error': "Committee already exists."}
 	EditSuccess = {"success": "Committee succesfully edited."}

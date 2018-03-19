@@ -24,7 +24,7 @@ mail = Mail(app)
 from app.users.controllers import *
 from app.committees.controllers import *
 from app.members.controllers import *
-from app.charges.models import Charges
+from app.charges.controllers import *
 from app.actions.models import Actions
 from app.notes.models import Notes
 db.create_all()

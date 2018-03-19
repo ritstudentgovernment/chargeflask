@@ -1,0 +1,86 @@
+\hypertarget{namespaceapp_1_1members_1_1controllers}{}\section{app.\+members.\+controllers Namespace Reference}
+\label{namespaceapp_1_1members_1_1controllers}\index{app.\+members.\+controllers@{app.\+members.\+controllers}}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceapp_1_1members_1_1controllers_aa5952443267e1c04b380a533a4e4ea7f}{get\+\_\+committee\+\_\+members}} (committee\+\_\+id, broadcast=False)
+\begin{DoxyCompactList}\small\item\em Gets the committee members for a specific committee. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceapp_1_1members_1_1controllers_a8999f221f1849949968973c73a4ff409}{add\+\_\+to\+\_\+committee}} (user\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Adds to committee. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceapp_1_1members_1_1controllers_a76a53b46e9b3997b5fac18a82280fce2}{remove\+\_\+from\+\_\+committee}} (user\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Removes a member from a committee. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\begin{DoxyVerb}filename: controllers.py
+description: Controllers for Memberships.
+created by: Omar De La Hoz (oed7416@rit.edu)
+created on: 09/26/17
+\end{DoxyVerb}
+ 
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{namespaceapp_1_1members_1_1controllers_a8999f221f1849949968973c73a4ff409}\label{namespaceapp_1_1members_1_1controllers_a8999f221f1849949968973c73a4ff409}} 
+\index{app\+::members\+::controllers@{app\+::members\+::controllers}!add\+\_\+to\+\_\+committee@{add\+\_\+to\+\_\+committee}}
+\index{add\+\_\+to\+\_\+committee@{add\+\_\+to\+\_\+committee}!app\+::members\+::controllers@{app\+::members\+::controllers}}
+\subsubsection{\texorpdfstring{add\+\_\+to\+\_\+committee()}{add\_to\_committee()}}
+{\footnotesize\ttfamily def app.\+members.\+controllers.\+add\+\_\+to\+\_\+committee (\begin{DoxyParamCaption}\item[{}]{user\+\_\+data }\end{DoxyParamCaption})}
+
+
+
+Adds to committee. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em user\+\_\+data} & Contains the data needed to add a member to a committee. This can contain\+:\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyItemize}
+\item token (required)\+: Token of current user.
+\item user\+\_\+id (optional)\+: Id of user to be added, if not specified, current user will be added to committee.
+\item committee\+\_\+id (required)\+: Id of committee.
+\end{DoxyItemize}
+
+Any other parameters will be ignored.
+
+Success if user could be added to committee, error if not. \mbox{\Hypertarget{namespaceapp_1_1members_1_1controllers_aa5952443267e1c04b380a533a4e4ea7f}\label{namespaceapp_1_1members_1_1controllers_aa5952443267e1c04b380a533a4e4ea7f}} 
+\index{app\+::members\+::controllers@{app\+::members\+::controllers}!get\+\_\+committee\+\_\+members@{get\+\_\+committee\+\_\+members}}
+\index{get\+\_\+committee\+\_\+members@{get\+\_\+committee\+\_\+members}!app\+::members\+::controllers@{app\+::members\+::controllers}}
+\subsubsection{\texorpdfstring{get\+\_\+committee\+\_\+members()}{get\_committee\_members()}}
+{\footnotesize\ttfamily def app.\+members.\+controllers.\+get\+\_\+committee\+\_\+members (\begin{DoxyParamCaption}\item[{}]{committee\+\_\+id,  }\item[{}]{broadcast = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Gets the committee members for a specific committee. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em committee\+\_\+id} & The id for the committee.\\
+\hline
+\end{DoxyParams}
+Array with committee members. \mbox{\Hypertarget{namespaceapp_1_1members_1_1controllers_a76a53b46e9b3997b5fac18a82280fce2}\label{namespaceapp_1_1members_1_1controllers_a76a53b46e9b3997b5fac18a82280fce2}} 
+\index{app\+::members\+::controllers@{app\+::members\+::controllers}!remove\+\_\+from\+\_\+committee@{remove\+\_\+from\+\_\+committee}}
+\index{remove\+\_\+from\+\_\+committee@{remove\+\_\+from\+\_\+committee}!app\+::members\+::controllers@{app\+::members\+::controllers}}
+\subsubsection{\texorpdfstring{remove\+\_\+from\+\_\+committee()}{remove\_from\_committee()}}
+{\footnotesize\ttfamily def app.\+members.\+controllers.\+remove\+\_\+from\+\_\+committee (\begin{DoxyParamCaption}\item[{}]{user\+\_\+data }\end{DoxyParamCaption})}
+
+
+
+Removes a member from a committee. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em user\+\_\+data} & Contains the data needed to add a member to a committee. This can contain\+:\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyItemize}
+\item token (required)\+: Token of current user.
+\item user\+\_\+id (required)\+: Id of user to be deleted.
+\item committee\+\_\+id (required)\+: Id of committee.
+\end{DoxyItemize}
+
+Any other parameters will be ignored.
+
+Success if member could be deleted, error if not. 

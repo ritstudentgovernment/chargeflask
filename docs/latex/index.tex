@@ -1,0 +1,83 @@
+This is the documentation for the \href{https://github.com/ritstudentgovernment/chargeflask}{\tt Charge\+Tracker} backend, the front-\/end documentation is located in the \href{https://github.com/ritstudentgovernment/chargevue}{\tt chargevue} repository.\hypertarget{index_gettingstarted}{}\section{Getting Started}\label{index_gettingstarted}
+This guide contains step-\/by-\/step instructions on how to install the server, how to get data to the backend and how to get data from it.\hypertarget{index_serverinstall}{}\subsection{Server Installation}\label{index_serverinstall}
+Prerequisites\+: Flask and Postgre\+S\+QL
+\begin{DoxyEnumerate}
+\item Pull project from \href{https://github.com/ritstudentgovernment/chargeflask}{\tt this repo}.
+\item Install and create \href{http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/}{\tt virtual environment}.
+\item Create a database for the project.
+\item Specify the {\ttfamily S\+Q\+L\+A\+L\+C\+H\+E\+M\+Y\+\_\+\+D\+A\+T\+A\+B\+A\+S\+E\+\_\+\+U\+RI} in the {\ttfamily config.\+py} file with the database path.
+\item Activate virtual environment.
+\item Execute {\ttfamily pip install -\/r requirements.\+txt}
+\item Complete the {\ttfamily secrets.\+py} file (Contact System Administrator for relevant data).
+\item Run {\ttfamily python run.\+py}
+\end{DoxyEnumerate}\hypertarget{index_testutil}{}\subsection{Testing Utilities}\label{index_testutil}
+In some cases, you\textquotesingle{}d like to test if your backend code is properly working. But, because you don\textquotesingle{}t have access to a frontend yet, it might seem quite hard to test your code while developing it. For this, it\textquotesingle{}s recommended to install in your machine a tool called \href{https://electronjs.org/apps/socket-io-tester}{\tt Socket.\+io tester}, which let\textquotesingle{}s so send and retrieve data from the backend without the need of a developed client.\hypertarget{index_datamani}{}\section{Data Manipulation}\label{index_datamani}
+Charge\+Tracker uses a technology called \href{https://socket.io/}{\tt Socket\+IO}, which basically provides real-\/time communication between two different machines through Web\+Sockets. Socket\+IO allows the easy implementation of Web\+Sockets cross-\/platform and cross-\/language. For example, the \href{https://github.com/ritstudentgovernment/chargevue}{\tt chargevue} client for this application, uses the native Javascript Socket\+IO library, meanwhile this backend utilizes the Flask library \href{https://flask-socketio.readthedocs.io/en/latest/}{\tt Flask-\/\+Socket\+IO}. Bellow, there are a few detailed examples on how to request or submit data to and from the Charge\+Tracker backend.\hypertarget{index_submitData}{}\subsection{Submitting Data}\label{index_submitData}
+Submitting data to Charge\+Tracker is very simple. Basically, inside each the controllers file of each module there are certain functions that {\itshape listen} for data in a specific event name. For example, inside the controllers of the Committees module, we can see the {\ttfamily get\+\_\+commitees} method\+:
+
+
+\begin{DoxyCode}
+##
+##  Gets list of all committees.
+##
+##@param broadcast  Flag to broadcast list of committees to all users.
+##
+## @emit       Emits a list of committees.
+##
+@socketio.on('get\_committees')
+def get\_committees(broadcast = False):
+    committees = Committees.query.filter\_by(enabled = True).all()
+    comm\_ser = [\{"id": c.id, "title": c.title\} for c in committees]
+    emit("get\_committees", comm\_ser, broadcast= broadcast)
+\end{DoxyCode}
+
+
+We can see that every method inside the controllers start with the line `.on('$<$event\+\_\+name$>$\textquotesingle{}){\ttfamily , this basically means that once the server listens to a request in that specific event, the function under it will be executed. In this case, when a person sends a request with the event}get\+\_\+committees\`{} to the server, the function get\+\_\+committees will be executed.
+
+To send this request to the server, the request can be written in the following way\+:
+
+
+\begin{DoxyCode}
+// Javascript Socket-IO request.
+var socket = io.connect('http://localhost:5000');
+socket.emit('get\_committees');
+\end{DoxyCode}
+
+
+We can also notice that the {\ttfamily get\+\_\+committees} method gets the parameter broadcast, which basically broadcasts the list of committees to all the users listening, to send data to the server, you can send a J\+S\+ON object or a String.
+
+For example, if I want my request of committees to be broadcasted to everyone that is listening to {\ttfamily get\+\_\+committees}, I can do\+:
+
+
+\begin{DoxyCode}
+// Javascript Socket-IO request with params.
+var socket = io.connect('http://localhost:5000');
+socket.emit('get\_committees', true);
+\end{DoxyCode}
+\hypertarget{index_retrieveData}{}\subsection{Retrieving Data}\label{index_retrieveData}
+{\bfseries I\+M\+P\+O\+R\+T\+A\+NT}\+: Also take into account that to receive this data, you have to be listening to the events with the same event\+\_\+name. So, if I\textquotesingle{}d like to receive all the committees, you have to listen to the {\ttfamily get\+\_\+committees} event name\+:
+
+
+\begin{DoxyCode}
+// Javascript Socket-IO listener.
+var socket = io.connect('http://localhost:5000');
+socket.on('get\_committees', function(data)\{
+    console.log(data);
+\});
+\end{DoxyCode}
+
+
+These channels are always open, so you only have to listen to data once and you\textquotesingle{}ll keep receiving new data as it becomes available, without having to create new requests!\hypertarget{index_modulestruct}{}\section{Module Structure}\label{index_modulestruct}
+To keep the source code organized, each functionality of \href{https://github.com/ritstudentgovernment/chargeflask}{\tt Charge\+Tracker} is divided in different modules. For example, the Users module contains everything relevant to user authentication, meanwhile the Committees module has everything relevant to manipulating committees.
+
+Every module in Charge\+Tracker contains the following files\+:
+
+
+\begin{DoxyItemize}
+\item {\ttfamily \+\_\+\+\_\+init\+\_\+\+\_\+.\+py} (required)\+: This file is usually empty, its necessary to create a Python module.
+\item {\ttfamily models.\+py} (required)\+: This file contains the model declaration of the module itself. This usually contains the S\+Q\+L\+Alchemy model declaration.
+\item {\ttfamily controllers.\+py} (required)\+: This file contains all the relevant controllers to manipulate data on the server, please refer to the examples on the \href{#datamani}{\tt Data Manipulation} section.
+\item {\ttfamily test\+\_\+$<$module\+\_\+name$>$.py} (required)\+: This file contains all the test cases for this specific module, please refer to the examples on the Testing Modules section.
+\item {\ttfamily $<$module\+\_\+name$>$\+\_\+response.\+py}\+: Instead of hard-\/coding response strings inside the controllers class, all the response strings specific to this module are located inside this class. In the future, this will allow the easy implementation of \href{https://github.com/ritstudentgovernment/chargeflask}{\tt Charge\+Tracker} in a different language.
+\end{DoxyItemize}\hypertarget{index_unittests}{}\section{Unit Tests and Code Coverage}\label{index_unittests}
+Every module in this project is unit tested to check if the code implemented is fully functional. For unit testing, Charge\+Tracker utilizes the Python testing utility, \href{https://docs.pytest.org}{\tt pytest}. To execute your unit tests locally, you can simply run the command\+: {\ttfamily py.\+test -\/-\/cov=./app}, if you want to generate a html coverage report, the same command can be executed with the flag {\ttfamily -\/-\/cov-\/report=html}. For code coverage, this project uses \href{https://travis-ci.org/}{\tt Travis\+CI} and \href{https://codecov.io/gh}{\tt Codecov}, the Travis\+CI .yml file is located under {\ttfamily .travis.\+yml}, which basically contains the configuration that Travis needs to execute your code. Also, take into account that Travis\+CI needs a copy of your {\ttfamily secrets.\+py} to execute your code, this is done by encrypting your secrets file with Travis\+CI. 

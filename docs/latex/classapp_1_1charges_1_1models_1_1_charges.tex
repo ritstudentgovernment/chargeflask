@@ -1,0 +1,63 @@
+\hypertarget{classapp_1_1charges_1_1models_1_1_charges}{}\section{app.\+charges.\+models.\+Charges Class Reference}
+\label{classapp_1_1charges_1_1models_1_1_charges}\index{app.\+charges.\+models.\+Charges@{app.\+charges.\+models.\+Charges}}
+
+
+\mbox{\hyperlink{classapp_1_1charges_1_1models_1_1_charges}{Charges}} Model.  
+
+
+Inheritance diagram for app.\+charges.\+models.\+Charges\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classapp_1_1charges_1_1models_1_1_charges}
+\end{center}
+\end{figure}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_af54c5389801c1e7324e70d0a7db11f8f}\label{classapp_1_1charges_1_1models_1_1_charges_af54c5389801c1e7324e70d0a7db11f8f}} 
+{\bfseries id} = db.\+Column(db.\+Integer, primary\+\_\+key=True, unique=True)
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_ad8ff9ab21dbae0938197587fc91a3691}\label{classapp_1_1charges_1_1models_1_1_charges_ad8ff9ab21dbae0938197587fc91a3691}} 
+{\bfseries title} = db.\+Column(db.\+String(255))
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_a3d780746fc539306a6b7e0e0f356817e}\label{classapp_1_1charges_1_1models_1_1_charges_a3d780746fc539306a6b7e0e0f356817e}} 
+{\bfseries author} = db.\+Column(db.\+Foreign\+Key(\textquotesingle{}users.\+id\textquotesingle{}))
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_a696c6a3c010790e2d1337280957c6c39}\label{classapp_1_1charges_1_1models_1_1_charges_a696c6a3c010790e2d1337280957c6c39}} 
+{\bfseries description} = db.\+Column(db.\+String(255))
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_ab21d1af035df05a55e970114df4b8770}\label{classapp_1_1charges_1_1models_1_1_charges_ab21d1af035df05a55e970114df4b8770}} 
+{\bfseries created\+\_\+at} = db.\+Column(db.\+Date\+Time, server\+\_\+default= db.\+func.\+now())
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_adc62a6fe0f9cb978149336a372ac4b7a}\label{classapp_1_1charges_1_1models_1_1_charges_adc62a6fe0f9cb978149336a372ac4b7a}} 
+{\bfseries committee} = db.\+Column(db.\+Foreign\+Key(\textquotesingle{}committees.\+id\textquotesingle{}))
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_a45c59f4fe0b91b2cb598d24d0cfa72be}\label{classapp_1_1charges_1_1models_1_1_charges_a45c59f4fe0b91b2cb598d24d0cfa72be}} 
+{\bfseries objectives} = db.\+Column(A\+R\+R\+AY(db.\+String))
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_a51f84a59feeef986ef40e4e43d235aa6}\label{classapp_1_1charges_1_1models_1_1_charges_a51f84a59feeef986ef40e4e43d235aa6}} 
+{\bfseries schedule} = db.\+Column(A\+R\+R\+AY(db.\+String))
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_aa8690b0bc424efdd2c84baf90eace781}\label{classapp_1_1charges_1_1models_1_1_charges_aa8690b0bc424efdd2c84baf90eace781}} 
+{\bfseries actions} = db.\+relationship(\textquotesingle{}\mbox{\hyperlink{classapp_1_1actions_1_1models_1_1_actions}{Actions}}\textquotesingle{}, backref=\textquotesingle{}charges\textquotesingle{}, lazy=\textquotesingle{}dynamic\textquotesingle{})
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_a6ea2d6327d1d6cb5dc016ccede60a788}\label{classapp_1_1charges_1_1models_1_1_charges_a6ea2d6327d1d6cb5dc016ccede60a788}} 
+{\bfseries resources} = db.\+Column(A\+R\+R\+AY(db.\+String))
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_ac530dc2cb9ecf1edd5cb12e7aa3eb06e}\label{classapp_1_1charges_1_1models_1_1_charges_ac530dc2cb9ecf1edd5cb12e7aa3eb06e}} 
+{\bfseries stakeholders} = db.\+Column(A\+R\+R\+AY(db.\+String))
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_a8d32e2c6e5fb5995c2bce2e3ec9ceb69}\label{classapp_1_1charges_1_1models_1_1_charges_a8d32e2c6e5fb5995c2bce2e3ec9ceb69}} 
+{\bfseries priority} = db.\+Column(Choice\+Type(\mbox{\hyperlink{classapp_1_1charges_1_1models_1_1_priority_type}{Priority\+Type}}))
+\item 
+\mbox{\Hypertarget{classapp_1_1charges_1_1models_1_1_charges_aacd52559619e5d6a20706e2ac269e41b}\label{classapp_1_1charges_1_1models_1_1_charges_aacd52559619e5d6a20706e2ac269e41b}} 
+{\bfseries status} = db.\+Column(Choice\+Type(\mbox{\hyperlink{classapp_1_1charges_1_1models_1_1_status_type}{Status\+Type}}))
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\mbox{\hyperlink{classapp_1_1charges_1_1models_1_1_charges}{Charges}} Model. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+app/charges/models.\+py\end{DoxyCompactItemize}

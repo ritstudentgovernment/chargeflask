@@ -1,0 +1,31 @@
+\hypertarget{classapp_1_1notes_1_1models_1_1_notes}{}\section{app.\+notes.\+models.\+Notes Class Reference}
+\label{classapp_1_1notes_1_1models_1_1_notes}\index{app.\+notes.\+models.\+Notes@{app.\+notes.\+models.\+Notes}}
+Inheritance diagram for app.\+notes.\+models.\+Notes\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classapp_1_1notes_1_1models_1_1_notes}
+\end{center}
+\end{figure}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classapp_1_1notes_1_1models_1_1_notes_a0fab9aac35077f9e24ebb1558b0da526}\label{classapp_1_1notes_1_1models_1_1_notes_a0fab9aac35077f9e24ebb1558b0da526}} 
+{\bfseries id} = db.\+Column(db.\+Integer, primary\+\_\+key=True, unique=True)
+\item 
+\mbox{\Hypertarget{classapp_1_1notes_1_1models_1_1_notes_a5b5ee3dc95f1e974c9aa5acce203857a}\label{classapp_1_1notes_1_1models_1_1_notes_a5b5ee3dc95f1e974c9aa5acce203857a}} 
+{\bfseries description} = db.\+Column(db.\+String)
+\item 
+\mbox{\Hypertarget{classapp_1_1notes_1_1models_1_1_notes_a4dc95eb68a8fd9abc1f04f7546b23a93}\label{classapp_1_1notes_1_1models_1_1_notes_a4dc95eb68a8fd9abc1f04f7546b23a93}} 
+{\bfseries author} = db.\+Column(db.\+Foreign\+Key(\textquotesingle{}users.\+id\textquotesingle{}))
+\item 
+\mbox{\Hypertarget{classapp_1_1notes_1_1models_1_1_notes_aae6677abfdc262d93bf1ef05788499cd}\label{classapp_1_1notes_1_1models_1_1_notes_aae6677abfdc262d93bf1ef05788499cd}} 
+{\bfseries action} = db.\+Column(db.\+Foreign\+Key(\textquotesingle{}actions.\+id\textquotesingle{}))
+\item 
+\mbox{\Hypertarget{classapp_1_1notes_1_1models_1_1_notes_a2df3204b65153089aecdfc9710f35f1c}\label{classapp_1_1notes_1_1models_1_1_notes_a2df3204b65153089aecdfc9710f35f1c}} 
+{\bfseries created\+\_\+at} = db.\+Column(db.\+Date\+Time, server\+\_\+default= db.\+func.\+now())
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+app/notes/models.\+py\end{DoxyCompactItemize}

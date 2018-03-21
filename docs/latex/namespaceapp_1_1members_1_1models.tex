@@ -1,0 +1,31 @@
+\hypertarget{namespaceapp_1_1members_1_1models}{}\section{app.\+members.\+models Namespace Reference}
+\label{namespaceapp_1_1members_1_1models}\index{app.\+members.\+models@{app.\+members.\+models}}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries members\+\_\+table}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\begin{DoxyVerb}filename: members.py
+description: Model for Members in Committees.
+created by: Omar De La Hoz (oed7416@rit.edu)
+created on: 08/31/17
+\end{DoxyVerb}
+ 
+
+\subsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceapp_1_1members_1_1models_a0a54bcbc283b250025eed1d910e0071d}\label{namespaceapp_1_1members_1_1models_a0a54bcbc283b250025eed1d910e0071d}} 
+\index{app\+::members\+::models@{app\+::members\+::models}!members\+\_\+table@{members\+\_\+table}}
+\index{members\+\_\+table@{members\+\_\+table}!app\+::members\+::models@{app\+::members\+::models}}
+\subsubsection{\texorpdfstring{members\+\_\+table}{members\_table}}
+{\footnotesize\ttfamily app.\+members.\+models.\+members\+\_\+table}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+1 =  db.Table(\textcolor{stringliteral}{'members'}, db.Model.metadata,
+2     db.Column(\textcolor{stringliteral}{'committees\_id'}, db.String(255), db.ForeignKey(\textcolor{stringliteral}{'committees.id'})),
+3     db.Column(\textcolor{stringliteral}{'users\_id'}, db.String(255), db.ForeignKey(\textcolor{stringliteral}{'users.id'}))
+4 )
+\end{DoxyCode}

@@ -1,0 +1,104 @@
+\hypertarget{namespaceapp_1_1invitations_1_1controllers}{}\section{app.\+invitations.\+controllers Namespace Reference}
+\label{namespaceapp_1_1invitations_1_1controllers}\index{app.\+invitations.\+controllers@{app.\+invitations.\+controllers}}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceapp_1_1invitations_1_1controllers_ac9d6b41452741ffa83fd04f7f935dd4b}{send\+\_\+invite}} (new\+\_\+user, committee)
+\begin{DoxyCompactList}\small\item\em Sends an invitation to join a committee when user doesn\textquotesingle{}t exist in Charge\+Tracker. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceapp_1_1invitations_1_1controllers_a41239d3a243861515a5a14599333ad0e}{send\+\_\+request}} (new\+\_\+user, committee)
+\begin{DoxyCompactList}\small\item\em Sends a request email to join a committee to the committee head. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceapp_1_1invitations_1_1controllers_aec05f77e1fcf926dfc05239d1272e3e3}{get\+\_\+invitation}} (user\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Gets the data for a specific invitation/request. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceapp_1_1invitations_1_1controllers_a5bc2456a1f82dd8c9c0942dfdfbda935}{set\+\_\+invitation}} (user\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Changes the status of an invitation/request. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\begin{DoxyVerb}filename: controllers.py
+description: Controllers for email invitations.
+created by: Omar De La Hoz (oed7416@rit.edu)
+created on: 10/12/17
+\end{DoxyVerb}
+ 
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{namespaceapp_1_1invitations_1_1controllers_aec05f77e1fcf926dfc05239d1272e3e3}\label{namespaceapp_1_1invitations_1_1controllers_aec05f77e1fcf926dfc05239d1272e3e3}} 
+\index{app\+::invitations\+::controllers@{app\+::invitations\+::controllers}!get\+\_\+invitation@{get\+\_\+invitation}}
+\index{get\+\_\+invitation@{get\+\_\+invitation}!app\+::invitations\+::controllers@{app\+::invitations\+::controllers}}
+\subsubsection{\texorpdfstring{get\+\_\+invitation()}{get\_invitation()}}
+{\footnotesize\ttfamily def app.\+invitations.\+controllers.\+get\+\_\+invitation (\begin{DoxyParamCaption}\item[{}]{user\+\_\+data }\end{DoxyParamCaption})}
+
+
+
+Gets the data for a specific invitation/request. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em user\+\_\+data} & The data to display a specific invitation, contains the keys (all required)\+:
+\begin{DoxyItemize}
+\item token\+: The token of the authenticated user
+\item invitation\+\_\+id\+: Id of invitation/request.
+\end{DoxyItemize}\\
+\hline
+\end{DoxyParams}
+Data of a specific invitation or errors. \mbox{\Hypertarget{namespaceapp_1_1invitations_1_1controllers_ac9d6b41452741ffa83fd04f7f935dd4b}\label{namespaceapp_1_1invitations_1_1controllers_ac9d6b41452741ffa83fd04f7f935dd4b}} 
+\index{app\+::invitations\+::controllers@{app\+::invitations\+::controllers}!send\+\_\+invite@{send\+\_\+invite}}
+\index{send\+\_\+invite@{send\+\_\+invite}!app\+::invitations\+::controllers@{app\+::invitations\+::controllers}}
+\subsubsection{\texorpdfstring{send\+\_\+invite()}{send\_invite()}}
+{\footnotesize\ttfamily def app.\+invitations.\+controllers.\+send\+\_\+invite (\begin{DoxyParamCaption}\item[{}]{new\+\_\+user,  }\item[{}]{committee }\end{DoxyParamCaption})}
+
+
+
+Sends an invitation to join a committee when user doesn\textquotesingle{}t exist in Charge\+Tracker. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em committee} & The committee to join. \\
+\hline
+{\em new\+\_\+user} & The user to be invited.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if email sent, False if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespaceapp_1_1invitations_1_1controllers_a41239d3a243861515a5a14599333ad0e}\label{namespaceapp_1_1invitations_1_1controllers_a41239d3a243861515a5a14599333ad0e}} 
+\index{app\+::invitations\+::controllers@{app\+::invitations\+::controllers}!send\+\_\+request@{send\+\_\+request}}
+\index{send\+\_\+request@{send\+\_\+request}!app\+::invitations\+::controllers@{app\+::invitations\+::controllers}}
+\subsubsection{\texorpdfstring{send\+\_\+request()}{send\_request()}}
+{\footnotesize\ttfamily def app.\+invitations.\+controllers.\+send\+\_\+request (\begin{DoxyParamCaption}\item[{}]{new\+\_\+user,  }\item[{}]{committee }\end{DoxyParamCaption})}
+
+
+
+Sends a request email to join a committee to the committee head. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em new\+\_\+user} & The user to be added. \\
+\hline
+{\em committee} & The committee to join.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if email sent, False if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespaceapp_1_1invitations_1_1controllers_a5bc2456a1f82dd8c9c0942dfdfbda935}\label{namespaceapp_1_1invitations_1_1controllers_a5bc2456a1f82dd8c9c0942dfdfbda935}} 
+\index{app\+::invitations\+::controllers@{app\+::invitations\+::controllers}!set\+\_\+invitation@{set\+\_\+invitation}}
+\index{set\+\_\+invitation@{set\+\_\+invitation}!app\+::invitations\+::controllers@{app\+::invitations\+::controllers}}
+\subsubsection{\texorpdfstring{set\+\_\+invitation()}{set\_invitation()}}
+{\footnotesize\ttfamily def app.\+invitations.\+controllers.\+set\+\_\+invitation (\begin{DoxyParamCaption}\item[{}]{user\+\_\+data }\end{DoxyParamCaption})}
+
+
+
+Changes the status of an invitation/request. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em user\+\_\+data} & The data to modify a specific invitation, contains the keys (all required)\+:
+\begin{DoxyItemize}
+\item token\+: The token of the authenticated user
+\item invitation\+\_\+id\+: Id of invitation/request.
+\item status\+: True to accept, false otherwise.
+\end{DoxyItemize}\\
+\hline
+\end{DoxyParams}
+User\+Added, Invite\+Deleted or errors. 

@@ -143,9 +143,8 @@ def send_request(new_user, committee):
 ##
 ## @brief      Gets the data for a specific invitation/request.
 ##
-## @param      user_data  The data to display a specific invitation.
-##
-##                        Contains the keys (all required):
+## @param      user_data  The data to display a specific invitation,
+##                        contains the keys (all required):
 ##                        - token: The token of the authenticated user
 ##                        - invitation_id: Id of invitation/request.
 ##
@@ -191,9 +190,8 @@ def get_invitation(user_data):
 ##
 ## @brief      Changes the status of an invitation/request.
 ##
-## @param      user_data  The data to modify a specific invitation.
-##
-##                        Contains the keys (all required):
+## @param      user_data  The data to modify a specific invitation,
+##                        contains the keys (all required):
 ##                        - token: The token of the authenticated user
 ##                        - invitation_id:  Id of invitation/request.
 ##                        - status: True to accept, false otherwise.

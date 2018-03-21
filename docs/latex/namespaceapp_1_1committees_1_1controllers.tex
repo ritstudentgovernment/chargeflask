@@ -1,0 +1,124 @@
+\hypertarget{namespaceapp_1_1committees_1_1controllers}{}\section{app.\+committees.\+controllers Namespace Reference}
+\label{namespaceapp_1_1committees_1_1controllers}\index{app.\+committees.\+controllers@{app.\+committees.\+controllers}}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceapp_1_1committees_1_1controllers_a13062ac4ed1e797b5015282df19f6171}{get\+\_\+committees}} (broadcast=False)
+\begin{DoxyCompactList}\small\item\em Gets list of all committees. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceapp_1_1committees_1_1controllers_a3583100187139ebf105b562438e9bf7a}{get\+\_\+permissions}} (user\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Get a users permissions for a specific committee. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceapp_1_1committees_1_1controllers_a85c678c4dc91cc884de63f2a7d8b3b52}{get\+\_\+committee}} (committee\+\_\+id, broadcast=False)
+\begin{DoxyCompactList}\small\item\em Gets a specific committee by its id. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceapp_1_1committees_1_1controllers_a43d988c96e26843d6b0fa328bfbfca5e}{create\+\_\+committee}} (user\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Creates a committee. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceapp_1_1committees_1_1controllers_a1be50a5e100f6e73441b49cda5fef1e0}{edit\+\_\+committee}} (user\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Edits a committee (Must be admin user) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\begin{DoxyVerb}filename: controllers.py
+description: Controller for Committees.
+created by: Omar De La Hoz (oed7416@rit.edu)
+created on: 09/19/17
+\end{DoxyVerb}
+ 
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{namespaceapp_1_1committees_1_1controllers_a43d988c96e26843d6b0fa328bfbfca5e}\label{namespaceapp_1_1committees_1_1controllers_a43d988c96e26843d6b0fa328bfbfca5e}} 
+\index{app\+::committees\+::controllers@{app\+::committees\+::controllers}!create\+\_\+committee@{create\+\_\+committee}}
+\index{create\+\_\+committee@{create\+\_\+committee}!app\+::committees\+::controllers@{app\+::committees\+::controllers}}
+\subsubsection{\texorpdfstring{create\+\_\+committee()}{create\_committee()}}
+{\footnotesize\ttfamily def app.\+committees.\+controllers.\+create\+\_\+committee (\begin{DoxyParamCaption}\item[{}]{user\+\_\+data }\end{DoxyParamCaption})}
+
+
+
+Creates a committee. 
+
+(Must be admin user)
+
+
+\begin{DoxyParams}{Parameters}
+{\em user\+\_\+data} & The user data required to create a committee. \begin{DoxyVerb}                    All the following fields are required:
+
+                    token - Token of the current user
+                    title - The title of the new committee 
+                    head - Head of committee (Must exist in app)
+                    description - Description of new committee
+                    location - Location of committee meetings
+                    meeting_time - Time of committee meeting
+                    meeting_day - Day of the week of committee meeting
+\end{DoxyVerb}
+\\
+\hline
+\end{DoxyParams}
+Emits a success message if created, error if not. \mbox{\Hypertarget{namespaceapp_1_1committees_1_1controllers_a1be50a5e100f6e73441b49cda5fef1e0}\label{namespaceapp_1_1committees_1_1controllers_a1be50a5e100f6e73441b49cda5fef1e0}} 
+\index{app\+::committees\+::controllers@{app\+::committees\+::controllers}!edit\+\_\+committee@{edit\+\_\+committee}}
+\index{edit\+\_\+committee@{edit\+\_\+committee}!app\+::committees\+::controllers@{app\+::committees\+::controllers}}
+\subsubsection{\texorpdfstring{edit\+\_\+committee()}{edit\_committee()}}
+{\footnotesize\ttfamily def app.\+committees.\+controllers.\+edit\+\_\+committee (\begin{DoxyParamCaption}\item[{}]{user\+\_\+data }\end{DoxyParamCaption})}
+
+
+
+Edits a committee (Must be admin user) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em user\+\_\+data} & The user data to edit a committee, must contain a token and any of the following fields\+:
+\begin{DoxyItemize}
+\item description
+\item head
+\item location
+\item meeting\+\_\+time
+\item enabled
+\item committee\+\_\+img
+\end{DoxyItemize}\\
+\hline
+\end{DoxyParams}
+Any other field will be ignored.
+
+Emits a success mesage if edited, errors otherwise. \mbox{\Hypertarget{namespaceapp_1_1committees_1_1controllers_a85c678c4dc91cc884de63f2a7d8b3b52}\label{namespaceapp_1_1committees_1_1controllers_a85c678c4dc91cc884de63f2a7d8b3b52}} 
+\index{app\+::committees\+::controllers@{app\+::committees\+::controllers}!get\+\_\+committee@{get\+\_\+committee}}
+\index{get\+\_\+committee@{get\+\_\+committee}!app\+::committees\+::controllers@{app\+::committees\+::controllers}}
+\subsubsection{\texorpdfstring{get\+\_\+committee()}{get\_committee()}}
+{\footnotesize\ttfamily def app.\+committees.\+controllers.\+get\+\_\+committee (\begin{DoxyParamCaption}\item[{}]{committee\+\_\+id,  }\item[{}]{broadcast = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Gets a specific committee by its id. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em committee\+\_\+id} & The committee identifier\\
+\hline
+\end{DoxyParams}
+An object containing a detailed view of a specific committee. \mbox{\Hypertarget{namespaceapp_1_1committees_1_1controllers_a13062ac4ed1e797b5015282df19f6171}\label{namespaceapp_1_1committees_1_1controllers_a13062ac4ed1e797b5015282df19f6171}} 
+\index{app\+::committees\+::controllers@{app\+::committees\+::controllers}!get\+\_\+committees@{get\+\_\+committees}}
+\index{get\+\_\+committees@{get\+\_\+committees}!app\+::committees\+::controllers@{app\+::committees\+::controllers}}
+\subsubsection{\texorpdfstring{get\+\_\+committees()}{get\_committees()}}
+{\footnotesize\ttfamily def app.\+committees.\+controllers.\+get\+\_\+committees (\begin{DoxyParamCaption}\item[{}]{broadcast = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Gets list of all committees. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em broadcast} & Flag to broadcast list of committees to all users.\\
+\hline
+\end{DoxyParams}
+Emits a list of committees. \mbox{\Hypertarget{namespaceapp_1_1committees_1_1controllers_a3583100187139ebf105b562438e9bf7a}\label{namespaceapp_1_1committees_1_1controllers_a3583100187139ebf105b562438e9bf7a}} 
+\index{app\+::committees\+::controllers@{app\+::committees\+::controllers}!get\+\_\+permissions@{get\+\_\+permissions}}
+\index{get\+\_\+permissions@{get\+\_\+permissions}!app\+::committees\+::controllers@{app\+::committees\+::controllers}}
+\subsubsection{\texorpdfstring{get\+\_\+permissions()}{get\_permissions()}}
+{\footnotesize\ttfamily def app.\+committees.\+controllers.\+get\+\_\+permissions (\begin{DoxyParamCaption}\item[{}]{user\+\_\+data }\end{DoxyParamCaption})}
+
+
+
+Get a users permissions for a specific committee. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em user\+\_\+data} & Contains user \char`\"{}token\char`\"{} (optional) and \char`\"{}id\char`\"{} of committee. (required.)\\
+\hline
+\end{DoxyParams}
+Integer describing the user permissions. 

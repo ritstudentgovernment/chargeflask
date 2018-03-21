@@ -1,0 +1,31 @@
+\hypertarget{classapp_1_1invitations_1_1models_1_1_invitations}{}\section{app.\+invitations.\+models.\+Invitations Class Reference}
+\label{classapp_1_1invitations_1_1models_1_1_invitations}\index{app.\+invitations.\+models.\+Invitations@{app.\+invitations.\+models.\+Invitations}}
+Inheritance diagram for app.\+invitations.\+models.\+Invitations\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classapp_1_1invitations_1_1models_1_1_invitations}
+\end{center}
+\end{figure}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classapp_1_1invitations_1_1models_1_1_invitations_a0eb799f4087b5e18e7522b37a23066a1}\label{classapp_1_1invitations_1_1models_1_1_invitations_a0eb799f4087b5e18e7522b37a23066a1}} 
+{\bfseries id} = db.\+Column(db.\+Integer, primary\+\_\+key=True, autoincrement=True)
+\item 
+\mbox{\Hypertarget{classapp_1_1invitations_1_1models_1_1_invitations_aaa400730c8069ee7cfc19e4cd7dd85fb}\label{classapp_1_1invitations_1_1models_1_1_invitations_aaa400730c8069ee7cfc19e4cd7dd85fb}} 
+{\bfseries user\+\_\+name} = db.\+Column(db.\+String(255))
+\item 
+\mbox{\Hypertarget{classapp_1_1invitations_1_1models_1_1_invitations_a85959c0ec548e4fb861e8d760df34b80}\label{classapp_1_1invitations_1_1models_1_1_invitations_a85959c0ec548e4fb861e8d760df34b80}} 
+{\bfseries committee\+\_\+id} = db.\+Column(db.\+Foreign\+Key(\textquotesingle{}committees.\+id\textquotesingle{}))
+\item 
+\mbox{\Hypertarget{classapp_1_1invitations_1_1models_1_1_invitations_ad1460453cca5b85ddf1fd094359919c0}\label{classapp_1_1invitations_1_1models_1_1_invitations_ad1460453cca5b85ddf1fd094359919c0}} 
+{\bfseries committee} = db.\+relationship(\mbox{\hyperlink{classapp_1_1committees_1_1models_1_1_committees}{Committees}})
+\item 
+\mbox{\Hypertarget{classapp_1_1invitations_1_1models_1_1_invitations_a0458a9aa33004e79c5043090009da9f5}\label{classapp_1_1invitations_1_1models_1_1_invitations_a0458a9aa33004e79c5043090009da9f5}} 
+{\bfseries is\+Invite} = db.\+Column(db.\+Boolean)
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+app/invitations/models.\+py\end{DoxyCompactItemize}

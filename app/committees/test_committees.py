@@ -34,7 +34,9 @@ class TestCommittees(object):
         self.socketio.connect()
 
     def setup_method(self, method):
-        self.db.create_all()
+        db.drop_all()
+        db.create_all()
+        
         self.test_committee_dict = {
             "id" : "testcommittee",
             "title": "testcommittee",

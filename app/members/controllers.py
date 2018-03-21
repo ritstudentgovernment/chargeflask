@@ -39,14 +39,14 @@ def get_committee_members(committee_id, broadcast= False):
 ##
 ## @param      user_data  Contains the data needed to add a member to a committee.
 ##                        This can contain:
-##                        
+##
 ##                        - token (required): Token of current user.
 ##                        - user_id (optional): Id of user to be added, if not
-##                          specified, current user will be added to committee. 
+##                          specified, current user will be added to committee.
 ##                        - committee_id (required): Id of committee.
-##                          
+##
 ##                        Any other parameters will be ignored.
-##                          
+##
 ## @emit     Success if user could be added to committee, error if not.
 ##
 @socketio.on('add_member_committee')
@@ -63,7 +63,7 @@ def add_to_committee(user_data):
 		if committee.head == user.id or user.is_admin:
 
 			try:
-				
+
 				committee.members.append(new_user)
 				get_committee_members(committee.id, broadcast = True)
 				emit("add_member_committee", Response.AddSuccess)
@@ -90,13 +90,13 @@ def add_to_committee(user_data):
 ##
 ## @param      user_data  Contains the data needed to add a member to a committee.
 ##                        This can contain:
-##                        
+##
 ##                        - token (required): Token of current user.
 ##                        - user_id (required): Id of user to be deleted.
 ##                        - committee_id (required): Id of committee.
-##                          
+##
 ##                        Any other parameters will be ignored.
-##                          
+##
 ## @emit       Success if member could be deleted, error if not.
 ##
 @socketio.on('remove_member_committee')
@@ -105,7 +105,6 @@ def remove_from_committee(user_data):
 	user = Users.verify_auth(user_data["token"])
 	committee = Committees.query.filter_by(id= user_data["committee_id"]).first()
 	delete_user = Users.query.filter_by(id= user_data["user_id"]).first()
-
 	if committee is not None and delete_user is not None:
 
 		if committee.head == user.id or user.is_admin:

@@ -6,6 +6,7 @@ created on: 10/05/17
 """
 
 import pytest
+import config
 from app import app, db, socketio
 from mock import patch, MagicMock
 from app.users.models import Users
@@ -18,6 +19,7 @@ class TestMembers(object):
 	@classmethod
 	def setup_class(self):
 		app.config['TESTING'] = True
+		app.config['SQLALCHEMY_DATABASE'] = config.SQLALCHEMY_TEST_DATABASE_URI
 		self.app = app.test_client()
 		self.db = db
 		self.db.session.close()
@@ -26,53 +28,53 @@ class TestMembers(object):
 		self.socketio = socketio.test_client(app);
 		self.socketio.connect()
 
+
+	def setup_method(self, method):
+		self.db.drop_all()
+		self.db.create_all()
+
+		self.user_data = {"user_id": "testuser",
+						  "committee_id": "testcommittee"}
+
 		# Create admin user for tests.
-		admin = Users(id = "adminuser")
-		admin.first_name = "Admin"
-		admin.last_name = "User"
-		admin.email = "adminuser@test.com"
-		admin.is_admin = True
-		db.session.add(admin)
-		db.session.commit()
-		self.admin_token = admin.generate_auth()
+		self.admin = Users(id = "adminuser")
+		self.admin.first_name = "Admin"
+		self.admin.last_name = "User"
+		self.admin.email = "adminuser@test.com"
+		self.admin.is_admin = True
+		self.db.session.add(self.admin)
+		self.db.session.commit()
+		self.admin_token = self.admin.generate_auth()
 		self.admin_token = self.admin_token.decode('ascii')
 
 		# Create normal user for tests.
-		user = Users(id = "testuser")
-		user.first_name = "Test1"
-		user.last_name = "User"
-		user.email = "testuser@test.com"
-		user.is_admin = False
-		db.session.add(user)
+		self.user = Users(id = "testuser")
+		self.user.first_name = "Test1"
+		self.user.last_name = "User"
+		self.user.email = "testuser@test.com"
+		self.user.is_admin = False
+		db.session.add(self.user)
 		db.session.commit()
-		self.user_token = user.generate_auth()
+		self.user_token = self.user.generate_auth()
 		self.user_token = self.user_token.decode('ascii')
 
 		# Create a test committee.
-		committee = Committees(id = "testcommittee")
-		committee.title = "Test Committee"
-		committee.description = "Test Description"
-		committee.location = "Test Location"
-		committee.meeting_time = "1200"
-		committee.meeting_day = 2
-		committee.head = "adminuser"
-		db.session.add(committee)
+		self.committee = Committees(id = "testcommittee")
+		self.committee.title = "Test Committee"
+		self.committee.description = "Test Description"
+		self.committee.location = "Test Location"
+		self.committee.meeting_time = "1200"
+		self.committee.meeting_day = 2
+		self.committee.head = "adminuser"
+		self.committee.members.append(self.user)
+		db.session.add(self.committee)
 		db.session.commit()
-
 
 	@classmethod
 	def teardown_class(self):
 		self.db.session.close()
 		self.db.drop_all()
-
-	
-	def setup_method(self, method):
-		self.user_data = {"user_id": "testuser",
-						  "committee_id": "testcommittee"}
-
-	
-	def teardown_method(self, method):
-		self.user_data = None
+		self.socketio.disconnect()
 
 
 	# Test get members of nonexistent committee.
@@ -86,8 +88,9 @@ class TestMembers(object):
 	def test_get_committee_members(self):
 		self.socketio.emit("get_members", "testcommittee")
 		received = self.socketio.get_received()
-		assert received[0]["args"][0] == {"committee_id": "testcommittee", "members":[]}
-
+		commitee = received[0]["args"][0]
+		assert commitee["committee_id"] == "testcommittee"
+		assert (commitee["members"] == [{'id': 'testuser'}])
 
 	# Test add to committee when admin.
 	def test_add_to_committee(self):
@@ -117,8 +120,10 @@ class TestMembers(object):
 	# Test remove member not admin
 	def test_remove_member_admin(self):
 		self.user_data["token"] = self.admin_token
+		self.user_data["user_id"] = self.user.id
 		self.socketio.emit("remove_member_committee", self.user_data)
 		received = self.socketio.get_received()
+		print (received)
 		assert received[1]["args"][0] == Response.RemoveSuccess
 
 

@@ -29,11 +29,6 @@ class TestMembers(object):
 		self.socketio.connect()
 
 
-	@classmethod
-	def teardown(self):
-		self.db.session.close()
-		self.db.drop_all()
-
 	def setup_method(self, method):
 		self.db.drop_all()
 		self.db.create_all()
@@ -79,10 +74,7 @@ class TestMembers(object):
 	def teardown_class(self):
 		self.db.session.close()
 		self.db.drop_all()
-
-	def teardown_method(self, method):
-		self.user_data = None
-		self.db.drop_all()
+		self.socketio.close()
 
 
 	# Test get members of nonexistent committee.

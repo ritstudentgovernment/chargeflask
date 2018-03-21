@@ -37,6 +37,8 @@ class TestUser(object):
 
 	@classmethod
 	def teardown_class(self):
+		self.db.session.close()
+		self.db.drop_all()
 		self.socketio.disconnect()
 
 	# Test empty login.

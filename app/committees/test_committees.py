@@ -32,12 +32,6 @@ class TestCommittees(object):
         self.db.create_all()
         self.socketio = socketio.test_client(app);
         self.socketio.connect()
-        
-    @classmethod
-    def teardown(self):
-        self.db.session.close()
-        self.db.drop_all()
-
 
     def setup_method(self, method):
         self.db.create_all()
@@ -88,6 +82,12 @@ class TestCommittees(object):
         db.session.expunge(self.test_committee)
 
         db.session.commit()
+
+    @classmethod
+    def teardown_class(self):
+        self.db.session.close()
+        self.db.drop_all()
+        self.socketio.disconnect()
 
     # Test when an admin creates a committee.
     def test_admin_create_committee(self):

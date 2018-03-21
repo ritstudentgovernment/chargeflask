@@ -30,13 +30,6 @@ class TestInvitations(object):
         self.socketio = socketio.test_client(app);
         self.socketio.connect()
 
-
-
-    @classmethod
-    def teardown_method(self):
-        db.drop_all()
-        db.session.close()
-
     def setup_method(self, method):
         db.drop_all()
         db.create_all()

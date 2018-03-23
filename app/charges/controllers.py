@@ -52,7 +52,7 @@ def get_charge(charge_id, broadcast = False):
     charge = Charges.query.filter_by(id= charge_id).first()
 
     if charge is None:
-        emit('get_charge', "Charge doesn't exist.")
+        emit('get_charge', Response.UsrChargeDontExist)
         return;
 
     charge_info = {
@@ -93,7 +93,7 @@ def create_charge(user_data):
     committee = Committees.query.filter_by(id = user_data["committee"]).first()
 
     if committee is None or user is None:
-        emit("create_charge", Response.UsrCommDontExist)
+        emit("create_charge", Response.UsrChargeDontExist)
         return;
 
     if "title" not in user_data:
@@ -122,7 +122,6 @@ def create_charge(user_data):
     except Exception as e:
         db.session.rollback()
         db.session.flush()
-        print(e)
         emit("create_charge", Response.AddError)
 
 ##
@@ -148,27 +147,31 @@ def create_charge(user_data):
 def edit_charge(user_data):
     user = Users.verify_auth(user_data["token"]) if "token" in user_data else None
     charge = Charges.query.filter_by(id = user_data["charge"]).first()
+    committee = Committees.query.filter_by(id = charge.committee).first()
 
-    if committee is not None and user is not None:
-        if (charge.committee.head == user.id or user.is_admin):
+    if charge is not None and user is not None:
+        if (committee.head == user.id or user.is_admin):
 
             for key in user_data:
                 if (key == "description" or key == "title" or key == "priority" or
                     key == "status"):
-                    setattr(committee, key, user_data[key])
+                    setattr(charge, key, user_data[key])
 
             try:
                 db.session.commit()
                 # Send successful edit notification to user
                 # and broadcast charge changes.
                 emit("edit_charge", Response.EditSuccess)
-                get_charge(carge.id, broadcast= True)
-                get_charges(broadcast= True)
+
+                get_charge(charge.id, broadcast= True)
+                get_charges(charge.committee, broadcast= True)
 
             except Exception as e:
                 db.session.rollback()
+                print(e)
                 emit("edit_charge", Response.EditError)
         else:
+            print("ok")
             emit('edit_charge', Response.EditError)
     else:
-        emit('edit_charge', Response.UsrCommDontExist)
+        emit('edit_charge', Response.UsrChargeDontExist)

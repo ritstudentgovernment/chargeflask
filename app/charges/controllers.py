@@ -168,10 +168,8 @@ def edit_charge(user_data):
 
             except Exception as e:
                 db.session.rollback()
-                print(e)
                 emit("edit_charge", Response.EditError)
         else:
-            print("ok")
             emit('edit_charge', Response.EditError)
     else:
         emit('edit_charge', Response.UsrChargeDontExist)

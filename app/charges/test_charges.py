@@ -6,6 +6,7 @@ created on: 03/21/18
 """
 
 import pytest
+import config
 from app import app, db, socketio
 from app.charges.charges_response import Response
 from app.committees.models import Committees
@@ -13,30 +14,32 @@ from app.users.permissions import Permissions
 from app.charges.models import *
 from app.users.models import Users
 from flask_socketio import SocketIOTestClient
+from flask_sqlalchemy import SQLAlchemy
 
 class TestCharges(object):
 
     @classmethod
     def setup_class(self):
-        app.config['TESTING'] = True
         self.app = app.test_client()
-        self.db = db
-        self.db.session.close()
-        self.db.drop_all()
-        self.db.create_all()
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_TEST_DATABASE_URI
+        db = SQLAlchemy(app)
+        db.session.close()
+        db.drop_all()
+        db.create_all()
         self.socketio = socketio.test_client(app);
         self.socketio.connect()
 
     @classmethod
     def teardown_class(self):
-        self.db.session.close()
-        self.db.drop_all()
+        db.session.close()
+        db.drop_all()
         self.socketio.disconnect()
 
     @classmethod
     def setup_method(self, method):
-        self.db.drop_all()
-        self.db.create_all()
+        db.drop_all()
+        db.create_all()
 
         # Create admin user for tests.
         admin = Users(id = "adminuser")

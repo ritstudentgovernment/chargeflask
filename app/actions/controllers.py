@@ -13,6 +13,52 @@ from app.committees.models import *
 from app.actions.actions_response import Response
 from app.users.models import Users
 
+## @brief      Gets the actions for a specific charge.
+##
+## @param      charge_id     The charge identifier
+## @param      broadcast     Flag to broadcast list of actions
+##                           to all users.
+##
+## @emit       Emits a list of actions for charge.
+##
+@socketio.on('get_actions')
+def get_actions(charge_id, broadcast = False):
+    actions = Actions.query.filter_by(charge= charge_id).all()
+    action_ser = [
+                    {
+                        "id": c.id,
+                        "title": c.title,
+                        "description": c.description
+                    }
+                    for c in actions
+                ]
+    emit("get_actions", action_ser, broadcast = broadcast)
+
+
+## @brief      Gets the action with a specific id
+##
+## @param      action_id     The action identifier
+## @param      broadcast     Flag to broadcast list of actions
+##                           to all users.
+##
+## @emit       Emits a list of actions for charge.
+##
+@socketio.on('get_action')
+def get_actions(action_id):
+    action = Actions.query.filter_by(id= action_id).first()
+
+    if action is None:
+        emit("get_action", Response.ActionDoesntExist)
+        return
+
+
+    action_info = {
+        "id": action.id,
+        "title": action.title,
+        "description": action.description,
+    }
+
+    emit("get_action", action_info)
 
 ##
 ## @brief      Creates an action for a Charge.

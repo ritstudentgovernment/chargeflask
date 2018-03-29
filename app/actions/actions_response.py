@@ -11,3 +11,4 @@ class Response():
 	UsrChargeDontExist = {'error': 'User or Charge do not exist.'}
 	UsrNotAuth = {'error': "User is not authorized to create an Action"}
 	ActionDoesntExist = {'error': "Action doesn't exist"}
+	

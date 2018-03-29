@@ -168,3 +168,35 @@ class TestAction(object):
         self.socketio.emit('create_action', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.UsrChargeDontExist
+
+    # Test creating an action without a valid charge
+    def test_get_actions(self):
+        response_data = [{
+            'id': 10,
+            'title': 'Test Action',
+            'description': 'Test Description'
+        }]
+
+        self.socketio.emit('get_actions', 10)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == response_data
+
+    # Test creating an action without a valid charge
+    def test_get_actions_invalude_id(self):
+        response_data = []
+
+        self.socketio.emit('get_actions', 99999)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == response_data
+
+    # Test creating an action without a valid charge
+    def test_get_actions_invalude_id(self):
+        response_data = {
+            'id': 10,
+            'title': 'Test Action',
+            'description': 'Test Description'
+        }
+
+        self.socketio.emit('get_action', 10)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == response_data

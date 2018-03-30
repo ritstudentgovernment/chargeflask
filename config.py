@@ -11,8 +11,8 @@ DEBUG = True
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 #Define the databae URI (Postgres)
-SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', '')
-SQLALCHEMY_TEST_DATABASE_URI = os.environ.get('SQLALCHEMY_TEST_DATABASE_URI', '')
+SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', 'postgres://localhost/tigertracker')
+SQLALCHEMY_TEST_DATABASE_URI = os.environ.get('SQLALCHEMY_TEST_DATABASE_URI', 'postgres://localhost/tigertrackertest')
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 

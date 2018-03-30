@@ -44,7 +44,7 @@ def get_actions(charge_id, broadcast = False):
 ## @emit       Emits a list of actions for charge.
 ##
 @socketio.on('get_action')
-def get_actions(action_id):
+def get_action(action_id, broadcast = False):
     action = Actions.query.filter_by(id= action_id).first()
 
     if action is None:
@@ -58,7 +58,7 @@ def get_actions(action_id):
         "description": action.description,
     }
 
-    emit("get_action", action_info)
+    emit("get_action", action_info, broadcast = broadcast)
 
 ##
 ## @brief      Creates an action for a Charge.
@@ -115,3 +115,53 @@ def create_action(user_data):
         db.session.rollback()
         db.session.flush()
         emit("create_action", Response.AddError)
+
+##
+## @brief      Edits an action (Must be the committee head or admin)
+##
+## @param      user_data  The user data to edit a committee, must
+##                        contain a token and any of the following
+##                        fields:
+##                        - title
+##                        - description
+##                        - assigned_to
+##                        - charge
+##                        - status
+##
+##                        Any other field will be ignored.
+##
+##
+@socketio.on('edit_action')
+def edit_action(user_data):
+    user = Users.verify_auth(user_data["token"])
+    action = Actions.query.filter_by(id = user_data["id"]).first()
+
+    if action is None:
+        emit('edit_action', Response.ActionDoesntExist)
+        return
+
+    charge = Charges.query.filter_by(id = action.charge).first()
+    committee = Committees.query.filter_by(id = charge.committee).first()
+
+    if not user.is_admin and not user.id == committee.head:
+        emit('edit_action', Response.UsrNotAuth)
+        return
+
+    for key in user_data:
+
+        if (key == "title" or key == "description" or key == "assigned_to" or
+            key == "charge" or key == "status"):
+            setattr(action, key, user_data[key])
+
+    try:
+        db.session.commit()
+
+        # Send successful edit notification to user
+        # and broadcast charge changes.
+        emit("edit_action", Response.EditSuccess)
+        get_action(committee.id, broadcast= True)
+        get_actions(charge.id,broadcast= True)
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        emit("edit_committee", Response.EditError)

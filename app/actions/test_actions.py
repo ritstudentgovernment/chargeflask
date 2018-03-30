@@ -62,6 +62,19 @@ class TestAction(object):
         self.user_token = user.generate_auth()
         self.user_token = self.user_token.decode('ascii')
 
+
+        # Create normal user for tests.
+        user2 = Users(id = "testuser2")
+        user2.first_name = "Test2"
+        user2.last_name = "User2"
+        user2.email = "testuser2@test.com"
+        user2.is_admin = False
+        db.session.add(user2)
+        db.session.commit()
+        self.test_user2 = user2
+        self.user_token2 = user2.generate_auth()
+        self.user_token2 = self.user_token2.decode('ascii')
+
         self.test_committee_dict = {
             "id" : "testcommittee",
             "title": "testcommittee",
@@ -190,7 +203,7 @@ class TestAction(object):
         assert received[0]["args"][0] == response_data
 
     # Test creating an action without a valid charge
-    def test_get_actions_invalude_id(self):
+    def test_get_action(self):
         response_data = {
             'id': 10,
             'title': 'Test Action',
@@ -200,3 +213,31 @@ class TestAction(object):
         self.socketio.emit('get_action', 10)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == response_data
+
+    # Test editing an action
+    def test_edit_action(self):
+        user_data = {
+            'id': 10,
+            'token': self.admin_token,
+            'title': 'Test Action 10',
+        }
+
+        self.socketio.emit('edit_action', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.EditSuccess
+        action = Actions.query.filter_by(id = 10).first()
+        assert action.title == 'Test Action 10'
+
+    # Test editing an action when not authorized to do so
+    def test_edit_action_not_auth(self):
+        user_data = {
+            'id': 10,
+            'token': self.user_token2,
+            'title': 'Test Action 10',
+        }
+
+        self.socketio.emit('edit_action', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.UsrNotAuth
+        action = Actions.query.filter_by(id = 10).first()
+        assert action.title == 'Test Action'

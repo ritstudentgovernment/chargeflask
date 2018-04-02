@@ -202,18 +202,6 @@ class TestAction(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == response_data
 
-    # Test creating an action without a valid charge
-    def test_get_action(self):
-        response_data = {
-            'id': 10,
-            'title': 'Test Action',
-            'description': 'Test Description'
-        }
-
-        self.socketio.emit('get_action', 10)
-        received = self.socketio.get_received()
-        assert received[0]["args"][0] == response_data
-
     # Test editing an action
     def test_edit_action(self):
         user_data = {
@@ -225,10 +213,8 @@ class TestAction(object):
         self.socketio.emit('edit_action', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.EditSuccess
-        action = Actions.query.filter_by(id = 10).first()
-        assert action.title == 'Test Action 10'
 
-    # Test editing an action when not authorized to do so
+    # Test editing an action
     def test_edit_action_not_auth(self):
         user_data = {
             'id': 10,
@@ -239,5 +225,3 @@ class TestAction(object):
         self.socketio.emit('edit_action', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.UsrNotAuth
-        action = Actions.query.filter_by(id = 10).first()
-        assert action.title == 'Test Action'

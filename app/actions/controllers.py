@@ -162,6 +162,5 @@ def edit_action(user_data):
         get_action(committee.id, broadcast= True)
         get_actions(charge.id,broadcast= True)
     except Exception as e:
-        print(e)
         db.session.rollback()
         emit("edit_committee", Response.EditError)

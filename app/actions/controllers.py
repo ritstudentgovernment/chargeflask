@@ -109,8 +109,7 @@ def create_action(user_data):
     try:
         db.session.commit()
         emit('create_action', Response.AddSuccess)
-        # todo:
-        # emit('get_actions', charge.id)
+        emit('get_actions', charge.id)
     except Exception as e:
         db.session.rollback()
         db.session.flush()

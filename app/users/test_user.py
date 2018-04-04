@@ -14,19 +14,22 @@ from app import app, db, socketio
 from app.users.models import Users
 from app.users.controllers import login_user
 from flask_socketio import SocketIOTestClient
+from flask_sqlalchemy import SQLAlchemy
+
 
 
 class TestUser(object):
 
 	@classmethod
 	def setup_class(self):
-		app.config['TESTING'] = True
-		app.config['SQLALCHEMY_DATABASE'] = config.SQLALCHEMY_TEST_DATABASE_URI
 		self.app = app.test_client()
-		self.db = db
-		self.db.session.close()
-		self.db.drop_all()
-		self.db.create_all()
+
+		app.config['TESTING'] = True
+		app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_TEST_DATABASE_URI
+		db = SQLAlchemy(app)
+		db.session.close()
+		db.drop_all()
+		db.create_all()
 		self.socketio = socketio.test_client(app);
 		self.socketio.connect()
 
@@ -37,8 +40,8 @@ class TestUser(object):
 
 	@classmethod
 	def teardown_class(self):
-		self.db.session.close()
-		self.db.drop_all()
+		db.session.close()
+		db.drop_all()
 		self.socketio.disconnect()
 
 	# Test empty login.

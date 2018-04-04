@@ -1,4 +1,5 @@
 env
+.env
 htmlcov
 secrets.py
 .DS_Store
@@ -53,3 +54,5 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+
+.pytest_cache/

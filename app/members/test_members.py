@@ -13,38 +13,43 @@ from app.users.models import Users
 from app.committees.models import Committees
 from flask_socketio import SocketIOTestClient
 from app.members.members_response import Response
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+
 
 class TestMembers(object):
 
 	@classmethod
 	def setup_class(self):
-		app.config['TESTING'] = True
-		app.config['SQLALCHEMY_DATABASE'] = config.SQLALCHEMY_TEST_DATABASE_URI
 		self.app = app.test_client()
-		self.db = db
-		self.db.session.close()
-		self.db.drop_all()
-		self.db.create_all()
+
+		app.config['TESTING'] = True
+		app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_TEST_DATABASE_URI
+		db = SQLAlchemy(app)
+		db.session.close()
+		db.drop_all()
+		db.create_all()
 		self.socketio = socketio.test_client(app);
 		self.socketio.connect()
 
-
+	@classmethod
 	def setup_method(self, method):
-		self.db.drop_all()
-		self.db.create_all()
+		db.drop_all()
+		db.create_all()
 
 		self.user_data = {"user_id": "testuser",
 						  "committee_id": "testcommittee"}
 
-		# Create admin user for tests.
-		self.admin = Users(id = "adminuser")
-		self.admin.first_name = "Admin"
-		self.admin.last_name = "User"
-		self.admin.email = "adminuser@test.com"
-		self.admin.is_admin = True
-		self.db.session.add(self.admin)
-		self.db.session.commit()
-		self.admin_token = self.admin.generate_auth()
+        # Create admin user for tests.
+		admin = Users(id = "adminuser")
+		admin.first_name = "Admin"
+		admin.last_name = "User"
+		admin.email = "adminuser@test.com"
+		admin.is_admin = True
+		db.session.add(admin)
+		#db.session.expunge(admin)
+		db.session.commit()
+		self.admin_token = admin.generate_auth()
 		self.admin_token = self.admin_token.decode('ascii')
 
 		# Create normal user for tests.
@@ -54,6 +59,7 @@ class TestMembers(object):
 		self.user.email = "testuser@test.com"
 		self.user.is_admin = False
 		db.session.add(self.user)
+		#db.session.expunge(self.user)
 		db.session.commit()
 		self.user_token = self.user.generate_auth()
 		self.user_token = self.user_token.decode('ascii')
@@ -68,12 +74,13 @@ class TestMembers(object):
 		self.committee.head = "adminuser"
 		self.committee.members.append(self.user)
 		db.session.add(self.committee)
+		#db.session.expunge(self.committee)
 		db.session.commit()
 
 	@classmethod
 	def teardown_class(self):
-		self.db.session.close()
-		self.db.drop_all()
+		db.session.close()
+		db.drop_all()
 		self.socketio.disconnect()
 
 
@@ -89,6 +96,7 @@ class TestMembers(object):
 		self.socketio.emit("get_members", "testcommittee")
 		received = self.socketio.get_received()
 		commitee = received[0]["args"][0]
+		print()
 		assert commitee["committee_id"] == "testcommittee"
 		assert (commitee["members"] == [{'id': 'testuser'}])
 

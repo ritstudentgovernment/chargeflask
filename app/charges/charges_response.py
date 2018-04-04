@@ -8,6 +8,8 @@ created on: 12/05/17
 class Response():
 	AddSuccess = {'success': 'Charge successfully created.'}
 	AddError = {'error': 'Charge couldnt be created, check data.'}
-	UsrCommDontExist = {'error': 'User or committee do not exist.'}
+	UsrChargeDontExist = {'error': 'User or charge does not exist.'}
 	InvalidTitle = {'error': 'Charge title is invalid.'}
 	InvalidPriority = {'error': 'Invalid priority level.'}
+	EditError = {'error': 'Couldn\'t edit charge.'}
+	EditSuccess = {'success': 'Charce successfully edited.'}

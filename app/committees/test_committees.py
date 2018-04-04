@@ -14,29 +14,31 @@ from app.users.permissions import Permissions
 from app.users.models import Users
 from flask_socketio import SocketIOTestClient
 import base64
+from flask_sqlalchemy import SQLAlchemy
 
 
 class TestCommittees(object):
 
     @classmethod
     def setup_class(self):
-
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE'] = config.SQLALCHEMY_TEST_DATABASE_URI
-
         self.app = app.test_client()
-
-        self.db = db
-        self.db.session.close()
-        self.db.drop_all()
-        self.db.create_all()
+        
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_TEST_DATABASE_URI
+        db = SQLAlchemy(app)
+        db.session.close()
+        db.drop_all()
+        db.create_all()
         self.socketio = socketio.test_client(app);
         self.socketio.connect()
 
+
+
+    @classmethod
     def setup_method(self, method):
         db.drop_all()
         db.create_all()
-        
+
         self.test_committee_dict = {
             "id" : "testcommittee",
             "title": "testcommittee",
@@ -80,20 +82,21 @@ class TestCommittees(object):
         self.user_token = user.generate_auth()
         self.user_token = self.user_token.decode('ascii')
 
-        db.session.add(self.test_committee)
-        db.session.expunge(self.test_committee)
+        #self.ddb.session.add(self.test_committee)
+        #db.session.expunge(self.test_committee)
 
-        db.session.commit()
+        #db.session.commit()
 
     @classmethod
     def teardown_class(self):
-        self.db.session.close()
-        self.db.drop_all()
+        db.session.close()
+        db.drop_all()
         self.socketio.disconnect()
+
+
 
     # Test when an admin creates a committee.
     def test_admin_create_committee(self):
-
         self.test_committee_dict["token"] = self.admin_token
         self.socketio.emit('create_committee', self.test_committee_dict)
         received = self.socketio.get_received()

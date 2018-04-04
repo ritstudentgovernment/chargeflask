@@ -14,13 +14,13 @@ from enum import Enum
 ## @brief      Status types for Actions.
 ##
 class ActionStatusType(Enum):
-	InProgress 		= 0
-	Indefinite  	= 1
-	Unknown 		= 2
-	Completed 		= 3
-	Stopped    		= 4
-	Incompleted 	= 5
-	OnHold 			= 6
+	InProgress	= 0
+	Indefinite	= 1
+	Unknown	= 2
+	Completed	= 3
+	Stopped	= 4
+	Incompleted	= 5
+	OnHold	= 6
 
 class Actions(db.Model):
 	__tablename__ = 'actions'

@@ -2,11 +2,25 @@
 filename: models.py
 description: Model for Charge Actions.
 created by: Omar De La Hoz (oed7416@rit.edu)
+Chris Lemelin (cxl8826@rit.edu)
 created on: 09/05/17
 """
 
 from app import db
 from sqlalchemy_utils import ChoiceType
+from enum import Enum
+
+##
+## @brief      Status types for Actions.
+##
+class ActionStatusType(Enum):
+	InProgress	= 0
+	Indefinite	= 1
+	Unknown	= 2
+	Completed	= 3
+	Stopped	= 4
+	Incompleted	= 5
+	OnHold	= 6
 
 class Actions(db.Model):
 	__tablename__ = 'actions'
@@ -17,8 +31,4 @@ class Actions(db.Model):
 	charge = db.Column(db.ForeignKey('charges.id'))
 	notes = db.relationship('Notes', backref='actions', lazy='dynamic')
 	created_at = db.Column(db.DateTime, server_default= db.func.now())
-	
-	status_types = [(0, "In Progress"), (1, "Indefinite"), (2, "Unknown"),
-					(3, "Completed"), (4, "Stopped"), (5, "Incomplete"), (6, "On Hold")]
-
-	action_status = db.Column(ChoiceType(status_types))
+	status = db.Column(db.Enum(ActionStatusType))

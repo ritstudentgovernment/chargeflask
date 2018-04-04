@@ -110,8 +110,8 @@ def create_charge(user_data):
     charge.author = user.id
     charge.description = user_data["description"] if "description" in user_data else ""
     charge.committee = committee.id
-    charge.status = StatusType.Unapproved
-    charge.priority = PriorityType(user_data["priority"])
+    charge.status = ChargeStatusType.Unapproved
+    charge.priority = ChargePriorityType(user_data["priority"])
 
     db.session.add(charge)
 

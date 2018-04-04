@@ -13,28 +13,28 @@ from app.users.models import Users
 from mock import patch, MagicMock
 from app.committees.models import Committees
 from app.invitations.invitations_response import Response
+from flask_sqlalchemy import SQLAlchemy
+
 
 
 class TestInvitations(object):
 
     @classmethod
     def setup_class(self):
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE'] = config.SQLALCHEMY_TEST_DATABASE_URI;
-
         self.app = app.test_client()
-        self.db = db
-        self.db.session.close()
-        self.db.drop_all()
-        self.db.create_all()
+
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_TEST_DATABASE_URI
+        db = SQLAlchemy(app)
+        db.session.close()
+        db.drop_all()
+        db.create_all()
         self.socketio = socketio.test_client(app);
         self.socketio.connect()
 
     def setup_method(self, method):
         db.drop_all()
         db.create_all()
-
-
         self.user_data = {"user_id": "testuser",
                           "committee_id": "testcommittee"}
 
@@ -55,8 +55,8 @@ class TestInvitations(object):
         user.last_name = "User"
         user.email = "testuser@test.com"
         user.is_admin = False
-        self.db.session.add(user)
-        self.db.session.commit()
+        db.session.add(user)
+        db.session.commit()
         self.user_token = user.generate_auth()
         self.user_token = self.user_token.decode('ascii')
         self.user = user
@@ -91,8 +91,8 @@ class TestInvitations(object):
 
     @classmethod
     def teardown_class(self):
-        self.db.session.close()
-        self.db.drop_all()
+        db.session.close()
+        db.drop_all()
         self.socketio.disconnect()
 
 

@@ -49,10 +49,5 @@ class Charges(db.Model):
     actions = db.relationship('Actions', backref='charges', lazy='dynamic')
     resources = db.Column(ARRAY(db.String))
     stakeholders = db.Column(ARRAY(db.String))
-<<<<<<< HEAD
-    priority = db.Column(db.Enum(ChargePriorityType))
-    status = db.Column(db.Enum(ChargeStatusType))
-=======
-    priority = db.Column(ChoiceType(PriorityType, impl= db.Integer()))
-    status = db.Column(ChoiceType(StatusType, impl= db.Integer()))
->>>>>>> e38bbc4023a2bc0d5167540cf57c90019b57665e
+    priority = db.Column(ChoiceType(ChargePriorityType, impl= db.Integer()))
+    status = db.Column(ChoiceType(ChargeStatusType, impl= db.Integer()))

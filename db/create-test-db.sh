@@ -1,12 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-POSTGRES="psql --username ${POSTGRES_USER}"
+POSTGRES="psql --username=${POSTGRES_USER}"
 
-echo "Creating test database: ${TEST_DATABASE_NAME}"
-
-$POSTGRES <<EOSQL
-CREATE DATABASE ${TEST_DATABASE_NAME} OWNER ${POSTGRES_USER};
+$POSTGRES <<-EOSQL
+CREATE DATABASE ${TEST_DATABASE_NAME};
 EOSQL
-
-echo "Successfully created test database: ${TEST_DATABASE_NAME}"
+echo

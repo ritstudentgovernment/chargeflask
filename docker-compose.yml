@@ -17,7 +17,7 @@ services:
 
   flask:
     build: .
-    command: python run.py
+    command: sh -c "python postgreswait.py && python run.py"
     volumes:
       - .:/chargeflask
     ports:

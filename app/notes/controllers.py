@@ -23,10 +23,8 @@ from app.notes.notes_response import Response
 ##                        action      - id of action
 ##                        description - Description of new note
 ##
-## @emit       Emits a success message if created, error if not.
-##
 @socketio.on('create_note')
-def create_note(user_data, broadcast= False):
+def create_note(user_data):
 
     user = Users.verify_auth(user_data["token"]) if "token" in user_data else None
     action = Actions.query.filter_by(id= user_data['action']).first()
@@ -44,7 +42,7 @@ def create_note(user_data, broadcast= False):
             try:
                 db.session.commit()
                 emit('create_note', Response.AddSuccess)
-                #emit('get_actions', charge.id)
+                get_notes(action.id, broadcast = True)
             except Exception as e:
                 db.session.rollback()
                 db.session.flush()
@@ -53,3 +51,51 @@ def create_note(user_data, broadcast= False):
             emit("create_note", Response.UsrNotAuth)
     else:
     	emit("create_note", Response.ActionDoesntExist)
+
+##
+## @brief      Gets notes
+##
+## @param      action_id  get notes based on action
+##
+##                        All the following fields are required:
+##                        action_id   - Description of new note
+##
+@socketio.on('get_notes')
+def get_notes(action_id, broadcast = False):
+    notes = Notes.query.filter_by(action= action_id).all()
+    note_ser = [
+                    {
+                        "id": c.id,
+                        "author": c.author,
+                        "action": c.action,
+                        "description": c.description,
+                        "created_at": c.created_at
+                    }
+                    for c in notes
+                ]
+    emit("get_notes", note_ser, broadcast = broadcast)
+
+##
+## @brief      Creates a note. (Must be admin user or committe head or assigned to action)
+##
+## @param      user_data  The user data required to create a committee.
+##
+##                        All the following fields are required:
+##                        action      - id of action
+##                        description - Description of new note
+##
+@socketio.on('get_note')
+def get_note(id, broadcast = False):
+
+    note = Notes.query.filter_by(id= id).first()
+    if note is not None:
+        note_data = {
+            "id": note.id,
+            "author": note.author,
+            "action": note.action,
+            "description": note.description,
+            "created_at": note.created_at
+        }
+        emit('get_note', note_data, broadcast = broadcast)
+    else:
+        emit("get_note", {}, broadcast = broadcast)

@@ -162,3 +162,33 @@ class TestNotes(object):
         self.socketio.emit('create_note', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.UsrNotAuth
+
+    def test_get_note(self):
+        self.socketio.emit('get_note', '10')
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0]["author"] == 'adminuser'
+        assert received[0]["args"][0]["action"] == 10
+        assert received[0]["args"][0]["description"] == "Test Note"
+
+    def test_get_notes(self):
+        self.socketio.emit('get_notes', '10')
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0][0]["author"] == 'adminuser'
+        assert received[0]["args"][0][0]["action"] == 10
+        assert received[0]["args"][0][0]["description"] == "Test Note"
+
+    def test_get_note_empty(self):
+        self.socketio.emit('get_note', '99')
+
+        received = self.socketio.get_received()
+        print(received[0]["args"][0])
+        assert received[0]["args"][0] == {}
+
+    def test_get_notes_empty(self):
+        self.socketio.emit('get_notes', '99')
+
+        received = self.socketio.get_received()
+        print(received[0]["args"][0])
+        assert len(received[0]["args"][0]) == 0

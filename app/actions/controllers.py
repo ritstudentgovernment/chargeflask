@@ -109,7 +109,7 @@ def create_action(user_data):
     try:
         db.session.commit()
         emit('create_action', Response.AddSuccess)
-        emit('get_actions', charge.id)
+        get_actions(charge.id, broadcast = True)
     except Exception as e:
         db.session.rollback()
         db.session.flush()

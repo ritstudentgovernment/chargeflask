@@ -37,6 +37,7 @@ def create_note(user_data):
             note.action = action.id
             note.description = user_data['description']
             note.author = user.id
+            note.hidden = False
             db.session.add(note)
 
             try:
@@ -69,7 +70,8 @@ def get_notes(action_id, broadcast = False):
                         "author": c.author,
                         "action": c.action,
                         "description": c.description,
-                        "created_at": c.created_at
+                        "created_at": c.created_at,
+                        "hidden": c.hidden
                     }
                     for c in notes
                 ]
@@ -94,8 +96,65 @@ def get_note(id, broadcast = False):
             "author": note.author,
             "action": note.action,
             "description": note.description,
-            "created_at": note.created_at
+            "created_at": note.created_at,
+            "hidden": note.hidden
         }
         emit('get_note', note_data, broadcast = broadcast)
     else:
         emit("get_note", {}, broadcast = broadcast)
+
+##
+## @brief      Edits a note (Must be admin user or committe head to hide,
+##              only author can edit the description)
+##
+## @param      user_data  The user data to edit a note, must
+##                        contain a token, an id and any of the following
+##                        fields:
+##                        - description
+##                        - hidden
+##
+##                        Any other field will be ignored.
+##
+## @emit       Emits a success mesage if edited, errors otherwise.
+##
+
+@socketio.on('modify_note')
+def modify_note(user_data):
+
+    user = Users.verify_auth(user_data["token"])
+
+    if(user is None):
+        emit('modify_note', Response.UsrDoesntExist)
+        return
+    note = Notes.query.filter_by(id= user_data['id']).first()
+
+    if(note is None):
+        emit('modify_note', Response.NoteDoesntExist)
+        return
+
+    action = Actions.query.filter_by(id= note.action).first()
+    charge = Charges.query.filter_by(id= action.charge).first()
+    committee = Committees.query.filter_by(id= charge.committee).first()
+
+    if(user.id == note.author):
+
+        if user_data['description'] is not None:
+            note.description = user_data['description']
+
+    if(user.id == commite.head or user.is_admin or user.id == note.author):
+
+        if user_data['hidden'] is not None:
+            note.hidden = user_data['hidden']
+
+        db.session.add(note)
+
+        try:
+            db.session.commit()
+            emit('modify_note', Response.ModifySuccess)
+            get_note(note.id, broadcast = True)
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            emit("modify_note", Response.ModifyError)
+    else:
+        emit("modify_note", Response.UsrNotAuth)

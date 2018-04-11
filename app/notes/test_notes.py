@@ -119,6 +119,7 @@ class TestNotes(object):
         note.author = admin.id
         note.description = "Test Note"
         note.action = 10
+        note.hidden = False
         self.test_note = note
         db.session.add(self.test_note)
         db.session.commit()

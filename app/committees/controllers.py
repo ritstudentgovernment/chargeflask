@@ -23,7 +23,7 @@ import base64
 ##
 @socketio.on('get_committees')
 def get_committees(broadcast = False):
-    committees = Committees.query.filter_by(enabled = True).all()
+    committees = Committees.query.filter_by().all()
     comm_ser = [{"id": c.id, "title": c.title, "enabled": c.enabled} for c in committees]
     emit("get_committees", comm_ser, broadcast= broadcast)
 

@@ -1,15 +1,27 @@
 language: python
+python:
+  - "3.6"
 services:
-- postgresql
-before_install:
-- cp secrets.py.sample secrets.py
+- docker
+
+env:
+  - DOCKER_COMPOSE_VERSION="1.20.0"
+
 install:
-- pip install -r requirements.txt
 - pip install coverage
 - pip install codecov
+- cp template.env .env
+- sudo rm /usr/local/bin/docker-compose
+- curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+- chmod +x docker-compose
+- sudo mv docker-compose /usr/local/bin
+
 before_script:
-- psql -c 'CREATE DATABASE tigertracker;' -U postgres
-- psql -c 'CREATE DATABASE tigertrackertest;' -U postgres
+- docker-compose up -d
+
 script:
-- py.test --cov=./app
-after_script: codecov
+- docker exec -it chargeflask_flask_1 py.test --cov=./app
+- docker exec -it chargeflask_flask_1 coverage xml
+
+after_script:
+- codecov

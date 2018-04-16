@@ -13,7 +13,7 @@ from enum import Enum
 ##
 ## @brief      Levels of priority for charges.
 ##
-class PriorityType(Enum):
+class ChargePriorityType(Enum):
     Low     = 0
     Medium  = 1
     High    = 2
@@ -22,7 +22,7 @@ class PriorityType(Enum):
 ##
 ## @brief      Status types for charges.
 ##
-class StatusType(Enum):
+class ChargeStatusType(Enum):
     Unapproved = 0
     Failed     = 1
     InProgress = 2
@@ -49,5 +49,5 @@ class Charges(db.Model):
     actions = db.relationship('Actions', backref='charges', lazy='dynamic')
     resources = db.Column(ARRAY(db.String))
     stakeholders = db.Column(ARRAY(db.String))
-    priority = db.Column(ChoiceType(PriorityType, impl= db.Integer()))
-    status = db.Column(ChoiceType(StatusType, impl= db.Integer()))
+    priority = db.Column(ChoiceType(ChargePriorityType, impl= db.Integer()))
+    status = db.Column(ChoiceType(ChargeStatusType, impl= db.Integer()))

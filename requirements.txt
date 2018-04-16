@@ -7,14 +7,16 @@ coverage==4.4.1
 enum-compat==0.0.2
 eventlet==0.21.0
 Flask==0.12.2
-git+https://github.com/amikholap/flask-mail.git
+Flask-Mail==0.9.1
 Flask-SocketIO==2.9.2
 Flask-SQLAlchemy==2.2
+Flask-Testing==0.7.1
 greenlet==0.4.12
 idna==2.6
 itsdangerous==0.24
 Jinja2==2.9.6
 MarkupSafe==1.0
+mimesis==2.0.1
 mock==2.0.0
 nose==1.3.7
 pbr==3.1.1

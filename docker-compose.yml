@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  postgres:
+    build: ./db
+    container_name: postgres
+    restart: always
+    volumes:
+      - /chargeflaskdata/postgres-data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TEST_DATABASE_NAME: ${TEST_DATABASE_NAME}
+
+  flask:
+    build: .
+    command: sh -c "python postgreswait.py && python run.py"
+    volumes:
+      - .:/chargeflask
+    ports:
+      - "5000:5000"
+    environment:
+      APP_SECRET_KEY: ${APP_SECRET_KEY}
+      SERVER_ENV: ${SERVER_ENV}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      SQLALCHEMY_DATABASE_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}
+      SQLALCHEMY_TEST_DATABASE_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${TEST_DATABASE_NAME}
+    depends_on:
+      - postgres

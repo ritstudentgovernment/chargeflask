@@ -24,7 +24,7 @@ import base64
 @socketio.on('get_committees')
 def get_committees(broadcast = False):
     committees = Committees.query.filter_by(enabled = True).all()
-    comm_ser = [{"id": c.id, "title": c.title} for c in committees]
+    comm_ser = [{"id": c.id, "title": c.title, "enabled": c.enabled} for c in committees]
     emit("get_committees", comm_ser, broadcast= broadcast)
 
 
@@ -38,7 +38,7 @@ def get_committees(broadcast = False):
 ##
 @socketio.on('get_permissions')
 def get_permissions(user_data):
-    
+
     user = Users.verify_auth(user_data["token"]) if "token" in user_data else None
     committee = Committees.query.filter_by(id = user_data["id"]).first()
     permission_level = Permissions.CanView
@@ -46,7 +46,7 @@ def get_permissions(user_data):
     if committee is not None:
 
         if user is not None:
-        
+
             if user.is_admin:
 
                 permission_level = Permissions.CanEdit
@@ -80,7 +80,7 @@ def get_committee(committee_id, broadcast = False):
 
         committee_info = {
             "id": committee.id,
-            "title": committee.title, 
+            "title": committee.title,
             "description": committee.description,
             "location": committee.location,
             "meeting_time": committee.meeting_time,
@@ -102,11 +102,11 @@ def get_committee(committee_id, broadcast = False):
 ## @brief      Creates a committee. (Must be admin user)
 ##
 ## @param      user_data  The user data required to create a committee.
-##                        
+##
 ##                        All the following fields are required:
-##                        
+##
 ##                        token - Token of the current user
-##                        title - The title of the new committee 
+##                        title - The title of the new committee
 ##                        head - Head of committee (Must exist in app)
 ##                        description - Description of new committee
 ##                        location - Location of committee meetings
@@ -171,7 +171,7 @@ def create_committee(user_data):
 ##                        - meeting_time
 ##                        - enabled
 ##                        - committee_img
-##                        
+##
 ##                        Any other field will be ignored.
 ##
 ## @emit       Emits a success mesage if edited, errors otherwise.
@@ -193,7 +193,7 @@ def edit_committee(user_data):
                     key == "meeting_time" or key == "enabled" or key == "committee_img"):
 
                     if key == "committee_img":
-                        
+
                         com_img = base64.b64decode(user_data["committee_img"])
                         setattr(committee, key, com_img)
                     else:
@@ -203,7 +203,7 @@ def edit_committee(user_data):
             try:
                 db.session.commit()
 
-                # Send successful edit notification to user 
+                # Send successful edit notification to user
                 # and broadcast committee changes.
                 emit("edit_committee", Response.EditSuccess)
                 get_committee(committee.id, broadcast= True)

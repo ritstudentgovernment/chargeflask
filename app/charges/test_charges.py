@@ -82,7 +82,7 @@ class TestCharges(object):
             'description': 'Test Description',
             'committee': 'Commitee title',
             'committee_id': 'ID',
-            'priority': PriorityType.Low
+            'priority': ChargePriorityType.Low
         }
 
         # Create a test charge.
@@ -91,8 +91,8 @@ class TestCharges(object):
         charge.title = "Test Charge"
         charge.description = "Test Description"
         charge.committee = "testcommittee"
-        charge.priority = PriorityType.Low
-        charge.status = StatusType.Unapproved
+        charge.priority = ChargePriorityType.Low
+        charge.status = ChargeStatusType.Unapproved
         self.charge = charge
 
         db.session.add(charge)

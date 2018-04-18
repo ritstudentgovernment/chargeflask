@@ -138,13 +138,13 @@ def modify_note(user_data):
 
     if(user.id == note.author):
 
-        if user_data['description'] is not None:
+        if "description" in user_data and user_data['description'] is not None:
             note.description = user_data['description']
 
-    if(user.id == commite.head or user.is_admin or user.id == note.author):
+    if(user.id == committee.head or user.is_admin or user.id == note.author):
 
-        if user_data['hidden'] is not None:
-            note.hidden = user_data['hidden']
+        if "hidden" in user_data and user_data['hidden'] is not None:
+             note.hidden = user_data['hidden']
 
         db.session.add(note)
 

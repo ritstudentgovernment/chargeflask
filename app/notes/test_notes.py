@@ -116,7 +116,7 @@ class TestNotes(object):
         db.session.commit()
 
         note = Notes(id = 10)
-        note.author = admin.id
+        note.author = "testuser"
         note.description = "Test Note"
         note.action = 10
         note.hidden = False
@@ -168,7 +168,7 @@ class TestNotes(object):
         self.socketio.emit('get_note', '10')
 
         received = self.socketio.get_received()
-        assert received[0]["args"][0]["author"] == 'adminuser'
+        assert received[0]["args"][0]["author"] == 'testuser'
         assert received[0]["args"][0]["action"] == 10
         assert received[0]["args"][0]["description"] == "Test Note"
 
@@ -176,7 +176,7 @@ class TestNotes(object):
         self.socketio.emit('get_notes', '10')
 
         received = self.socketio.get_received()
-        assert received[0]["args"][0][0]["author"] == 'adminuser'
+        assert received[0]["args"][0][0]["author"] == 'testuser'
         assert received[0]["args"][0][0]["action"] == 10
         assert received[0]["args"][0][0]["description"] == "Test Note"
 
@@ -184,12 +184,40 @@ class TestNotes(object):
         self.socketio.emit('get_note', '99')
 
         received = self.socketio.get_received()
-        print(received[0]["args"][0])
         assert received[0]["args"][0] == {}
 
     def test_get_notes_empty(self):
         self.socketio.emit('get_notes', '99')
 
         received = self.socketio.get_received()
-        print(received[0]["args"][0])
         assert len(received[0]["args"][0]) == 0
+
+    def test_modify_notes_admin(self):
+        user_data = {"token": self.admin_token,
+                     "id": 10,
+                     "description": "New Description edited",
+                     "hidden": False}
+        self.socketio.emit('modify_note', user_data)
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.ModifySuccess
+
+    def test_modify_notes_author(self):
+        user_data = {"token": self.user_token,
+                     "id": 10,
+                     "description": "New Description edited",
+                     "hidden": True}
+        self.socketio.emit('modify_note', user_data)
+        
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.ModifySuccess
+
+    def test_modify_notes_not_auth(self):
+        user_data = {"token": self.user_token2,
+                     "id": 10,
+                     "description": "New Description edited",
+                     "hidden": True}
+        self.socketio.emit('modify_note', user_data)
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.UsrNotAuth

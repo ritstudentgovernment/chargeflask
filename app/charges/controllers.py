@@ -27,11 +27,14 @@ def get_charges(committee_id, broadcast = False):
     charges = Charges.query.filter_by(committee= committee_id).all()
     charge_ser = [
                     {
-                        "id": c.id,
-                        "title": c.title,
-                        "description": c.description
+                        "id": charge.id,
+                        "title": charge.title,
+                        "description": charge.description,
+                        "committee": charge.committee,
+                        "priority": charge.priority,
+                        "status": charge.status
                     }
-                    for c in charges
+                    for charge in charges
                 ]
     emit("get_charges", charge_ser, broadcast = broadcast)
 
@@ -59,9 +62,9 @@ def get_charge(charge_id, broadcast = False):
         "id": charge.id,
         "title": charge.title,
         "description": charge.description,
-        "committee": "Commitee title",
-        "committee_id": "ID",
-        "priority": charge.priority
+        "committee": charge.committee,
+        "priority": charge.priority,
+        "status": charge.status
     }
     emit('get_charge', charge_info, broadcast= broadcast)
 

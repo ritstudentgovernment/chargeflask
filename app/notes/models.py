@@ -14,3 +14,4 @@ class Notes(db.Model):
 	author = db.Column(db.ForeignKey('users.id'))
 	action = db.Column(db.ForeignKey('actions.id'))
 	created_at = db.Column(db.DateTime, server_default= db.func.now())
+	hidden = db.Column(db.Boolean)

@@ -101,10 +101,12 @@ def create_action(user_data):
         return
 
     action = Actions(title = user_data["title"])
-    charge.author = user.id
-    charge.description = user_data["description"]
-    charge.charge = charge.id
-    charge.status = ChargeStatusType.InProgress
+    action.author = user.id
+    action.assigned_to = assigned_to.id
+    action.description = user_data.get("description", "")
+    action.charge = charge.id
+    action.status = ActionStatusType.InProgress
+
 
     db.session.add(charge)
 

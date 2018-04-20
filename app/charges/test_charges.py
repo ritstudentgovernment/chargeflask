@@ -80,9 +80,9 @@ class TestCharges(object):
             'id': 10,
             'title': 'Test Charge',
             'description': 'Test Description',
-            'committee': 'Commitee title',
-            'committee_id': 'ID',
-            'priority': ChargePriorityType.Low
+            'committee': 'testcommittee',
+            'status': ChargeStatusType.Unapproved.value,
+            'priority': ChargePriorityType.Low.value
         }
 
         # Create a test charge.
@@ -170,11 +170,7 @@ class TestCharges(object):
 
         # Test getting a charge
     def test_get_charges(self):
-        response_data = [{
-            'id': 10,
-            'title': 'Test Charge',
-            'description': 'Test Description'
-        }]
+        response_data = [ self.charge_dict ]
 
         self.socketio.emit('get_charges', "testcommittee")
         received = self.socketio.get_received()

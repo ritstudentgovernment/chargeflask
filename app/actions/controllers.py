@@ -28,7 +28,8 @@ def get_actions(charge_id, broadcast = False):
                     {
                         "id": c.id,
                         "title": c.title,
-                        "description": c.description
+                        "description": c.description,
+                        "status": c.status.value
                     }
                     for c in actions
                 ]
@@ -56,6 +57,7 @@ def get_action(action_id, broadcast = False):
         "id": action.id,
         "title": action.title,
         "description": action.description,
+        "status": action.status.value
     }
 
     emit("get_action", action_info, broadcast = broadcast)

@@ -81,8 +81,8 @@ class TestCharges(object):
             'title': 'Test Charge',
             'description': 'Test Description',
             'committee': 'testcommittee',
-            'status': ChargeStatusType.Unapproved,
-            'priority': ChargePriorityType.Low
+            'status': ChargeStatusType.Unapproved.value,
+            'priority': ChargePriorityType.Low.value
         }
 
         # Create a test charge.

@@ -31,8 +31,8 @@ def get_charges(committee_id, broadcast = False):
                         "title": charge.title,
                         "description": charge.description,
                         "committee": charge.committee,
-                        "priority": charge.priority,
-                        "status": charge.status
+                        "priority": charge.priority.value,
+                        "status": charge.status.value
                     }
                     for charge in charges
                 ]
@@ -63,8 +63,8 @@ def get_charge(charge_id, broadcast = False):
         "title": charge.title,
         "description": charge.description,
         "committee": charge.committee,
-        "priority": charge.priority,
-        "status": charge.status
+        "priority": charge.priority.value,
+        "status": charge.status.value
     }
     emit('get_charge', charge_info, broadcast= broadcast)
 

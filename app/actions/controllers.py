@@ -101,7 +101,7 @@ def create_action(user_data):
     action = Actions(title = user_data["title"])
     action.author = user.id
     action.assigned_to = assigned_to.id
-    action.description = user_data["description"]
+    action.description = user_data.get("description", "")
     action.charge = charge.id
     action.status = ActionStatusType.InProgress
 

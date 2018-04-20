@@ -111,14 +111,14 @@ def create_charge(user_data):
 
     charge = Charges(title = user_data["title"])
     charge.author = user.id
-    charge.description = user_data["description"] if "description" in user_data else ""
+    charge.description = user_data.get("description", "")
     charge.committee = committee.id
     charge.status = ChargeStatusType.Unapproved
     charge.priority = ChargePriorityType(user_data["priority"])
-    charge.objectives = user_data["objectives"] if "objectives" in user_data else []
-    charge.schedule = user_data["schedules"] if "schedules" in user_data else []
-    charge.resources = user_data["resources"] if "resources" in user_data else []
-    charge.stakeholders = user_data["stakeholders"] if "stakeholders" in user_data else []
+    charge.objectives = user_data.get("objectives", [])
+    charge.schedule = user_data.get("schedules", [])
+    charge.resources = user_data.get("resources", [])
+    charge.stakeholders = user_data.get("stakeholders", [])
 
     db.session.add(charge)
 

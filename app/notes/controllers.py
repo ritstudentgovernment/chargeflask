@@ -35,7 +35,7 @@ def create_note(user_data):
         if(user is not None and (user.is_admin or committee.head == user.id)):
             note = Notes()
             note.action = action.id
-            note.description = user_data['description']
+            note.description = user_data.get('description',"")
             note.author = user.id
             note.hidden = False
             db.session.add(note)
@@ -138,12 +138,12 @@ def modify_note(user_data):
 
     if(user.id == note.author):
 
-        if "description" in user_data and user_data['description'] is not None:
+        if "description" in user_data:
             note.description = user_data['description']
 
     if(user.id == committee.head or user.is_admin or user.id == note.author):
 
-        if "hidden" in user_data and user_data['hidden'] is not None:
+        if "hidden" in user_data:
              note.hidden = user_data['hidden']
 
         db.session.add(note)

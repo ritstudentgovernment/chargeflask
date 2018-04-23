@@ -137,3 +137,62 @@ class TestCommitteeNotes(object):
         self.socketio.emit('create_committee_note', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.UsrNotAuth
+
+    def test_modify_committee_notes_admin(self):
+        user_data = {"token": self.admin_token,
+                     "id": 10,
+                     "description": "New Description edited",
+                     "hidden": False}
+        self.socketio.emit('modify_committee_note', user_data)
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.ModifySuccess
+
+    def test_modify_committee_notes_author(self):
+        user_data = {"token": self.user_token,
+                     "id": 10,
+                     "description": "New Description edited",
+                     "hidden": True}
+        self.socketio.emit('modify_committee_note', user_data)
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.ModifySuccess
+
+    def test_modify_committee_notes_not_auth(self):
+        user_data = {"token": self.user_token2,
+                     "id": 10,
+                     "description": "New Description edited",
+                     "hidden": True}
+        self.socketio.emit('modify_committee_note', user_data)
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.UsrNotAuth
+
+
+    def test_get_committee_note(self):
+        self.socketio.emit('get_committee_note', '10')
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0]["author"] == 'testuser'
+        assert received[0]["args"][0]["committee"] == 'testcommittee'
+        assert received[0]["args"][0]["description"] == "Test Note"
+
+    def test_get_committee_notes(self):
+        self.socketio.emit('get_committee_notes', 'testcommittee')
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0][0]["author"] == 'testuser'
+        assert received[0]["args"][0][0]["committee"] == 'testcommittee'
+        assert received[0]["args"][0][0]["description"] == "Test Note"
+
+    def test_get_committee_note_empty(self):
+        self.socketio.emit('get_committee_note', '99')
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == {}
+
+    def test_get_committee_notes_empty(self):
+        self.socketio.emit('get_committee_notes', 'asd')
+
+        received = self.socketio.get_received()
+        assert len(received[0]["args"][0]) == 0

@@ -54,12 +54,9 @@ def create_note(user_data):
     	emit("create_note", Response.ActionDoesntExist)
 
 ##
-## @brief      Gets notes
+## @brief      Gets notes from an action
 ##
-## @param      action_id  get notes based on action
-##
-##                        All the following fields are required:
-##                        action_id   - Description of new note
+## @param      action_id    - id of the action
 ##
 @socketio.on('get_notes')
 def get_notes(action_id, broadcast = False):
@@ -78,13 +75,9 @@ def get_notes(action_id, broadcast = False):
     emit("get_notes", note_ser, broadcast = broadcast)
 
 ##
-## @brief      Creates a note. (Must be admin user or committe head or assigned to action)
+## @brief      Gets a note
 ##
-## @param      user_data  The user data required to create a committee.
-##
-##                        All the following fields are required:
-##                        action      - id of action
-##                        description - Description of new note
+## @param      id       - id of the note
 ##
 @socketio.on('get_note')
 def get_note(id, broadcast = False):

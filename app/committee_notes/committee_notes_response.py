@@ -13,3 +13,4 @@ class Response():
     CommitteeDoesntExist = {'error': "Committee doesn't exist."}
     CommitteeNoteDoesntExist = {'error': "Committee note doesn't exist."}
     UsrNotAuth = {'error': "User is not authorized to do that."}
+    UsrDoesntExist = {'error': "User doesn't exist."}

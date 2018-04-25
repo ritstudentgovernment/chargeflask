@@ -168,6 +168,26 @@ class TestCommitteeNotes(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.UsrNotAuth
 
+    def test_modify_committee_notes_no_token(self):
+        user_data = {"token": "derp",
+                     "id": 10,
+                     "description": "New Description edited",
+                     "hidden": True}
+        self.socketio.emit('modify_committee_note', user_data)
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.UsrDoesntExist
+
+    def test_modify_committee_notes_no_id(self):
+        user_data = {"token": self.user_token,
+                     "id": 50,
+                     "description": "New Description edited",
+                     "hidden": True}
+        self.socketio.emit('modify_committee_note', user_data)
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.CommitteeNoteDoesntExist
+
 
     def test_get_committee_note(self):
         self.socketio.emit('get_committee_note', '10')
@@ -192,6 +212,12 @@ class TestCommitteeNotes(object):
         assert received[0]["args"][0] == {}
 
     def test_get_committee_notes_empty(self):
+        self.socketio.emit('get_committee_notes', 'asd')
+
+        received = self.socketio.get_received()
+        assert len(received[0]["args"][0]) == 0
+
+    def test_modify_committee_notes_empty(self):
         self.socketio.emit('get_committee_notes', 'asd')
 
         received = self.socketio.get_received()

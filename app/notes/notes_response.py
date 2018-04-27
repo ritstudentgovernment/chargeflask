@@ -11,5 +11,6 @@ class Response():
 	ModifySuccess = {"success": "Note has modified"}
 	ModifyError = {"error": "Note has not modified"}
 	UsrNotAuth = {"error": "User not authorized."}
+	UsrDoesntExist = {'error': "User doesn't exist."}
 	ActionDoesntExist = {'error': "Action doesn't exist."}
 	NoteDoesntExist = {'error': "Note doesn't exist."}

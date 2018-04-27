@@ -2,24 +2,22 @@
 filename: test_committees.py
 description: Tests for Committees.
 created by: Chris Lemelin (cxl8826@rit.edu)
-created on: 04/04/18
+created on: 04/23/18
 """
 
 import pytest
 import config
 from app import app, db, socketio
-from app.notes.notes_response import Response
+from app.committee_notes.committee_notes_response import Response
 from app.committees.models import Committees
+from app.committee_notes.models import *
 from app.users.permissions import Permissions
-from app.actions.models import *
 from app.charges.models import *
-from app.notes.models import *
 from app.users.models import Users
 from flask_socketio import SocketIOTestClient
 from flask_sqlalchemy import SQLAlchemy
 
-
-class TestNotes(object):
+class TestCommitteeNotes(object):
 
     @classmethod
     def setup_class(self):
@@ -91,153 +89,136 @@ class TestNotes(object):
         db.session.add(committee)
         db.session.commit()
 
-        # Create a test charge.
-        charge = Charges(id = 10)
-        charge.author = "testuser"
-        charge.title = "Test Charge"
-        charge.description = "Test Description"
-        charge.committee = "testcommittee"
-        charge.priority = ChargePriorityType.Low
-        charge.status = ChargeStatusType.Unapproved
-        self.charge = charge
-
-        db.session.add(charge)
-        db.session.commit()
-
-        # Create a test action.
-        action = Actions(id = 10)
-        action.author = admin.id
-        action.title = "Test Action"
-        action.description = "Test Description"
-        action.charge = 10
-        action.status = ActionStatusType.InProgress
-        self.test_action = action
-        db.session.add(self.test_action)
-        db.session.commit()
-
-        note = Notes(id = 10)
-        note.author = "testuser"
-        note.description = "Test Note"
-        note.action = 10
-        note.hidden = False
-        self.test_note = note
-        db.session.add(self.test_note)
+        committee_note = CommitteeNotes(id = 10)
+        committee_note.author = "testuser"
+        committee_note.description = "Test Note"
+        committee_note.committee = "testcommittee"
+        committee_note.hidden = False
+        self.committee_note = committee_note
+        db.session.add(self.committee_note)
         db.session.commit()
 
     # Test when creating a note
-    def test_create_note(self):
+    def test_create_committee_note(self):
         user_data = {"token": self.admin_token,
-                     "action": 10,
-                     "description": "New Description"}
+                     "committee": "testcommittee",
+                     "description": "Test Note"}
 
-        self.socketio.emit('create_note', user_data)
+        self.socketio.emit('create_committee_note', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.AddSuccess
 
     # Test when creating a note with an invalid action
-    def test_create_note_no_action(self):
+    def test_create_committee_note_no_committee(self):
         user_data = {"token": self.admin_token,
-                     "action": 99,
+                     "committee": "ugh",
                      "description": "New Description"}
 
-        self.socketio.emit('create_note', user_data)
+        self.socketio.emit('create_committee_note', user_data)
         received = self.socketio.get_received()
-        assert received[0]["args"][0] == Response.ActionDoesntExist
+        assert received[0]["args"][0] == Response.CommitteeDoesntExist
 
     # Test when a note is created by a committee head
-    def test_create_note_charge_head(self):
+    def test_create_committee_note_charge_head(self):
         user_data = {"token": self.user_token,
-                     "action": 10,
+                     "committee": "testcommittee",
                      "description": "New Description"}
 
-        self.socketio.emit('create_note', user_data)
+        self.socketio.emit('create_committee_note', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.AddSuccess
 
     # Test when a charge is created by a non authorized user
-    def test_create_note_charge_head(self):
+    def test_create_committee_note_not_auth(self):
         user_data = {"token": self.user_token2,
-                     "action": 10,
+                     "committee": "testcommittee",
                      "description": "New Description"}
 
-        self.socketio.emit('create_note', user_data)
+        self.socketio.emit('create_committee_note', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.UsrNotAuth
 
-    def test_get_note(self):
-        self.socketio.emit('get_note', '10')
-
-        received = self.socketio.get_received()
-        assert received[0]["args"][0]["author"] == 'testuser'
-        assert received[0]["args"][0]["action"] == 10
-        assert received[0]["args"][0]["description"] == "Test Note"
-
-    def test_get_notes(self):
-        self.socketio.emit('get_notes', '10')
-
-        received = self.socketio.get_received()
-        assert received[0]["args"][0][0]["author"] == 'testuser'
-        assert received[0]["args"][0][0]["action"] == 10
-        assert received[0]["args"][0][0]["description"] == "Test Note"
-
-    def test_get_note_empty(self):
-        self.socketio.emit('get_note', '99')
-
-        received = self.socketio.get_received()
-        assert received[0]["args"][0] == {}
-
-    def test_get_notes_empty(self):
-        self.socketio.emit('get_notes', '99')
-
-        received = self.socketio.get_received()
-        assert len(received[0]["args"][0]) == 0
-
-    def test_modify_notes_admin(self):
+    def test_modify_committee_notes_admin(self):
         user_data = {"token": self.admin_token,
                      "id": 10,
                      "description": "New Description edited",
                      "hidden": False}
-        self.socketio.emit('modify_note', user_data)
+        self.socketio.emit('modify_committee_note', user_data)
 
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.ModifySuccess
 
-    def test_modify_notes_author(self):
+    def test_modify_committee_notes_author(self):
         user_data = {"token": self.user_token,
                      "id": 10,
                      "description": "New Description edited",
                      "hidden": True}
-        self.socketio.emit('modify_note', user_data)
+        self.socketio.emit('modify_committee_note', user_data)
 
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.ModifySuccess
 
-    def test_modify_notes_not_auth(self):
+    def test_modify_committee_notes_not_auth(self):
         user_data = {"token": self.user_token2,
                      "id": 10,
                      "description": "New Description edited",
                      "hidden": True}
-        self.socketio.emit('modify_note', user_data)
+        self.socketio.emit('modify_committee_note', user_data)
 
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.UsrNotAuth
 
-    def test_modify_notes_no_token(self):
+    def test_modify_committee_notes_no_token(self):
         user_data = {"token": "derp",
                      "id": 10,
                      "description": "New Description edited",
                      "hidden": True}
-        self.socketio.emit('modify_note', user_data)
+        self.socketio.emit('modify_committee_note', user_data)
 
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.UsrDoesntExist
 
-    def test_modify_notes_no_id(self):
+    def test_modify_committee_notes_no_id(self):
         user_data = {"token": self.user_token,
                      "id": 50,
                      "description": "New Description edited",
                      "hidden": True}
-        self.socketio.emit('modify_note', user_data)
+        self.socketio.emit('modify_committee_note', user_data)
 
         received = self.socketio.get_received()
-        assert received[0]["args"][0] == Response.NoteDoesntExist
+        assert received[0]["args"][0] == Response.CommitteeNoteDoesntExist
+
+
+    def test_get_committee_note(self):
+        self.socketio.emit('get_committee_note', '10')
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0]["author"] == 'testuser'
+        assert received[0]["args"][0]["committee"] == 'testcommittee'
+        assert received[0]["args"][0]["description"] == "Test Note"
+
+    def test_get_committee_notes(self):
+        self.socketio.emit('get_committee_notes', 'testcommittee')
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0][0]["author"] == 'testuser'
+        assert received[0]["args"][0][0]["committee"] == 'testcommittee'
+        assert received[0]["args"][0][0]["description"] == "Test Note"
+
+    def test_get_committee_note_empty(self):
+        self.socketio.emit('get_committee_note', '99')
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == {}
+
+    def test_get_committee_notes_empty(self):
+        self.socketio.emit('get_committee_notes', 'asd')
+
+        received = self.socketio.get_received()
+        assert len(received[0]["args"][0]) == 0
+
+    def test_modify_committee_notes_empty(self):
+        self.socketio.emit('get_committee_notes', 'asd')
+
+        received = self.socketio.get_received()
+        assert len(received[0]["args"][0]) == 0

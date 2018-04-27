@@ -26,7 +26,7 @@ from app.committee_notes.committee_notes_response import Response
 @socketio.on('create_committee_note')
 def create_note(user_data):
 
-    user = Users.verify_auth(user_data["token"]) if "token" in user_data else None
+    user = Users.verify_auth(user_data.get("token", -1))
     committe_id = user_data.get('committee', '')
     committee = Committees.query.filter_by(id=committe_id).first()
 
@@ -114,7 +114,7 @@ def get_note(id, broadcast = False):
 @socketio.on('modify_committee_note')
 def modify_note(user_data):
 
-    user = Users.verify_auth(user_data["token"])
+    user = Users.verify_auth(user_data.get("token",""))
 
     if(user is None):
         emit('modify_note', Response.UsrDoesntExist)

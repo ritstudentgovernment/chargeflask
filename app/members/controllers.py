@@ -52,10 +52,10 @@ def get_committee_members(committee_id, broadcast= False):
 @socketio.on('add_member_committee')
 def add_to_committee(user_data):
 
-	user = Users.verify_auth(user_data["token"])
-	committee = Committees.query.filter_by(id= user_data["committee_id"]).first()
+	user = Users.verify_auth(user_data.get("token",""))
+	committee = Committees.query.filter_by(id= user_data.get("committee_id",-1)).first()
 
-	new_user_id = user_data["user_id"] if user_data["user_id"] != "" else user.id
+	new_user_id = user_data.get("user_id","")
 	new_user = Users.query.filter_by(id= new_user_id).first()
 
 	if committee is not None and new_user is not None and user is not None:
@@ -102,9 +102,9 @@ def add_to_committee(user_data):
 @socketio.on('remove_member_committee')
 def remove_from_committee(user_data):
 
-	user = Users.verify_auth(user_data["token"])
-	committee = Committees.query.filter_by(id= user_data["committee_id"]).first()
-	delete_user = Users.query.filter_by(id= user_data["user_id"]).first()
+	user = Users.verify_auth(user_data.get("token",""))
+	committee = Committees.query.filter_by(id= user_data.get("committee_id",-1)).first()
+	delete_user = Users.query.filter_by(id= user_data.get("user_id","")).first()
 	if committee is not None and delete_user is not None:
 
 		if committee.head == user.id or user.is_admin:

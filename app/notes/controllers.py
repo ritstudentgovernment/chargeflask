@@ -26,8 +26,8 @@ from app.notes.notes_response import Response
 @socketio.on('create_note')
 def create_note(user_data):
 
-    user = Users.verify_auth(user_data["token"]) if "token" in user_data else None
-    action = Actions.query.filter_by(id= user_data['action']).first()
+    user = Users.verify_auth(user_data.get("token",""))
+    action = Actions.query.filter_by(id= user_data.get('action',-1)).first()
 
     if action is not None:
         charge = Charges.query.filter_by(id= action.charge).first()
@@ -114,12 +114,12 @@ def get_note(id, broadcast = False):
 @socketio.on('modify_note')
 def modify_note(user_data):
 
-    user = Users.verify_auth(user_data["token"])
+    user = Users.verify_auth(user_data.get("token",""))
 
     if(user is None):
         emit('modify_note', Response.UsrDoesntExist)
         return
-    note = Notes.query.filter_by(id= user_data['id']).first()
+    note = Notes.query.filter_by(id= user_data.get('id',-1)).first()
 
     if(note is None):
         emit('modify_note', Response.NoteDoesntExist)

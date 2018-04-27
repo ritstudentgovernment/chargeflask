@@ -33,10 +33,23 @@ class TestUser(object):
 		self.socketio = socketio.test_client(app);
 		self.socketio.connect()
 
+
 	@classmethod
 	def setup_method(self, method):
 		db.drop_all()
 		db.create_all()
+
+		# Create normal user for tests.
+		user = Users(id = "testuser")
+		user.first_name = "Test1"
+		user.last_name = "User"
+		user.email = "testuser@test.com"
+		user.is_admin = False
+		db.session.add(user)
+		db.session.commit()
+		self.test_user = user
+		self.user_token = user.generate_auth()
+		self.user_token = self.user_token.decode('ascii')
 
 	@classmethod
 	def teardown_class(self):
@@ -103,3 +116,25 @@ class TestUser(object):
 		# Request token.
 		received = self.socketio.get_received()
 		token = received[0]["args"][0]["token"]
+
+	def test_search_users(self):
+		returnUser= {
+		 	"id": "testuser",
+		 	"first_name": "Test1",
+		 	"last_name": "User",
+		 	"email": "testuser@test.com"
+		}
+		self.socketio.emit("search_users", "testu")
+
+		# Request token.
+		received = self.socketio.get_received()
+		print(received)
+		assert returnUser == received[0]["args"][0][0]
+
+	def test_search_users_no_found(self):
+		self.socketio.emit("search_users", "asdf")
+
+		# Request token.
+		received = self.socketio.get_received()
+		print(received)
+		assert 0 == len(received[0]["args"][0])

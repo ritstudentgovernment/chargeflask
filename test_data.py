@@ -22,6 +22,8 @@ from app.actions.controllers import *
 from app.actions.models import *
 from app.committees.models import *
 from app.notes.models import *
+from app.committee_notes.models import *
+
 
 db.drop_all()
 db.create_all()
@@ -37,12 +39,12 @@ def main():
     make_charges()
     make_actions()
     make_notes()
+    make_committee_notes()
 
 
 def make_users():
     for count in range(0, 100):
         username = 'TestUser'+str(count)
-		# Create normal user for tests.
         user = Users(id = username)
         user.first_name = person.name()
         user.last_name = person.last_name()
@@ -51,9 +53,8 @@ def make_users():
         db.session.add(user)
         db.session.commit()
 
-    for count in range(1, 11):
+    for count in range(0, 10):
         username = 'AdminUser'+str(count)
-		# Create normal user for tests.
         user = Users(id = username)
         user.first_name = person.name()
         user.last_name = person.last_name()
@@ -127,20 +128,32 @@ def make_actions():
 
 
 def make_notes():
-        for committee_id in range(0,10):
-            committee_id_str = 'TestCommittee'+str(committee_id)
+    for committee_id in range(0,10):
+        committee_id_str = 'TestCommittee'+str(committee_id)
 
 
-            for note_id in range (1,10):
-                new_note_id = committee_id*10 + note_id
-                note = Notes(id = new_note_id)
-                note.description = text.sentence()+'. '+text.sentence()+'. '+text.sentence()
-                note.author = 'TestUser'+str(new_note_id)
-                note.charge = committee_id*2 + (note_id%2)
-                note.status = ActionStatusType(random.randint(0,6))
+        for note_id in range (1,10):
+            new_note_id = committee_id*10 + note_id
+            note = Notes(id = new_note_id)
+            note.description = text.sentence()+' '+text.sentence()+' '+text.sentence()
+            note.author = 'TestUser'+str(new_note_id)
+            note.charge = committee_id*2 + (note_id%2)
 
-                db.session.add(note)
-                db.session.commit()
+            db.session.add(note)
+            db.session.commit()
+
+def make_committee_notes():
+    for committee_id in range(0,10):
+        committee_id_str = 'TestCommittee'+str(committee_id)
+
+        new_committee_note_id = committee_id
+        committee_note = CommitteeNotes(id = new_committee_note_id)
+        committee_note.description =  text.sentence()+' '+text.sentence()+' '+text.sentence()
+        committee_note.author = "TestUser"+ str(committee_id*10)
+        committee_note.committee = 'TestCommittee'+str(committee_id)
+
+        db.session.add(committee_note)
+        db.session.commit()
 
 if __name__== "__main__":
   main()

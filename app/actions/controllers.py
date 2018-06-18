@@ -79,9 +79,9 @@ def get_action(action_id, broadcast = False):
 ##
 @socketio.on('create_action')
 def create_action(user_data):
-    user = Users.verify_auth(user_data["token"]) if "token" in user_data else None
-    charge = Charges.query.filter_by(id = user_data["charge"]).first()
-    assigned_to = Users.query.filter_by(id = user_data["assigned_to"]).first()
+    user = Users.verify_auth(user_data.get("token",""))
+    charge = Charges.query.filter_by(id = user_data.get("charge","")).first()
+    assigned_to = Users.query.filter_by(id = user_data.get("assigned_to","")).first()
 
     if charge is None or user is None:
         emit("create_action", Response.UsrChargeDontExist)
@@ -136,8 +136,8 @@ def create_action(user_data):
 ##
 @socketio.on('edit_action')
 def edit_action(user_data):
-    user = Users.verify_auth(user_data["token"])
-    action = Actions.query.filter_by(id = user_data["id"]).first()
+    user = Users.verify_auth(user_data.get("token",""))
+    action = Actions.query.filter_by(id = user_data.get("id","")).first()
 
     if action is None:
         emit('edit_action', Response.ActionDoesntExist)

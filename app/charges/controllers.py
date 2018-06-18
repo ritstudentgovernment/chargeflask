@@ -92,8 +92,8 @@ def get_charge(charge_id, broadcast = False):
 @socketio.on('create_charge')
 def create_charge(user_data):
 
-    user = Users.verify_auth(user_data["token"]) if "token" in user_data else None
-    committee = Committees.query.filter_by(id = user_data["committee"]).first()
+    user = Users.verify_auth(user_data.get("token",""))
+    committee = Committees.query.filter_by(id = user_data.get("committee","")).first()
 
     if committee is None or user is None:
         emit("create_charge", Response.UsrChargeDontExist)
@@ -152,11 +152,12 @@ def create_charge(user_data):
 ##
 @socketio.on('edit_charge')
 def edit_charge(user_data):
-    user = Users.verify_auth(user_data["token"]) if "token" in user_data else None
-    charge = Charges.query.filter_by(id = user_data["charge"]).first()
-    committee = Committees.query.filter_by(id = charge.committee).first()
+    user = Users.verify_auth(user_data.get("token",""))
+    charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
 
     if charge is not None and user is not None:
+        committee = Committees.query.filter_by(id = charge.committee).first()
+
         if (committee.head == user.id or user.is_admin):
 
             for key in user_data:

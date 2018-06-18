@@ -194,8 +194,19 @@ class TestCharges(object):
 
         self.socketio.emit('edit_charge', user_data)
         received = self.socketio.get_received()
-        print(received)
         assert received[1]["args"][0] == self.charge_dict
+
+    def test_edit_charge_no_id(self):
+
+        user_data = {
+            "token": self.admin_token,
+            "title": "this is the new title"
+        }
+        self.charge_dict["title"] = user_data["title"]
+
+        self.socketio.emit('edit_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.UsrChargeDontExist
 
 
     def test_edit_charge_not_authorized(self):

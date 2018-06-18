@@ -153,8 +153,8 @@ def send_request(new_user, committee):
 @socketio.on('get_invitation')
 def get_invitation(user_data):
 
-    invitation = Invitations.query.filter_by(id = user_data["invitation_id"]).first()
-    user = Users.verify_auth(user_data["token"])
+    invitation = Invitations.query.filter_by(id = user_data.get("invitation_id","")).first()
+    user = Users.verify_auth(user_data.get("token",""))
 
     if invitation is None:
         emit("get_invitation", Response.InviteDoesntExist)
@@ -201,8 +201,8 @@ def get_invitation(user_data):
 @socketio.on('set_invitation')
 def set_invitation(user_data):
 
-    invitation = Invitations.query.filter_by(id = user_data["invitation_id"]).first()
-    user = Users.verify_auth(user_data["token"])
+    invitation = Invitations.query.filter_by(id = user_data.get("invitation_id","")).first()
+    user = Users.verify_auth(user_data.get("token",""))
 
     if invitation is None:
         emit("set_invitation", Response.InviteDoesntExist)
@@ -216,13 +216,13 @@ def set_invitation(user_data):
         emit("set_invitation", Response.InvalidStatus)
         return
 
-    if type(user_data["status"]) != type(True):
+    if type(user_data.get("status","")) != type(True):
         emit("set_invitation", Response.InvalidStatus)
         return
 
     com_head = Users.query.filter_by(id= invitation.committee.head).first()
     com_id = invitation.committee.id
-    token = user_data["token"]
+    token = user_data.get("token","")
 
     # If invitation, use the committe heads token.
     if invitation.isInvite:

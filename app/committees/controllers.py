@@ -39,8 +39,8 @@ def get_committees(broadcast = False):
 @socketio.on('get_permissions')
 def get_permissions(user_data):
 
-    user = Users.verify_auth(user_data["token"]) if "token" in user_data else None
-    committee = Committees.query.filter_by(id = user_data["id"]).first()
+    user = Users.verify_auth(user_data.get("token",""))
+    committee = Committees.query.filter_by(id = user_data.get("id",-1)).first()
     permission_level = Permissions.CanView
 
     if committee is not None:
@@ -118,7 +118,7 @@ def get_committee(committee_id, broadcast = False):
 @socketio.on('create_committee')
 def create_committee(user_data):
 
-    user = Users.verify_auth(user_data["token"])
+    user = Users.verify_auth(user_data.get("token",""))
 
     if user is not None and user.is_admin:
 
@@ -128,31 +128,39 @@ def create_committee(user_data):
 
         if Committees.query.filter_by(id = committee_id).first() is None:
 
-            new_committee = Committees(id = committee_id)
-            new_committee.title = user_data["title"]
-            new_committee.description = user_data["description"]
-            new_committee.location = user_data["location"]
-            new_committee.meeting_time = user_data["meeting_time"]
-            new_committee.meeting_day = user_data["meeting_day"]
-            new_committee.head = user_data["head"]
+            if ("title" in user_data and
+                "description" in user_data and
+                "location" in user_data and
+                "meeting_time" in user_data and
+                "meeting_day" in user_data and
+                "head" in user_data):
 
-            if "committee_img" in user_data:
-                com_img = base64.b64decode(user_data["committee_img"])
-                new_committee.committee_img = com_img
+                new_committee = Committees(id = committee_id)
+                new_committee.title = user_data["title"]
+                new_committee.description = user_data["description"]
+                new_committee.location = user_data["location"]
+                new_committee.meeting_time = user_data["meeting_time"]
+                new_committee.meeting_day = user_data["meeting_day"]
+                new_committee.head = user_data["head"]
 
-            db.session.add(new_committee)
+                if "committee_img" in user_data:
+                    com_img = base64.b64decode(user_data["committee_img"])
+                    new_committee.committee_img = com_img
 
-            try:
+                db.session.add(new_committee)
 
-                db.session.commit()
-                emit('create_committee', Response.AddSuccess)
-                get_committees(broadcast= True)
-            except Exception as e:
+                try:
 
-                db.session.rollback()
-                db.session.flush()
-                print(e)
-                emit("create_committee", Response.AddError)
+                    db.session.commit()
+                    emit('create_committee', Response.AddSuccess)
+                    get_committees(broadcast= True)
+                except Exception as e:
+
+                    db.session.rollback()
+                    db.session.flush()
+                    emit("create_committee", Response.AddError)
+            else:
+                emit('create_committee', Response.AddExists)
         else:
             emit('create_committee', Response.AddExists)
     else:
@@ -179,11 +187,11 @@ def create_committee(user_data):
 @socketio.on('edit_committee')
 def edit_committee(user_data):
 
-    user = Users.verify_auth(user_data["token"])
+    user = Users.verify_auth(user_data.get("token",""))
 
     if user is not None and user.is_admin:
 
-        committee = Committees.query.filter_by(id= user_data["id"]).first()
+        committee = Committees.query.filter_by(id= user_data.get("id")).first()
 
         if committee is not None:
 

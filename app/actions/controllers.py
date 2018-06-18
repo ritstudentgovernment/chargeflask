@@ -28,7 +28,8 @@ def get_actions(charge_id, broadcast = False):
                     {
                         "id": c.id,
                         "title": c.title,
-                        "description": c.description
+                        "description": c.description,
+                        "status": c.status.value
                     }
                     for c in actions
                 ]
@@ -56,6 +57,7 @@ def get_action(action_id, broadcast = False):
         "id": action.id,
         "title": action.title,
         "description": action.description,
+        "status": action.status.value
     }
 
     emit("get_action", action_info, broadcast = broadcast)
@@ -99,17 +101,19 @@ def create_action(user_data):
         return
 
     action = Actions(title = user_data["title"])
-    charge.author = user.id
-    charge.description = user_data["description"]
-    charge.charge = charge.id
-    charge.status = ChargeStatusType.InProgress
+    action.author = user.id
+    action.assigned_to = assigned_to.id
+    action.description = user_data.get("description", "")
+    action.charge = charge.id
+    action.status = ActionStatusType.InProgress
+
 
     db.session.add(charge)
 
     try:
         db.session.commit()
         emit('create_action', Response.AddSuccess)
-        emit('get_actions', charge.id)
+        get_actions(charge.id, broadcast = True)
     except Exception as e:
         db.session.rollback()
         db.session.flush()

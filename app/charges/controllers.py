@@ -27,11 +27,14 @@ def get_charges(committee_id, broadcast = False):
     charges = Charges.query.filter_by(committee= committee_id).all()
     charge_ser = [
                     {
-                        "id": c.id,
-                        "title": c.title,
-                        "description": c.description
+                        "id": charge.id,
+                        "title": charge.title,
+                        "description": charge.description,
+                        "committee": charge.committee,
+                        "priority": charge.priority.value,
+                        "status": charge.status.value
                     }
-                    for c in charges
+                    for charge in charges
                 ]
     emit("get_charges", charge_ser, broadcast = broadcast)
 
@@ -59,9 +62,9 @@ def get_charge(charge_id, broadcast = False):
         "id": charge.id,
         "title": charge.title,
         "description": charge.description,
-        "committee": "Commitee title",
-        "committee_id": "ID",
-        "priority": charge.priority
+        "committee": charge.committee,
+        "priority": charge.priority.value,
+        "status": charge.status.value
     }
     emit('get_charge', charge_info, broadcast= broadcast)
 
@@ -108,10 +111,14 @@ def create_charge(user_data):
 
     charge = Charges(title = user_data["title"])
     charge.author = user.id
-    charge.description = user_data["description"] if "description" in user_data else ""
+    charge.description = user_data.get("description", "")
     charge.committee = committee.id
     charge.status = ChargeStatusType.Unapproved
     charge.priority = ChargePriorityType(user_data["priority"])
+    charge.objectives = user_data.get("objectives", [])
+    charge.schedule = user_data.get("schedules", [])
+    charge.resources = user_data.get("resources", [])
+    charge.stakeholders = user_data.get("stakeholders", [])
 
     db.session.add(charge)
 

@@ -8,30 +8,6 @@ created on: 08/30/17
 from app import db
 from sqlalchemy.dialects.postgresql import *
 from sqlalchemy_utils import ChoiceType
-from enum import Enum
-
-##
-## @brief      Levels of priority for charges.
-##
-class ChargePriorityType(Enum):
-    Low     = 0
-    Medium  = 1
-    High    = 2
-
-
-##
-## @brief      Status types for charges.
-##
-class ChargeStatusType(Enum):
-    Unapproved = 0
-    Failed     = 1
-    InProgress = 2
-    Indefinite = 3
-    Unknown    = 4
-    Completed  = 5
-    NotStarted = 6
-    Stopped    = 7
-
 
 ##
 ## @brief      Charges Model.
@@ -49,5 +25,5 @@ class Charges(db.Model):
     actions = db.relationship('Actions', backref='charges', lazy='dynamic')
     resources = db.Column(ARRAY(db.String))
     stakeholders = db.Column(ARRAY(db.String))
-    priority = db.Column(ChoiceType(ChargePriorityType, impl= db.Integer()))
-    status = db.Column(ChoiceType(ChargeStatusType, impl= db.Integer()))
+    priority = db.Column(db.Integer)
+    status = db.Column(db.Integer)

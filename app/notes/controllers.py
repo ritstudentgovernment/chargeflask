@@ -36,6 +36,7 @@ def create_note(user_data):
             note = Notes()
             note.action = action.id
             note.description = user_data.get('description',"")
+            note.status = user_data.get('status',0)
             note.author = user.id
             note.hidden = False
             db.session.add(note)
@@ -67,11 +68,13 @@ def get_notes(action_id, broadcast = False):
                         "author": c.author,
                         "action": c.action,
                         "description": c.description,
-                        "created_at": c.created_at,
+                        "status": c.status,
+                        # "created_at": c.created_at,
                         "hidden": c.hidden
                     }
                     for c in notes
                 ]
+    note_ser.append(action_id)
     emit("get_notes", note_ser, broadcast = broadcast)
 
 ##
@@ -137,7 +140,7 @@ def modify_note(user_data):
     if(user.id == committee.head or user.is_admin or user.id == note.author):
 
         if "hidden" in user_data:
-             note.hidden = user_data['hidden']
+            note.hidden = user_data['hidden']
 
         db.session.add(note)
 

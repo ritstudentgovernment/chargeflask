@@ -69,12 +69,12 @@ def get_notes(action_id, broadcast = False):
                         "action": c.action,
                         "description": c.description,
                         "status": c.status,
-                        # "created_at": c.created_at,
+                        "action": c.action,
+                        "created_at": c.created_at.isoformat(),
                         "hidden": c.hidden
                     }
                     for c in notes
                 ]
-    note_ser.append(action_id)
     emit("get_notes", note_ser, broadcast = broadcast)
 
 ##

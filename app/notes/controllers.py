@@ -65,7 +65,7 @@ def get_notes(action_id, broadcast = False):
     note_ser = [
                     {
                         "id": c.id,
-                        "author": c.author,
+                        "author": "{} {}".format(Users.query.filter_by(id = c.author).first().first_name, Users.query.filter_by(id = c.author).first().last_name),
                         "action": c.action,
                         "description": c.description,
                         "status": c.status,

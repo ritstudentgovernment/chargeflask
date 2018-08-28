@@ -29,7 +29,8 @@ def get_actions(charge_id, broadcast = False):
                         "id": c.id,
                         "title": c.title,
                         "description": c.description,
-                        "status": c.status
+                        "status": c.status,
+                        "assigned_to": "{} {}".format(Users.query.filter_by(id = c.assigned_to).first().first_name, Users.query.filter_by(id = c.assigned_to).first().last_name),
                     }
                     for c in actions
                 ]

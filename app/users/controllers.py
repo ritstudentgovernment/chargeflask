@@ -10,6 +10,15 @@ from app import socketio, db
 from app.users.models import Users
 import ldap
 
+@socketio.on('verify_auth')
+def verify(user_data):
+
+	user = Users.verify_auth(user_data.get("token",""))
+	emit('verify_auth', {
+		'admin': user.is_admin,
+		'username': user.id
+	})
+
 @socketio.on('auth')
 def login_user(credentials):
 
@@ -40,7 +49,12 @@ def login_user(credentials):
 
 			user = Users.query.filter_by(id = username).first()
 			token = user.generate_auth()
-			emit('auth', {'token': token.decode('ascii')})
+			admin = user.is_admin
+			emit('auth', {
+				'token': token.decode('ascii'),
+				'admin': admin,
+				'username': username
+			})
 
 		else:
 

@@ -119,6 +119,10 @@ def create_charge(user_data):
         emit("create_charge", Response.UsrChargeDontExist)
         return;
 
+    if user.id is not committee.head and user.is_admin is not True:
+        emit("create_charge", Response.UsrChargeDontExist)
+        return;
+
     if "title" not in user_data:
         emit ("create_charge", Response.InvalidTitle)
         return;

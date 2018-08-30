@@ -97,8 +97,8 @@ class TestNotes(object):
         charge.title = "Test Charge"
         charge.description = "Test Description"
         charge.committee = "testcommittee"
-        charge.priority = ChargePriorityType.Low
-        charge.status = ChargeStatusType.Unapproved
+        charge.priority = 0
+        charge.status = 0
         self.charge = charge
 
         db.session.add(charge)
@@ -110,7 +110,7 @@ class TestNotes(object):
         action.title = "Test Action"
         action.description = "Test Description"
         action.charge = 10
-        action.status = ActionStatusType.InProgress
+        action.status = 0
         self.test_action = action
         db.session.add(self.test_action)
         db.session.commit()
@@ -176,7 +176,7 @@ class TestNotes(object):
         self.socketio.emit('get_notes', '10')
 
         received = self.socketio.get_received()
-        assert received[0]["args"][0][0]["author"] == 'testuser'
+        assert received[0]["args"][0][0]["author"] == 'Test1 User'
         assert received[0]["args"][0][0]["action"] == 10
         assert received[0]["args"][0][0]["description"] == "Test Note"
 

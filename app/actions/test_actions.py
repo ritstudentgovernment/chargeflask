@@ -104,8 +104,8 @@ class TestAction(object):
         charge.title = "Test Charge"
         charge.description = "Test Description"
         charge.committee = "testcommittee"
-        charge.priority = ChargePriorityType.Low
-        charge.status = ChargeStatusType.Unapproved
+        charge.priority = 0
+        charge.status = 0
         self.test_charge = charge
         db.session.add(self.test_charge)
         db.session.commit()
@@ -113,10 +113,11 @@ class TestAction(object):
         # Create a test action.
         action = Actions(id = 10)
         action.author = self.test_admin.id
+        action.assigned_to = self.test_user.id
         action.title = "Test Action"
         action.description = "Test Description"
         action.charge = 10
-        action.status = ActionStatusType.InProgress
+        action.status = 0
         self.test_action = action
         db.session.add(self.test_action)
         db.session.commit()
@@ -187,8 +188,9 @@ class TestAction(object):
         response_data = [{
             'id': 10,
             'title': 'Test Action',
+            'assigned_to': 'Test1 User',
             'description': 'Test Description',
-            'status': ActionStatusType.InProgress.value
+            'status': 0
         }]
 
         self.socketio.emit('get_actions', 10)
@@ -210,7 +212,7 @@ class TestAction(object):
             'id': 10,
             'title': 'Test Action',
             'description': 'Test Description',
-            'status': ActionStatusType.InProgress.value
+            'status': 0
         }
 
         self.socketio.emit('get_action', 10)

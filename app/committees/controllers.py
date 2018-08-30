@@ -160,7 +160,7 @@ def create_committee(user_data):
                     db.session.flush()
                     emit("create_committee", Response.AddError)
             else:
-                emit('create_committee', Response.AddExists)
+                emit('create_committee', Response.AddError)
         else:
             emit('create_committee', Response.AddExists)
     else:

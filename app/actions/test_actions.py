@@ -238,7 +238,19 @@ class TestAction(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.EditSuccess
 
-    # Test editing an action
+    # Test nonexisting action.
+    def test_edit_non_existing(self):
+        user_data = {
+            'id': 10000,
+            'token': self.admin_token,
+            'title': 'Test Action 10',
+        }
+
+        self.socketio.emit('edit_action', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.ActionDoesntExist
+
+    # Test editing an action with no auth.
     def test_edit_action_not_auth(self):
         user_data = {
             'id': 10,

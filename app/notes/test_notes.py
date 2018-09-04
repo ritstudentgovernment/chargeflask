@@ -7,6 +7,7 @@ created on: 04/04/18
 
 import pytest
 import config
+from mock import patch, MagicMock
 from app import app, db, socketio
 from app.notes.notes_response import Response
 from app.committees.models import Committees
@@ -133,6 +134,17 @@ class TestNotes(object):
         self.socketio.emit('create_note', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.AddSuccess
+
+    # Test creating note raises an Exception.
+    @patch('flask_sqlalchemy._QueryProperty.__get__')
+    def test_create_note_exception(self, mock_obj):
+        user_data = {"token": self.admin_token,
+                     "action": 10,
+                     "description": "New Description"}
+
+        self.socketio.emit('create_note', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.AddError
 
     # Test when creating a note with an invalid action
     def test_create_note_no_action(self):

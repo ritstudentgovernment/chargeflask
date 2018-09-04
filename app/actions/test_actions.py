@@ -7,6 +7,7 @@ created on: 03/23/18
 
 import pytest
 import config
+from mock import patch, MagicMock
 from app import app, db, socketio
 from app.actions.actions_response import Response
 from app.actions.models import *
@@ -168,6 +169,23 @@ class TestAction(object):
         self.socketio.emit('create_action', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.UsrNotAuth
+
+    # Test creating action raises an Exception.
+    @patch('flask_sqlalchemy._QueryProperty.__get__')
+    def test_create_action_exception(self, mock_obj):
+        mock_obj.append.side_effect = Exception("Action couldnt be created, check data.")
+
+        user_data = {
+            "token": self.admin_token,
+            "charge": 10,
+            "assigned_to": "testuser",
+            "title": "test title",
+            "description": "test description"
+        }
+
+        self.socketio.emit('create_action', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.AddError
 
     # Test creating an action without a valid charge
     def test_create_action_no_charge(self):

@@ -124,6 +124,15 @@ class TestCommittees(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.AddError
 
+    # Test create without a required field.
+    def test_create_no_required_field(self):
+        self.test_committee_dict["token"] = self.admin_token
+        self.test_committee_dict.pop('meeting_time', None)
+
+        self.socketio.emit('create_committee', self.test_committee_dict)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.AddError
+
     # Test when a non-admin user tries to create a committee.
     def test_non_admin_create_committee(self):
 

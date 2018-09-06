@@ -29,7 +29,8 @@ def get_actions(charge_id, broadcast = False):
                         "id": c.id,
                         "title": c.title,
                         "description": c.description,
-                        "status": c.status.value
+                        "status": c.status,
+                        "assigned_to": "{} {}".format(Users.query.filter_by(id = c.assigned_to).first().first_name, Users.query.filter_by(id = c.assigned_to).first().last_name),
                     }
                     for c in actions
                 ]
@@ -57,7 +58,7 @@ def get_action(action_id, broadcast = False):
         "id": action.id,
         "title": action.title,
         "description": action.description,
-        "status": action.status.value
+        "status": action.status
     }
 
     emit("get_action", action_info, broadcast = broadcast)
@@ -105,10 +106,10 @@ def create_action(user_data):
     action.assigned_to = assigned_to.id
     action.description = user_data.get("description", "")
     action.charge = charge.id
-    action.status = ActionStatusType.InProgress
+    action.status = 0
 
 
-    db.session.add(charge)
+    db.session.add(action)
 
     try:
         db.session.commit()
@@ -162,8 +163,7 @@ def edit_action(user_data):
         # Send successful edit notification to user
         # and broadcast charge changes.
         emit("edit_action", Response.EditSuccess)
-        get_action(committee.id, broadcast= True)
         get_actions(charge.id,broadcast= True)
     except Exception as e:
         db.session.rollback()
-        emit("edit_committee", Response.EditError)
+        emit("edit_action", Response.EditError)

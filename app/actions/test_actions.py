@@ -7,6 +7,7 @@ created on: 03/23/18
 
 import pytest
 import config
+from mock import patch, MagicMock
 from app import app, db, socketio
 from app.actions.actions_response import Response
 from app.actions.models import *
@@ -104,8 +105,8 @@ class TestAction(object):
         charge.title = "Test Charge"
         charge.description = "Test Description"
         charge.committee = "testcommittee"
-        charge.priority = ChargePriorityType.Low
-        charge.status = ChargeStatusType.Unapproved
+        charge.priority = 0
+        charge.status = 0
         self.test_charge = charge
         db.session.add(self.test_charge)
         db.session.commit()
@@ -113,10 +114,11 @@ class TestAction(object):
         # Create a test action.
         action = Actions(id = 10)
         action.author = self.test_admin.id
+        action.assigned_to = self.test_user.id
         action.title = "Test Action"
         action.description = "Test Description"
         action.charge = 10
-        action.status = ActionStatusType.InProgress
+        action.status = 0
         self.test_action = action
         db.session.add(self.test_action)
         db.session.commit()
@@ -168,6 +170,23 @@ class TestAction(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.UsrNotAuth
 
+    # Test creating action raises an Exception.
+    @patch('flask_sqlalchemy._QueryProperty.__get__')
+    def test_create_action_exception(self, mock_obj):
+        mock_obj.append.side_effect = Exception("Action couldnt be created, check data.")
+
+        user_data = {
+            "token": self.admin_token,
+            "charge": 10,
+            "assigned_to": "testuser",
+            "title": "test title",
+            "description": "test description"
+        }
+
+        self.socketio.emit('create_action', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.AddError
+
     # Test creating an action without a valid charge
     def test_create_action_no_charge(self):
         user_data = {
@@ -187,8 +206,9 @@ class TestAction(object):
         response_data = [{
             'id': 10,
             'title': 'Test Action',
+            'assigned_to': 'Test1 User',
             'description': 'Test Description',
-            'status': ActionStatusType.InProgress.value
+            'status': 0
         }]
 
         self.socketio.emit('get_actions', 10)
@@ -210,7 +230,7 @@ class TestAction(object):
             'id': 10,
             'title': 'Test Action',
             'description': 'Test Description',
-            'status': ActionStatusType.InProgress.value
+            'status': 0
         }
 
         self.socketio.emit('get_action', 10)
@@ -236,7 +256,19 @@ class TestAction(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.EditSuccess
 
-    # Test editing an action
+    # Test nonexisting action.
+    def test_edit_non_existing(self):
+        user_data = {
+            'id': 10000,
+            'token': self.admin_token,
+            'title': 'Test Action 10',
+        }
+
+        self.socketio.emit('edit_action', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.ActionDoesntExist
+
+    # Test editing an action with no auth.
     def test_edit_action_not_auth(self):
         user_data = {
             'id': 10,

@@ -11,6 +11,7 @@ class Notes(db.Model):
 	__tablename__ = 'notes'
 	id = db.Column(db.Integer, primary_key=True, unique=True)
 	description = db.Column(db.String)
+	status = db.Column(db.Integer)
 	author = db.Column(db.ForeignKey('users.id'))
 	action = db.Column(db.ForeignKey('actions.id'))
 	created_at = db.Column(db.DateTime, server_default= db.func.now())

@@ -7,6 +7,7 @@ created on: 04/04/18
 
 import pytest
 import config
+from mock import patch, MagicMock
 from app import app, db, socketio
 from app.notes.notes_response import Response
 from app.committees.models import Committees
@@ -97,8 +98,8 @@ class TestNotes(object):
         charge.title = "Test Charge"
         charge.description = "Test Description"
         charge.committee = "testcommittee"
-        charge.priority = ChargePriorityType.Low
-        charge.status = ChargeStatusType.Unapproved
+        charge.priority = 0
+        charge.status = 0
         self.charge = charge
 
         db.session.add(charge)
@@ -110,7 +111,7 @@ class TestNotes(object):
         action.title = "Test Action"
         action.description = "Test Description"
         action.charge = 10
-        action.status = ActionStatusType.InProgress
+        action.status = 0
         self.test_action = action
         db.session.add(self.test_action)
         db.session.commit()
@@ -133,6 +134,17 @@ class TestNotes(object):
         self.socketio.emit('create_note', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.AddSuccess
+
+    # Test creating note raises an Exception.
+    @patch('flask_sqlalchemy._QueryProperty.__get__')
+    def test_create_note_exception(self, mock_obj):
+        user_data = {"token": self.admin_token,
+                     "action": 10,
+                     "description": "New Description"}
+
+        self.socketio.emit('create_note', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.AddError
 
     # Test when creating a note with an invalid action
     def test_create_note_no_action(self):
@@ -176,7 +188,7 @@ class TestNotes(object):
         self.socketio.emit('get_notes', '10')
 
         received = self.socketio.get_received()
-        assert received[0]["args"][0][0]["author"] == 'testuser'
+        assert received[0]["args"][0][0]["author"] == 'Test1 User'
         assert received[0]["args"][0][0]["action"] == 10
         assert received[0]["args"][0][0]["description"] == "Test Note"
 

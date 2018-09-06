@@ -22,6 +22,26 @@ from app.users.models import Users
 ##
 ## @emit       Emits a list of charges for committee.
 ##
+
+
+@socketio.on('get_all_charges')
+def get_all_charges(committee_id, broadcast = False):
+    charges = Charges.query.filter_by().all()
+    charge_ser = [
+                    {
+                        "id": charge.id,
+                        "title": charge.title,
+                        "description": charge.description,
+                        "committee": charge.committee,
+                        "priority": charge.priority,
+                        "status": charge.status
+                    }
+                    for charge in charges
+                ]
+    emit("get_all_charges", charge_ser, broadcast = broadcast)
+
+
+
 @socketio.on('get_charges')
 def get_charges(committee_id, broadcast = False):
     charges = Charges.query.filter_by(committee= committee_id).all()
@@ -31,8 +51,8 @@ def get_charges(committee_id, broadcast = False):
                         "title": charge.title,
                         "description": charge.description,
                         "committee": charge.committee,
-                        "priority": charge.priority.value,
-                        "status": charge.status.value
+                        "priority": charge.priority,
+                        "status": charge.status
                     }
                     for charge in charges
                 ]
@@ -63,8 +83,8 @@ def get_charge(charge_id, broadcast = False):
         "title": charge.title,
         "description": charge.description,
         "committee": charge.committee,
-        "priority": charge.priority.value,
-        "status": charge.status.value
+        "priority": charge.priority,
+        "status": charge.status
     }
     emit('get_charge', charge_info, broadcast= broadcast)
 
@@ -99,6 +119,10 @@ def create_charge(user_data):
         emit("create_charge", Response.UsrChargeDontExist)
         return;
 
+    if user.id is not committee.head and user.is_admin is not True:
+        emit("create_charge", Response.UsrChargeDontExist)
+        return;
+
     if "title" not in user_data:
         emit ("create_charge", Response.InvalidTitle)
         return;
@@ -113,8 +137,8 @@ def create_charge(user_data):
     charge.author = user.id
     charge.description = user_data.get("description", "")
     charge.committee = committee.id
-    charge.status = ChargeStatusType.Unapproved
-    charge.priority = ChargePriorityType(user_data["priority"])
+    charge.status = 0
+    charge.priority = 0
     charge.objectives = user_data.get("objectives", [])
     charge.schedule = user_data.get("schedules", [])
     charge.resources = user_data.get("resources", [])

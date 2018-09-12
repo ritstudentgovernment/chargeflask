@@ -116,6 +116,11 @@ def get_note(id, broadcast = False):
 @ensure_dict
 def modify_note(user_data):
 
+    # If not a dictionary, return error.
+    if type(user_data) is not dict:
+        emit("modify_committee_note", Response.ModifyError)
+        return
+
     user = Users.verify_auth(user_data.get("token",""))
 
     if(user is None):

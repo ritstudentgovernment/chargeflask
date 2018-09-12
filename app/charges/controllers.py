@@ -112,6 +112,11 @@ def get_charge(charge_id, broadcast = False):
 @socketio.on('create_charge')
 def create_charge(user_data):
 
+    # If not a dictionary, return error.
+    if type(user_data) is not dict:
+        emit("create_charge", Response.AddError)
+        return
+
     user = Users.verify_auth(user_data.get("token",""))
     committee = Committees.query.filter_by(id = user_data.get("committee","")).first()
 
@@ -176,6 +181,12 @@ def create_charge(user_data):
 ##
 @socketio.on('edit_charge')
 def edit_charge(user_data):
+
+    # If not a dictionary, return error.
+    if type(user_data) is not dict:
+        emit("edit_charge", Response.EditError)
+        return
+
     user = Users.verify_auth(user_data.get("token",""))
     charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
 

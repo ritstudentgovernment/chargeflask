@@ -26,6 +26,11 @@ from app.committee_notes.committee_notes_response import Response
 @socketio.on('create_committee_note')
 def create_note(user_data):
 
+    # If not a dictionary, return error.
+    if type(user_data) is not dict:
+        emit("create_committee_note", Response.AddError)
+        return
+
     user = Users.verify_auth(user_data.get("token", -1))
     committe_id = user_data.get('committee', '')
     committee = Committees.query.filter_by(id=committe_id).first()
@@ -113,6 +118,11 @@ def get_note(id, broadcast = False):
 
 @socketio.on('modify_committee_note')
 def modify_note(user_data):
+
+    # If not a dictionary, return error.
+    if type(user_data) is not dict:
+        emit("modify_committee_note", Response.ModifyError)
+        return
 
     user = Users.verify_auth(user_data.get("token",""))
 

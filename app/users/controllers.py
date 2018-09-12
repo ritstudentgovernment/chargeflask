@@ -24,17 +24,20 @@ def login_user(credentials):
 
 	ldap_server = "ldaps://ldap.rit.edu"
 
-	if credentials["username"] == "" or credentials["password"] == "":
+	if (type(credentials) is not dict or 
+		credentials.get("username","") == "" or 
+		credentials.get("password","") == ""):
+
 		emit('auth', {'error': "Authentication error."})
 		return;
 
-	user_dn = "uid=" + credentials["username"] + ",ou=People,dc=rit,dc=edu"
-	search_filter = "uid=" + credentials["username"]
+	user_dn = "uid=" + credentials.get("username","") + ",ou=People,dc=rit,dc=edu"
+	search_filter = "uid=" + credentials.get("username","")
 	connect = ldap.initialize(ldap_server)
 
 	try:
 
-		connect.bind_s(user_dn, credentials["password"])
+		connect.bind_s(user_dn, credentials.get("password",""))
 		result = connect.search_s(user_dn,ldap.SCOPE_SUBTREE,search_filter)
 		connect.unbind_s()
 

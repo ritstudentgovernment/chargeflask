@@ -6,6 +6,7 @@ created on: 09/07/17
 """
 
 from flask_socketio import emit
+from app.check_data_type import checkDict
 from app import socketio, db
 from app.users.models import Users
 import ldap
@@ -20,13 +21,12 @@ def verify(user_data):
 	})
 
 @socketio.on('auth')
+@checkDict
 def login_user(credentials):
 
 	ldap_server = "ldaps://ldap.rit.edu"
 
-	if (type(credentials) is not dict or 
-		credentials.get("username","") == "" or 
-		credentials.get("password","") == ""):
+	if credentials.get("username","") == "" or credentials.get("password","") == "":
 
 		emit('auth', {'error': "Authentication error."})
 		return;

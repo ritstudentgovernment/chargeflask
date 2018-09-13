@@ -6,6 +6,7 @@ created on: 03/23/18
 """
 
 from flask_socketio import emit
+from app.check_data_type import checkDict
 from app import socketio, db
 from app.actions.models import *
 from app.charges.models import *
@@ -79,13 +80,8 @@ def get_action(action_id, broadcast = False):
 ## @return     { description_of_the_return_value }
 ##
 @socketio.on('create_action')
+@checkDict
 def create_action(user_data):
-
-    # If not a dictionary, return error.
-    if type(user_data) is not dict:
-        emit("create_action", Response.AddError)
-        return
-
     user = Users.verify_auth(user_data.get("token",""))
     charge = Charges.query.filter_by(id = user_data.get("charge","")).first()
     assigned_to = Users.query.filter_by(id = user_data.get("assigned_to","")).first()
@@ -142,13 +138,8 @@ def create_action(user_data):
 ##
 ##
 @socketio.on('edit_action')
+@checkDict
 def edit_action(user_data):
-
-    # If not a dictionary, return error.
-    if type(user_data) is not dict:
-        emit("edit_action", Response.EditError)
-        return
-
     user = Users.verify_auth(user_data.get("token",""))
     action = Actions.query.filter_by(id = user_data.get("id","")).first()
 

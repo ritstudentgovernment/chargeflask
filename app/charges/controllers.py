@@ -178,12 +178,6 @@ def create_charge(user_data):
 @socketio.on('edit_charge')
 @ensure_dict
 def edit_charge(user_data):
-
-    # If not a dictionary, return error.
-    if type(user_data) is not dict:
-        emit("edit_charge", Response.EditError)
-        return
-
     user = Users.verify_auth(user_data.get("token",""))
     charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
 

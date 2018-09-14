@@ -75,3 +75,17 @@ def login_user(credentials):
 		connect.unbind_s()
 		emit('auth', {'error': "Authentication error."})
 		return;
+
+@socketio.on('search_users')
+def login_user(search_string):
+	users = Users.query.filter(Users.id.like(search_string+"%")).all()
+	users_ser = [
+                    {
+                        "id": user.id,
+                        "first_name": user.first_name,
+                        "last_name": user.last_name,
+                        "email": user.email,
+                    }
+                    for user in users
+                ]
+	emit("search_users", users_ser)

@@ -8,7 +8,7 @@ import functools
 from flask_socketio import emit
 from flask import request
 
-def checkDict(types):
+def ensure_dict(types):
 	
     @functools.wraps(types)
     def wrapped(*args, **kwargs):

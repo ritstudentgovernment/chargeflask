@@ -6,7 +6,7 @@ created on: 09/26/17
 """
 
 from flask_socketio import emit
-from app.check_data_type import checkDict
+from app.check_data_type import ensure_dict
 from app import socketio, db
 from app.committees.models import Committees
 from app.users.models import Users
@@ -51,7 +51,7 @@ def get_committee_members(committee_id, broadcast= False):
 ## @emit     Success if user could be added to committee, error if not.
 ##
 @socketio.on('add_member_committee')
-@checkDict
+@ensure_dict
 def add_to_committee(user_data):
 
 	user = Users.verify_auth(user_data.get("token",""))
@@ -102,7 +102,7 @@ def add_to_committee(user_data):
 ## @emit       Success if member could be deleted, error if not.
 ##
 @socketio.on('remove_member_committee')
-@checkDict
+@ensure_dict
 def remove_from_committee(user_data):
 
 	user = Users.verify_auth(user_data.get("token",""))

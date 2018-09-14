@@ -6,7 +6,7 @@ created on: 03/23/18
 """
 
 from flask_socketio import emit
-from app.check_data_type import checkDict
+from app.check_data_type import ensure_dict
 from app import socketio, db
 from app.actions.models import *
 from app.charges.models import *
@@ -80,7 +80,7 @@ def get_action(action_id, broadcast = False):
 ## @return     { description_of_the_return_value }
 ##
 @socketio.on('create_action')
-@checkDict
+@ensure_dict
 def create_action(user_data):
     user = Users.verify_auth(user_data.get("token",""))
     charge = Charges.query.filter_by(id = user_data.get("charge","")).first()
@@ -138,7 +138,7 @@ def create_action(user_data):
 ##
 ##
 @socketio.on('edit_action')
-@checkDict
+@ensure_dict
 def edit_action(user_data):
     user = Users.verify_auth(user_data.get("token",""))
     action = Actions.query.filter_by(id = user_data.get("id","")).first()

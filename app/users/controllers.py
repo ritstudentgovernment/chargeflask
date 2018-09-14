@@ -6,7 +6,7 @@ created on: 09/07/17
 """
 
 from flask_socketio import emit
-from app.check_data_type import checkDict
+from app.check_data_type import ensure_dict
 from app import socketio, db
 from app.users.models import Users
 import ldap
@@ -21,7 +21,7 @@ def verify(user_data):
 	})
 
 @socketio.on('auth')
-@checkDict
+@ensure_dict
 def login_user(credentials):
 
 	ldap_server = "ldaps://ldap.rit.edu"

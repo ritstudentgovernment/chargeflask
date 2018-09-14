@@ -6,7 +6,7 @@ created on: 09/19/17
 """
 
 from flask_socketio import emit
-from app.check_data_type import checkDict
+from app.check_data_type import ensure_dict
 from app import socketio, db
 from app.committees.committees_response import Response
 from app.committees.models import Committees
@@ -38,7 +38,7 @@ def get_committees(broadcast = False):
 ## @emit       Integer describing the user permissions.
 ##
 @socketio.on('get_permissions')
-@checkDict
+@ensure_dict
 def get_permissions(user_data):
 
     user = Users.verify_auth(user_data.get("token",""))
@@ -118,7 +118,7 @@ def get_committee(committee_id, broadcast = False):
 ## @emit       Emits a success message if created, error if not.
 ##
 @socketio.on('create_committee')
-@checkDict
+@ensure_dict
 def create_committee(user_data):
 
     user = Users.verify_auth(user_data.get("token",""))
@@ -188,7 +188,7 @@ def create_committee(user_data):
 ## @emit       Emits a success mesage if edited, errors otherwise.
 ##
 @socketio.on('edit_committee')
-@checkDict
+@ensure_dict
 def edit_committee(user_data):
 
     user = Users.verify_auth(user_data.get("token",""))

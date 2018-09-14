@@ -6,7 +6,7 @@ created on: 04/02/18
 """
 
 from flask_socketio import emit
-from app.check_data_type import checkDict
+from app.check_data_type import ensure_dict
 from app import socketio, db
 from app.actions.models import *
 from app.committees.models import *
@@ -25,7 +25,7 @@ from app.notes.notes_response import Response
 ##                        description - Description of new note
 ##
 @socketio.on('create_note')
-@checkDict
+@ensure_dict
 def create_note(user_data):
 
     user = Users.verify_auth(user_data.get("token",""))
@@ -117,7 +117,7 @@ def get_note(id, broadcast = False):
 ##
 
 @socketio.on('modify_note')
-@checkDict
+@ensure_dict
 def modify_note(user_data):
 
     user = Users.verify_auth(user_data.get("token",""))

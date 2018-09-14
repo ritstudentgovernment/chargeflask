@@ -6,6 +6,7 @@ created on: 09/07/17
 """
 
 from flask_socketio import emit
+from app.check_data_type import ensure_dict
 from app import socketio, db
 from app.users.models import Users
 import ldap
@@ -20,21 +21,23 @@ def verify(user_data):
 	})
 
 @socketio.on('auth')
+@ensure_dict
 def login_user(credentials):
 
 	ldap_server = "ldaps://ldap.rit.edu"
 
-	if credentials["username"] == "" or credentials["password"] == "":
+	if credentials.get("username","") == "" or credentials.get("password","") == "":
+
 		emit('auth', {'error': "Authentication error."})
 		return;
 
-	user_dn = "uid=" + credentials["username"] + ",ou=People,dc=rit,dc=edu"
-	search_filter = "uid=" + credentials["username"]
+	user_dn = "uid=" + credentials.get("username","") + ",ou=People,dc=rit,dc=edu"
+	search_filter = "uid=" + credentials.get("username","")
 	connect = ldap.initialize(ldap_server)
 
 	try:
 
-		connect.bind_s(user_dn, credentials["password"])
+		connect.bind_s(user_dn, credentials.get("password",""))
 		result = connect.search_s(user_dn,ldap.SCOPE_SUBTREE,search_filter)
 		connect.unbind_s()
 

@@ -50,6 +50,12 @@ class TestUser(object):
 		received = self.socketio.get_received()
 		assert received[0]["args"][0] == {'error': 'Authentication error.'}
 
+	# Test invalid datatype
+	def test_invalid_datatype(self):
+		self.socketio.emit("auth", "invalid_datatype")
+		received = self.socketio.get_received()
+		assert received[0]["args"][0] == {'error': 'Please check data type.'}
+
 	# Test incorrect login.
 	def test_incorrect_login(self):
 		self.socketio.emit("auth", {"username":"incorrect","password":"incorrect"})

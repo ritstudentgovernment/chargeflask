@@ -31,30 +31,40 @@ def create_note(user_data):
     user = Users.verify_auth(user_data.get("token",""))
     action = Actions.query.filter_by(id= user_data.get('action',-1)).first()
 
-    if action is not None:
-        charge = Charges.query.filter_by(id= action.charge).first()
-        committee = Committees.query.filter_by(id= charge.committee).first()
-        if(user is not None and (user.is_admin or committee.head == user.id)):
-            note = Notes()
-            note.action = action.id
-            note.description = user_data.get('description',"")
-            note.status = user_data.get('status',0)
-            note.author = user.id
-            note.hidden = False
-            db.session.add(note)
+    if user is None:
+        emit("create_note", Response.UsrDoesntExist)
+        return;
 
-            try:
-                db.session.commit()
-                emit('create_note', Response.AddSuccess)
-                get_notes(action.id, broadcast = True)
-            except Exception as e:
-                db.session.rollback()
-                db.session.flush()
-                emit("create_note", Response.AddError)
-        else:
-            emit("create_note", Response.UsrNotAuth)
-    else:
-    	emit("create_note", Response.ActionDoesntExist)
+    if action is None:
+        emit("create_note", Response.ActionDoesntExist)
+        return;
+
+    charge = Charges.query.filter_by(id= action.charge).first()
+    committee = Committees.query.filter_by(id= charge.committee).first()
+
+    if (not user.is_admin and 
+        committee.head != user.id and 
+        committee not in user.committees):
+        emit("create_note", Response.UsrNotAuth)
+        return;
+
+    note = Notes()
+    note.action = action.id
+    note.description = user_data.get('description',"")
+    note.status = user_data.get('status',0)
+    note.author = user.id
+    note.hidden = False
+    db.session.add(note)
+
+    try:
+        db.session.commit()
+        emit('create_note', Response.AddSuccess)
+        get_notes(action.id, broadcast = True)
+    except Exception as e:
+        db.session.rollback()
+        db.session.flush()
+        emit("create_note", Response.AddError)
+    
 
 ##
 ## @brief      Gets notes from an action

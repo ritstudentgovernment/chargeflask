@@ -159,7 +159,7 @@ class TestAction(object):
     # Test creating an action while not authorized to do so
     def test_create_action_not_authorized(self):
         user_data = {
-            "token": self.user_token,
+            "token": self.user_token2,
             "charge": 10,
             "assigned_to": "testuser",
             "title": "test title",

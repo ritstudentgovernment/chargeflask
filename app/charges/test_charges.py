@@ -64,6 +64,18 @@ class TestCharges(object):
         self.user_token = user.generate_auth()
         self.user_token = self.user_token.decode('ascii')
 
+        # Create normal user for tests.
+        user2 = Users(id = "testuser2")
+        user2.first_name = "Test"
+        user2.last_name = "User"
+        user2.email = "testuser@test.com"
+        user2.is_admin = False
+        db.session.add(user2)
+        db.session.commit()
+        self.test_user2 = user2
+        self.user_token2 = user2.generate_auth()
+        self.user_token2 = self.user_token2.decode('ascii')
+
         # Create a test committee.
         committee = Committees(id = "testcommittee")
         committee.title = "Test Committee"
@@ -71,7 +83,7 @@ class TestCharges(object):
         committee.location = "Test Location"
         committee.meeting_time = "1300"
         committee.meeting_day =  2
-        committee.head = "adminuser"
+        committee.head = "testuser"
         self.committee = committee
         db.session.add(committee)
         db.session.commit()
@@ -103,6 +115,19 @@ class TestCharges(object):
     def test_admin_create_charge(self):
         user_data = {
             "token": self.admin_token,
+            "title": "test charge",
+            "priority": 0,
+            "description": "test description",
+            "committee": "testcommittee"
+        }
+
+        self.socketio.emit('create_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.AddSuccess
+
+    def test_head_create_charge(self):
+        user_data = {
+            "token": self.user_token,
             "title": "test charge",
             "priority": 0,
             "description": "test description",
@@ -212,7 +237,7 @@ class TestCharges(object):
     def test_edit_charge_not_authorized(self):
 
         user_data = {
-            "token": self.user_token,
+            "token": self.user_token2,
             "charge": 10,
             "title": "this is the new title"
         }

@@ -91,8 +91,10 @@ def create_action(user_data):
         return
 
     committee = Committees.query.filter_by(id = charge.committee).first()
-
-    if not user.is_admin and committee.head == user.id:
+    
+    if (committee not in user.committees and
+        not user.is_admin and 
+        committee.head != user.id):
         emit("create_action", Response.UsrNotAuth)
         return
 

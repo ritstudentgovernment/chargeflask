@@ -146,6 +146,18 @@ class TestNotes(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.AddError
 
+
+    # Test creating note with no user.
+    def test_create_note_no_user(self):
+        user_data = {"token": "",
+                     "action": 10,
+                     "description": "New Description"}
+
+        self.socketio.emit('create_note', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.UsrDoesntExist
+
+
     # Test when creating a note with an invalid action
     def test_create_note_no_action(self):
         user_data = {"token": self.admin_token,

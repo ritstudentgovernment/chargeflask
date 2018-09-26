@@ -12,7 +12,6 @@ from sqlalchemy_utils import ChoiceType
 from flask_socketio import SocketIO
 from flask_mail import Mail
 
-
 # Create the app and add configuration.
 app = Flask(__name__, template_folder='static')
 app.config.from_object('config')

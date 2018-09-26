@@ -18,7 +18,8 @@ Prerequisites: Flask and PostgreSQL
 4. Specify the ``SQLALCHEMY_DATABASE_URI`` in the ``config.py`` file with the database path.
 5. Activate virtual environment.
 6. Execute `pip install -r requirements.txt`
-7. Run ``python run.py``
+7. Run ``env/bin/huey_consumer.py app.invitations.controllers.huey``
+8. Run ``python run.py``
 
 
 

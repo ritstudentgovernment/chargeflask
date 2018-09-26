@@ -22,7 +22,7 @@ SECRET_KEY = os.environ.get('APP_SECRET_KEY', '')
 # Email configuration
 MAIL_SERVER = os.environ.get('MAIL_HOST', 'mymail.rit.edu')
 MAIL_PORT = 465
-MAIL_USERNAME = os.environ.get('MAIL_USERNAME', '')
+MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'sgnoreply')
 MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', '')
 MAIL_USE_TLS = True
 

@@ -16,6 +16,10 @@ from sqlalchemy import and_
 import time
 
 
+from app.config_email import huey
+from app.email.controllers import send_email
+
+
 ##
 ## @brief      Sends an invitation to join a committee
 ##             when user doesn't exist in ChargeTracker.
@@ -26,6 +30,7 @@ import time
 ## @return     True if email sent, False if not.
 ##
 def send_invite(new_user, committee):
+    print("insenfinvite")
 
     invite = and_(
         Invitations.user_name == new_user,
@@ -34,6 +39,7 @@ def send_invite(new_user, committee):
     )
 
     if Invitations.query.filter(invite).first() is not None:
+        print("Exists")
         return Response.InviteExists
 
     invitation = Invitations(
@@ -48,11 +54,12 @@ def send_invite(new_user, committee):
         db.session.add(invitation)
         db.session.commit()
 
-        msg = Message("You're Invited")
-        msg.sender=("SG TigerTracker", "sgnoreply@rit.edu")
-        msg.recipients = [new_user + "@rit.edu"]
-        msg.subtype = "related"
-        msg.html = render_template(
+        email = {}
+        email["title"] = "You're Invited"
+        email["sender"]=("SG TigerTracker", "sgnoreply@rit.edu")
+        email["recipients"] = ["oed7416" + "@rit.edu"]
+        email["subtype"] = "related"
+        email["html"] = render_template(
             'committee_invitation.html',
             user_name= new_user,
             committee_name= committee.title,
@@ -62,19 +69,10 @@ def send_invite(new_user, committee):
         )
 
         if not app.config['TESTING']:
-
-            # Attach sglogo to email.
-            with app.open_resource("static/sg-logo.png") as fp:
-                msg.attach("static/sg-logo.png", "image/png", fp.read(), headers={'Content-ID': '<sg-logo>'})
-
-            # Attach paw to email.
-            with app.open_resource("static/paw.png") as fp:
-                msg.attach("static/paw.png", "image/png", fp.read(), headers={'Content-ID': '<sg-paw>'})
-
-            mail.send(msg)
+            send_email(email)
         return Response.InviteSent
     except Exception as e:
-
+        print(e)
         db.session.rollback()
         return Response.InviteError
 
@@ -110,6 +108,10 @@ def send_request(new_user, committee):
 
         db.session.add(invitation)
         db.session.commit()
+
+        email = {}
+        email.title = "Great news, " + new_user.id + " wants to join!"
+        email.sender = ("SG TigerTracker", "sgnoreply@rit.edu")
 
         msg = Message("Great news, " + new_user.id + " wants to join!")
         msg.sender = ("SG TigerTracker", "sgnoreply@rit.edu")

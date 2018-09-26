@@ -53,6 +53,7 @@ def get_committee_members(committee_id, broadcast= False):
 @socketio.on('add_member_committee')
 @ensure_dict
 def add_to_committee(user_data):
+	print("here enter")
 
 	user = Users.verify_auth(user_data.get("token",""))
 	committee = Committees.query.filter_by(id= user_data.get("committee_id",-1)).first()
@@ -79,6 +80,7 @@ def add_to_committee(user_data):
 			request_result = send_request(new_user, committee)
 			emit("add_member_committee", request_result)
 	elif committee is not None and user is not None:
+		print("here b")
 
 		# Send invitation to join.
 		invite_result = send_invite(new_user_id, committee)

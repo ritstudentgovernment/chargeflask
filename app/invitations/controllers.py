@@ -13,12 +13,9 @@ from app.invitations.invitations_response import Response
 from flask import render_template
 from flask_mail import Message
 from sqlalchemy import and_
-import time
-
-
-from app.config_email import huey
+from app.email.models import huey
 from app.email.controllers import send_email
-
+import time
 
 ##
 ## @brief      Sends an invitation to join a committee

@@ -9,11 +9,23 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 from email.utils import formataddr
-from app.config_email import huey
+from app.email.models import huey
 from app import app
 import smtplib
 import config
 
+##
+## @brief      Sends an email.
+##
+## @param      msg   The message object containing:
+## 					 - subtype: Message type (related)
+## 					 - title: Email subject
+## 					 - sender: Tuple with (name, email)
+## 					 - recipients: Array of emails.
+## 					 - html: Rendered html template in string.
+##
+## @return     None
+##
 @huey.task()
 def send_email(msg):
 	mime = MIMEMultipart(msg["subtype"])

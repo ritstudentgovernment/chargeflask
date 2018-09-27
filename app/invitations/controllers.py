@@ -55,7 +55,7 @@ def send_invite(new_user, committee):
         email = {}
         email["title"] = "You're Invited"
         email["sender"]=("SG TigerTracker", "sgnoreply@rit.edu")
-        email["recipients"] = ["oed7416" + "@rit.edu"]
+        email["recipients"] = [new_user + "@rit.edu"]
         email["subtype"] = "related"
         email["html"] = render_template(
             'committee_invitation.html',
@@ -68,6 +68,7 @@ def send_invite(new_user, committee):
 
         if not app.config['TESTING']:
             send_email(email)
+        
         return Response.InviteSent
     except Exception as e:
         db.session.rollback()
@@ -107,14 +108,11 @@ def send_request(new_user, committee):
         db.session.commit()
 
         email = {}
-        email.title = "Great news, " + new_user.id + " wants to join!"
-        email.sender = ("SG TigerTracker", "sgnoreply@rit.edu")
-
-        msg = Message("Great news, " + new_user.id + " wants to join!")
-        msg.sender = ("SG TigerTracker", "sgnoreply@rit.edu")
-        msg.recipients = [committee.head + "@rit.edu"]
-        msg.subtype = "related"
-        msg.html = render_template(
+        email["title"] = "Great news, " + new_user.id + " wants to join!"
+        email["sender"] = ("SG TigerTracker", "sgnoreply@rit.edu")
+        email["recipients"] = [committee.head + "@rit.edu"]
+        email["subtype"] = "related"
+        email["html"] = render_template(
             'committee_request.html',
             user_name= new_user.id,
             committee_head= committee.head,
@@ -122,16 +120,10 @@ def send_request(new_user, committee):
             time_stamp= time.time(),
             request_url= app.config['CLIENT_URL'] + str(invitation.id)
         )
+
         if not app.config['TESTING']:
-            # Attach sglogo to email.
-            with app.open_resource("static/sg-logo.png") as fp:
-                msg.attach("static/sg-logo.png", "image/png", fp.read(), headers={'Content-ID': '<sg-logo>'})
+            send_email(email)
 
-            # Attach paw to email.
-            with app.open_resource("static/paw.png") as fp:
-                msg.attach("static/paw.png", "image/png", fp.read(), headers={'Content-ID': '<sg-paw>'})
-
-            mail.send(msg)
         return Response.RequestSent
     except Exception as e:
 

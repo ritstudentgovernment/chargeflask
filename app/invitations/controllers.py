@@ -30,7 +30,6 @@ from app.email.controllers import send_email
 ## @return     True if email sent, False if not.
 ##
 def send_invite(new_user, committee):
-    print("insenfinvite")
 
     invite = and_(
         Invitations.user_name == new_user,
@@ -39,7 +38,6 @@ def send_invite(new_user, committee):
     )
 
     if Invitations.query.filter(invite).first() is not None:
-        print("Exists")
         return Response.InviteExists
 
     invitation = Invitations(
@@ -72,7 +70,6 @@ def send_invite(new_user, committee):
             send_email(email)
         return Response.InviteSent
     except Exception as e:
-        print(e)
         db.session.rollback()
         return Response.InviteError
 

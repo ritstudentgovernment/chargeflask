@@ -5,25 +5,41 @@ created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 09/25/18
 """
 
+from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
+from email.mime.text import MIMEText
+from email.utils import formataddr
 from app.config_email import huey
 from app import app
 import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import config
 
 @huey.task()
 def send_email(msg):
-	print(msg.keys())
-	with app.app_context():
-		msgRoot = MIMEMultipart(msg["subtype"])
-		msgRoot['Subject'] = msg["title"]
-		msgRoot['From'] = "sgnoreply@rit.edu"
-		msgRoot['To'] = msg["recipients"][0]
-		msgHtml = MIMEText(msg["html"], 'html')
-		msgRoot.attach(msgHtml)
+	mime = MIMEMultipart(msg["subtype"])
+	mime['Subject'] = msg["title"]
+	mime['From'] = formataddr(msg["sender"])
+	mime['To'] = ", ".join(msg["recipients"])
 
-		s = smtplib.SMTP('mymail.rit.edu', 465)
-		s.starttls()
-		s.login("sgnoreply", "")
-		s.sendmail("sgnoreply@rit.edu", msg["recipients"], msgRoot.as_string())
-		s.quit()
+	# Attatch html
+	msgHtml = MIMEText(msg["html"], 'html')
+	mime.attach(msgHtml)
+
+	# Attach images
+	with app.open_resource("static/sg-logo.png") as fp:
+		sg_logo = MIMEImage(fp.read())
+		sg_logo.add_header('Content-ID', '<sg-logo>')
+		mime.attach(sg_logo)
+		fp.close()
+
+	with app.open_resource("static/paw.png") as fp:
+		sg_paw = MIMEImage(fp.read())
+		sg_paw.add_header('Content-ID', '<sg-paw>')
+		mime.attach(sg_paw)
+		fp.close()
+
+	server = smtplib.SMTP(config.MAIL_SERVER, config.MAIL_PORT)
+	server.starttls()
+	server.login(config.MAIL_USERNAME, config.MAIL_PASSWORD)
+	server.sendmail(msg["sender"][1], msg["recipients"], mime.as_string())
+	server.quit()

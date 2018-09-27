@@ -6,12 +6,11 @@ created on: 10/12/17
 """
 
 from flask_socketio import emit
-from app import app, db, mail, socketio
+from app import app, db, socketio
 from app.users.models import Users
 from app.invitations.models import Invitations
 from app.invitations.invitations_response import Response
 from flask import render_template
-from flask_mail import Message
 from sqlalchemy import and_
 from app.email.models import huey
 from app.email.controllers import send_email

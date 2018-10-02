@@ -6,4 +6,6 @@ created on: 09/27/18
 """
 
 from huey import RedisHuey
-huey = RedisHuey()
+import os
+
+huey = RedisHuey(host=os.environ.get('REDIS_URL', 'redis://localhost:6379/?db=1'))

@@ -15,6 +15,34 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       TEST_DATABASE_NAME: ${TEST_DATABASE_NAME}
 
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    volumes:
+      - /chargeflaskdata/redis-data:/data
+    expose:
+      - "6379"
+
+  huey_worker:
+    build: .
+    command: sh -c "python postgreswait.py && huey_consumer app.invitations.controllers.huey"
+    volumes:
+      - .:/chargeflask
+    environment:
+      APP_SECRET_KEY: ${APP_SECRET_KEY}
+      SERVER_ENV: ${SERVER_ENV}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      CLIENT_URL: ${CLIENT_URL}
+      SQLALCHEMY_DATABASE_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}
+      SQLALCHEMY_TEST_DATABASE_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${TEST_DATABASE_NAME}
+      REDIS_URL: ${REDIS_URL}
+    links:
+      - redis
+      - postgres_db
+
   flask:
     build: .
     command: sh -c "python postgreswait.py && python run.py"
@@ -28,7 +56,10 @@ services:
       MAIL_HOST: ${MAIL_HOST}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+      CLIENT_URL: ${CLIENT_URL}
       SQLALCHEMY_DATABASE_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}
       SQLALCHEMY_TEST_DATABASE_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${TEST_DATABASE_NAME}
+      REDIS_URL: ${REDIS_URL}
     depends_on:
       - postgres_db
+      - redis

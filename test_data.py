@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import *
 from sqlalchemy_utils import ChoiceType
 from flask_socketio import SocketIO
-from flask_mail import Mail
 from mimesis import Text, Address, Person
 import random
 person = Person()

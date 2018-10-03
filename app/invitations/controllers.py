@@ -6,15 +6,15 @@ created on: 10/12/17
 """
 
 from flask_socketio import emit
-from app import app, db, mail, socketio
+from app import app, db, socketio
 from app.users.models import Users
 from app.invitations.models import Invitations
 from app.invitations.invitations_response import Response
 from flask import render_template
-from flask_mail import Message
 from sqlalchemy import and_
+from app.email.models import huey
+from app.email.controllers import send_email
 import time
-
 
 ##
 ## @brief      Sends an invitation to join a committee
@@ -48,11 +48,12 @@ def send_invite(new_user, committee):
         db.session.add(invitation)
         db.session.commit()
 
-        msg = Message("You're Invited")
-        msg.sender=("SG TigerTracker", "sgnoreply@rit.edu")
-        msg.recipients = [new_user + "@rit.edu"]
-        msg.subtype = "related"
-        msg.html = render_template(
+        email = {}
+        email["title"] = "You're Invited"
+        email["sender"]=("SG TigerTracker", "sgnoreply@rit.edu")
+        email["recipients"] = [new_user + "@rit.edu"]
+        email["subtype"] = "related"
+        email["html"] = render_template(
             'committee_invitation.html',
             user_name= new_user,
             committee_name= committee.title,
@@ -62,19 +63,10 @@ def send_invite(new_user, committee):
         )
 
         if not app.config['TESTING']:
-
-            # Attach sglogo to email.
-            with app.open_resource("static/sg-logo.png") as fp:
-                msg.attach("static/sg-logo.png", "image/png", fp.read(), headers={'Content-ID': '<sg-logo>'})
-
-            # Attach paw to email.
-            with app.open_resource("static/paw.png") as fp:
-                msg.attach("static/paw.png", "image/png", fp.read(), headers={'Content-ID': '<sg-paw>'})
-
-            mail.send(msg)
+            send_email(email)
+        
         return Response.InviteSent
     except Exception as e:
-
         db.session.rollback()
         return Response.InviteError
 
@@ -111,11 +103,12 @@ def send_request(new_user, committee):
         db.session.add(invitation)
         db.session.commit()
 
-        msg = Message("Great news, " + new_user.id + " wants to join!")
-        msg.sender = ("SG TigerTracker", "sgnoreply@rit.edu")
-        msg.recipients = [committee.head + "@rit.edu"]
-        msg.subtype = "related"
-        msg.html = render_template(
+        email = {}
+        email["title"] = "Great news, " + new_user.id + " wants to join!"
+        email["sender"] = ("SG TigerTracker", "sgnoreply@rit.edu")
+        email["recipients"] = [committee.head + "@rit.edu"]
+        email["subtype"] = "related"
+        email["html"] = render_template(
             'committee_request.html',
             user_name= new_user.id,
             committee_head= committee.head,
@@ -123,16 +116,10 @@ def send_request(new_user, committee):
             time_stamp= time.time(),
             request_url= app.config['CLIENT_URL'] + str(invitation.id)
         )
+
         if not app.config['TESTING']:
-            # Attach sglogo to email.
-            with app.open_resource("static/sg-logo.png") as fp:
-                msg.attach("static/sg-logo.png", "image/png", fp.read(), headers={'Content-ID': '<sg-logo>'})
+            send_email(email)
 
-            # Attach paw to email.
-            with app.open_resource("static/paw.png") as fp:
-                msg.attach("static/paw.png", "image/png", fp.read(), headers={'Content-ID': '<sg-paw>'})
-
-            mail.send(msg)
         return Response.RequestSent
     except Exception as e:
 

@@ -13,9 +13,8 @@ from flask_socketio import SocketIO
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 
-sentry_sdk.init(integrations=[FlaskIntegration()])
-
 # Create the app and add configuration.
+sentry_sdk.init(integrations=[FlaskIntegration()])
 app = Flask(__name__, template_folder='static')
 app.config.from_object('config')
 socketio = SocketIO(app)

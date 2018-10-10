@@ -10,12 +10,14 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import *
 from sqlalchemy_utils import ChoiceType
 from flask_socketio import SocketIO
-from raven.contrib.flask import Sentry
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+sentry_sdk.init(integrations=[FlaskIntegration()])
 
 # Create the app and add configuration.
 app = Flask(__name__, template_folder='static')
 app.config.from_object('config')
-sentry = Sentry(app)
 socketio = SocketIO(app)
 db = SQLAlchemy(app)
 

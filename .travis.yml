@@ -17,8 +17,8 @@ install:
 - sudo mv docker-compose /usr/local/bin
 
 before_script:
-- sudo service docker restart ; sleep 10
 - docker-compose run -d --name flask_web flask
+- docker logs flask_web
 
 script:
 - docker exec -it flask_web py.test --cov=./app

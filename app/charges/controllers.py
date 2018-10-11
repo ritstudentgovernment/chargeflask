@@ -85,7 +85,8 @@ def get_charge(charge_id, broadcast = False):
         "description": charge.description,
         "committee": charge.committee,
         "priority": charge.priority,
-        "status": charge.status
+        "status": charge.status,
+        "created_at": charge.created_at.isoformat()
     }
     emit('get_charge', charge_info, broadcast= broadcast)
 

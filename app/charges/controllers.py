@@ -26,7 +26,7 @@ from app.users.models import Users
 
 
 @socketio.on('get_all_charges')
-def get_all_charges(committee_id, broadcast = False):
+def get_all_charges(broadcast = False):
     charges = Charges.query.filter_by().all()
     charge_ser = [
                     {
@@ -35,7 +35,8 @@ def get_all_charges(committee_id, broadcast = False):
                         "description": charge.description,
                         "committee": charge.committee,
                         "priority": charge.priority,
-                        "status": charge.status
+                        "status": charge.status,
+                        "created_at": charge.created_at.isoformat()
                     }
                     for charge in charges
                 ]
@@ -53,7 +54,8 @@ def get_charges(committee_id, broadcast = False):
                         "description": charge.description,
                         "committee": charge.committee,
                         "priority": charge.priority,
-                        "status": charge.status
+                        "status": charge.status,
+                        "created_at": charge.created_at.isoformat()
                     }
                     for charge in charges
                 ]

@@ -109,6 +109,7 @@ class TestCharges(object):
 
         db.session.add(charge)
         db.session.commit()
+        self.charge_dict["created_at"] = self.charge.created_at.isoformat()
 
 
     # Test when an admin creates a committee.

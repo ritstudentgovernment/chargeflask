@@ -18,11 +18,11 @@ install:
 
 before_script:
 - docker-compose run -d --name flask_web flask
-- docker logs flask_web
 
 script:
 - docker exec -it flask_web py.test --cov=./app
 - docker exec -it flask_web coverage xml
+- docker logs flask_web
 
 after_script:
 - codecov

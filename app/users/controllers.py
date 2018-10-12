@@ -9,12 +9,19 @@ from flask_socketio import emit
 from app.check_data_type import ensure_dict
 from app import socketio, db
 from app.users.models import Users
+from app.users.users_response import Response
 import ldap
 
 @socketio.on('verify_auth')
+@ensure_dict
 def verify(user_data):
 
 	user = Users.verify_auth(user_data.get("token",""))
+
+	if not user:
+		emit('verify_auth', Response.AuthError)
+		return;
+
 	emit('verify_auth', {
 		'admin': user.is_admin,
 		'username': user.id
@@ -73,5 +80,5 @@ def login_user(credentials):
 
 	except ldap.LDAPError:
 		connect.unbind_s()
-		emit('auth', {'error': "Authentication error."})
+		emit('auth', Response.AuthError)
 		return;

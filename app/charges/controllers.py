@@ -23,8 +23,6 @@ from app.users.models import Users
 ##
 ## @emit       Emits a list of charges for committee.
 ##
-
-
 @socketio.on('get_all_charges')
 def get_all_charges(broadcast = False):
     charges = Charges.query.filter_by().all()
@@ -36,6 +34,7 @@ def get_all_charges(broadcast = False):
                         "committee": charge.committee,
                         "priority": charge.priority,
                         "status": charge.status,
+                        "paw_links": charge.paw_links,
                         "created_at": charge.created_at.isoformat()
                     }
                     for charge in charges
@@ -55,6 +54,7 @@ def get_charges(committee_id, broadcast = False):
                         "committee": charge.committee,
                         "priority": charge.priority,
                         "status": charge.status,
+                        "paw_links": charge.paw_links,
                         "created_at": charge.created_at.isoformat()
                     }
                     for charge in charges
@@ -88,6 +88,7 @@ def get_charge(charge_id, broadcast = False):
         "committee": charge.committee,
         "priority": charge.priority,
         "status": charge.status,
+        "paw_links": charge.paw_links,
         "created_at": charge.created_at.isoformat()
     }
     emit('get_charge', charge_info, broadcast= broadcast)
@@ -147,6 +148,7 @@ def create_charge(user_data):
     charge.schedule = user_data.get("schedules", [])
     charge.resources = user_data.get("resources", [])
     charge.stakeholders = user_data.get("stakeholders", [])
+    charge.paw_links = user_data.get("paw_links", "")
 
     db.session.add(charge)
 
@@ -191,7 +193,7 @@ def edit_charge(user_data):
 
             for key in user_data:
                 if (key == "description" or key == "title" or key == "priority" or
-                    key == "status"):
+                    key == "status" or key == "paw_links"):
                     setattr(charge, key, user_data[key])
 
             try:

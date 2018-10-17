@@ -94,7 +94,8 @@ class TestCharges(object):
             'description': 'Test Description',
             'committee': 'testcommittee',
             'status': 0,
-            'priority': 0
+            'priority': 0,
+            'paw_links': "https://testlink.com"
         }
 
         # Create a test charge.
@@ -103,6 +104,7 @@ class TestCharges(object):
         charge.title = "Test Charge"
         charge.description = "Test Description"
         charge.committee = "testcommittee"
+        charge.paw_links = "https://testlink.com"
         charge.priority = 0
         charge.status = 0
         self.charge = charge

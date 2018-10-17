@@ -25,5 +25,6 @@ class Charges(db.Model):
     actions = db.relationship('Actions', backref='charges', lazy='dynamic')
     resources = db.Column(ARRAY(db.String))
     stakeholders = db.Column(ARRAY(db.String))
+    paw_links = db.Column(db.String)
     priority = db.Column(db.Integer)
     status = db.Column(db.Integer)

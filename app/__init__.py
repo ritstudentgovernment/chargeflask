@@ -20,6 +20,30 @@ app.config.from_object('config')
 socketio = SocketIO(app)
 db = SQLAlchemy(app)
 
+from flask_login import LoginManager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = '/saml/login'
+
+# setup python-saml-flask
+from saml import SamlManager, SamlRequest
+saml_manager = SamlManager()
+saml_manager.init_app(app)
+
+# setup acs response handler
+@saml_manager.login_from_acs
+def login_from_acs(acs):
+  # define login logic here depending on idp response
+  # must call login_user() and redirect as necessary
+  print(acs)
+  pass
+
+
+@app.route('/metadata/')
+def metadata():
+  saml = SamlRequest(request)
+  return saml.generate_metadata()
+
 # Import each module created.
 from app.users.controllers import *
 from app.committees.controllers import *

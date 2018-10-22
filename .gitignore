@@ -3,6 +3,7 @@ env
 htmlcov
 secrets.py
 .DS_Store
+saml/certs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

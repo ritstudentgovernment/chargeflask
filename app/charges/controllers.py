@@ -6,7 +6,7 @@ created on: 12/05/17
 """
 
 from flask_socketio import emit
-from app.check_data_type import ensure_dict
+from app.check_data_type import ensure_dict, authenticated_only
 from app import socketio, db
 from app.charges.models import *
 from app.committees.models import Committees
@@ -116,8 +116,8 @@ def get_charge(charge_id, broadcast = False):
 ##
 @socketio.on('create_charge')
 @ensure_dict
-def create_charge(user_data):
-    user = Users.verify_auth(user_data.get("token",""))
+@authenticated_only
+def create_charge(user, user_data):
     committee = Committees.query.filter_by(id = user_data.get("committee","")).first()
 
     if committee is None or user is None:
@@ -182,8 +182,8 @@ def create_charge(user_data):
 ##
 @socketio.on('edit_charge')
 @ensure_dict
-def edit_charge(user_data):
-    user = Users.verify_auth(user_data.get("token",""))
+@authenticated_only
+def edit_charge(user, user_data):
     charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
 
     if charge is not None and user is not None:

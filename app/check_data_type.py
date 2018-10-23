@@ -6,11 +6,11 @@ created on: 09/13/18
 """
 import functools
 from flask_socketio import emit, disconnect
+from app.users.models import Users
 from flask_login import current_user
 from flask import request
 
 def ensure_dict(types):
-	
     @functools.wraps(types)
     def wrapped(*args, **kwargs):
         if type(args[0]) is dict:
@@ -23,8 +23,14 @@ def ensure_dict(types):
 def authenticated_only(f):
     @functools.wraps(f)
     def wrapped(*args, **kwargs):
-        if not current_user.is_authenticated:
-        	emit("get_committees", [{"id": "noauth", "title": "noauth", "enabled": True}], broadcast= True)
-        else:
-            return f(*args, **kwargs)
+
+        user = None
+
+        if (args[0].get("token", "") != "" and 
+            args[0].get("token", "") != None):
+            user = Users.verify_auth(args[0].get("token",""))
+        elif current_user.is_authenticated:
+            user = current_user
+
+        return f(user, *args, **kwargs)
     return wrapped

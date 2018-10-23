@@ -2,13 +2,13 @@
     "strict": true,
     "debug": true,
     "sp": {
-        "entityId": "http://c0ac0206.ngrok.io/shibboleth",
+        "entityId": "http://472a5a68.ngrok.io/shibboleth",
         "assertionConsumerService": {
-            "url": "http://c0ac0206.ngrok.io/saml/acs",
+            "url": "http://472a5a68.ngrok.io/saml/acs",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
         },
         "singleLogoutService": {
-            "url": "http://c0ac0206.ngrok.io/saml/sls",
+            "url": "http://472a5a68.ngrok.io/saml/sls",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
         },
         "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",

@@ -5,7 +5,7 @@ created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 09/07/17
 """
 
-from flask import Flask, request, abort, jsonify, render_template
+from flask import Flask, request, abort, jsonify, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import *
 from sqlalchemy_utils import ChoiceType
@@ -43,11 +43,20 @@ from app.actions.models import Actions
 from app.notes.models import Notes
 db.create_all()
 
-@app.route('/')
-def index():
+# Route to shibboleth login.
+@app.route('/saml/login')
+def login_page():
+	return redirect("/saml/login")
+
+# Route to everything else in the app.
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
     return render_template("index.html")
 
-@app.route('/metadata/')
-def metadata():
-  saml = SamlRequest(request)
-  return saml.generate_metadata()
+# Route to get shibboleth metadata.
+if app.config['DEBUG']:
+	@app.route('/metadata/')
+	def metadata():
+	  saml = SamlRequest(request)
+	  return saml.generate_metadata()

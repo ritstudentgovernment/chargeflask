@@ -48,6 +48,11 @@ db.create_all()
 def login_page():
 	return redirect("/saml/login")
 
+# Route to shibboleth logout.
+@app.route('/saml/logout')
+def logout_page():
+	return redirect("/saml/logout")
+
 # Route to everything else in the app.
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')

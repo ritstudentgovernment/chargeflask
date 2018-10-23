@@ -11,7 +11,7 @@ from app import socketio, db
 from app.users.models import Users
 from app.users.users_response import Response
 from app import saml_manager
-from flask_login import login_user
+from flask_login import login_user, current_user
 from flask import redirect
 import ldap
 
@@ -30,11 +30,10 @@ def login_from_acs(acs):
         firstname = attributes[5][1][0]
         lastname = attributes[3][1][0]
         email = attributes[2][1][0]
-    
-        if Users.query.filter_by(id = username).first() is not None:
-            user = Users.query.filter_by(id = username).first()
-            login_user(user)
-        else:
+
+        user = Users.query.filter_by(id = username).first()
+
+        if user is None:
             user = Users(id = username)
             user.first_name = firstname
             user.last_name = lastname
@@ -42,9 +41,23 @@ def login_from_acs(acs):
 
             db.session.add(user)
             db.session.commit()
-            login_user(user)
-
+        
+        login_user(user)
         return redirect('/')
+
+
+@socketio.on('check_logged_in')
+def check_logged_in(user_data):
+    if current_user.is_authenticated:
+        emit('check_logged_in', {
+            'admin': current_user.is_admin,
+            'username': current_user.id
+        })
+    else:
+        emit('check_logged_in', {
+            'admin': None,
+            'username': None
+        })
 
 
 @socketio.on('verify_auth')
@@ -61,6 +74,7 @@ def verify(user_data):
         'admin': user.is_admin,
         'username': user.id
     })
+
 
 @socketio.on('auth')
 @ensure_dict

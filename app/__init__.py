@@ -5,44 +5,31 @@ created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 09/07/17
 """
 
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import *
 from sqlalchemy_utils import ChoiceType
 from flask_socketio import SocketIO
+from flask_login import LoginManager
+from saml import SamlRequest, SamlManager
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 # Create the app and add configuration.
-sentry_sdk.init(integrations=[FlaskIntegration()])
-app = Flask(__name__, template_folder='static')
+sentry_sdk.init()
+app = Flask(__name__, template_folder = 'static', static_folder = 'static/static')
 app.config.from_object('config')
 socketio = SocketIO(app)
 db = SQLAlchemy(app)
 
-from flask_login import LoginManager
+# Setup flask-login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = '/saml/login'
 
-# setup python-saml-flask
-from saml import SamlManager, SamlRequest
+# Setup python-saml-flask
 saml_manager = SamlManager()
 saml_manager.init_app(app)
-
-# setup acs response handler
-@saml_manager.login_from_acs
-def login_from_acs(acs):
-  # define login logic here depending on idp response
-  # must call login_user() and redirect as necessary
-  print(acs)
-  pass
-
-
-@app.route('/metadata/')
-def metadata():
-  saml = SamlRequest(request)
-  return saml.generate_metadata()
 
 # Import each module created.
 from app.users.controllers import *
@@ -55,3 +42,12 @@ from app.notes.controllers import *
 from app.actions.models import Actions
 from app.notes.models import Notes
 db.create_all()
+
+@app.route('/')
+def index():
+    return render_template("index.html")
+
+@app.route('/metadata/')
+def metadata():
+  saml = SamlRequest(request)
+  return saml.generate_metadata()

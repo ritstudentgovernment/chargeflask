@@ -20,7 +20,7 @@ def ensure_dict(types):
     return wrapped
 
 
-def authenticated_only(f):
+def get_user(f):
     @functools.wraps(f)
     def wrapped(*args, **kwargs):
 

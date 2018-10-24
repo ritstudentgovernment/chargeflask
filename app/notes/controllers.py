@@ -6,7 +6,7 @@ created on: 04/02/18
 """
 
 from flask_socketio import emit
-from app.check_data_type import ensure_dict, authenticated_only
+from app.check_data_type import ensure_dict, get_user
 from app import socketio, db
 from app.actions.models import *
 from app.committees.models import *
@@ -26,7 +26,7 @@ from app.notes.notes_response import Response
 ##
 @socketio.on('create_note')
 @ensure_dict
-@authenticated_only
+@get_user
 def create_note(user, user_data):
 
     action = Actions.query.filter_by(id= user_data.get('action',-1)).first()
@@ -128,7 +128,7 @@ def get_note(id, broadcast = False):
 
 @socketio.on('modify_note')
 @ensure_dict
-@authenticated_only
+@get_user
 def modify_note(user, user_data):
 
     if(user is None):

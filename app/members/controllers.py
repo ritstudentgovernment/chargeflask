@@ -6,7 +6,7 @@ created on: 09/26/17
 """
 
 from flask_socketio import emit
-from app.decorators import ensure_dict
+from app.decorators import ensure_dict, get_user
 from app import socketio, db
 from app.committees.models import Committees
 from app.users.models import Users
@@ -52,9 +52,9 @@ def get_committee_members(committee_id, broadcast= False):
 ##
 @socketio.on('add_member_committee')
 @ensure_dict
-def add_to_committee(user_data):
+@get_user
+def add_to_committee(user, user_data):
 
-	user = Users.verify_auth(user_data.get("token",""))
 	committee = Committees.query.filter_by(id= user_data.get("committee_id",-1)).first()
 
 	new_user_id = user_data.get("user_id","")
@@ -103,9 +103,9 @@ def add_to_committee(user_data):
 ##
 @socketio.on('remove_member_committee')
 @ensure_dict
-def remove_from_committee(user_data):
+@get_user
+def remove_from_committee(user, user_data):
 
-	user = Users.verify_auth(user_data.get("token",""))
 	committee = Committees.query.filter_by(id= user_data.get("committee_id",-1)).first()
 	delete_user = Users.query.filter_by(id= user_data.get("user_id","")).first()
 	if committee is not None and delete_user is not None:

@@ -6,7 +6,7 @@ created on: 09/26/17
 """
 
 from flask_socketio import emit
-from app.check_data_type import ensure_dict
+from app.decorators import ensure_dict
 from app import socketio, db
 from app.committees.models import Committees
 from app.users.models import Users

@@ -6,7 +6,7 @@ created on: 09/07/17
 """
 
 from flask_socketio import emit
-from app.check_data_type import ensure_dict, get_user
+from app.decorators import ensure_dict, get_user
 from app import socketio, db
 from app.users.models import Users
 from app.users.users_response import Response

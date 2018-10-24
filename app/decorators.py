@@ -1,5 +1,5 @@
 """
-filename: check_data_type.py
+filename: decorators.py
 description: Checks if incoming data is a dictionary.
 created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 09/13/18

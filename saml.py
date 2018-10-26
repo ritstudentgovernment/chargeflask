@@ -65,7 +65,7 @@ class SamlSLS(View):
             if current_app.config.get('SAML_LOGOUT_PATH'):
                 return redirect(current_app.config.get('SAML_LOGOUT_PATH'))
             else:
-                return render_template('saml_logout_successful.html')
+                return redirect('/')
         else:
             return jsonify(sls_response)
 
@@ -136,6 +136,7 @@ class SamlRequest(object):
 
     def sls(self):
         dscb = lambda: session.clear()
+
         url = self.auth.process_slo(delete_session_cb=dscb)
         self.errors = self.auth.get_errors()
         if len(self.errors) == 0:

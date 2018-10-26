@@ -12,7 +12,7 @@ from app.users.models import Users
 from app.users.users_response import Response
 from app import saml_manager
 from flask_login import login_user, current_user
-from flask import redirect
+from flask import redirect, jsonify
 import ldap
 
 

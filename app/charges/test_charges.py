@@ -182,6 +182,32 @@ class TestCharges(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.InvalidPriority
 
+    # Test when a charge is created with no priority
+    def test_create_charge_no_priority(self):
+        user_data = {
+            "token": self.admin_token,
+            "title": "test charge",
+            "description": "test description",
+            "committee": "testcommittee"
+        }
+
+        self.socketio.emit('create_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.InvalidPriority
+
+    def test_create_charge_priority_invalid_type(self):
+        user_data = {
+            "token": self.admin_token,
+            "title": "test charge",
+            "priority": None,
+            "description": "test description",
+            "committee": "testcommittee"
+        }
+
+        self.socketio.emit('create_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.InvalidPriority
+
     # Test getting a charge
     def test_get_charge(self):
 

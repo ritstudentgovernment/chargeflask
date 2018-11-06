@@ -133,6 +133,7 @@ def create_charge(user, user_data):
         return;
 
     if ("priority" not in user_data or
+        type(user_data["priority"]) != int or 
         user_data["priority"] < 0 or
         user_data["priority"] > 2):
         emit ("create_charge", Response.InvalidPriority)

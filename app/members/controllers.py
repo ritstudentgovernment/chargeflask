@@ -28,7 +28,7 @@ def get_committee_members(committee_id, broadcast= False):
 
 	if committee is not None:
 		members = committee.members
-		mem_arr = [{"id": m.id} for m in members]
+		mem_arr = [{"id": m.id, "name": m.first_name + " " + m.last_name} for m in members]
 		mem_data = {"committee_id": committee.id, "members": mem_arr}
 		emit("get_members", mem_data, broadcast= broadcast)
 	else:

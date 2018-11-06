@@ -11,6 +11,7 @@ install:
 - pip install coverage
 - pip install codecov
 - cp template.env .env
+- touch app/static/index.html
 - sudo rm /usr/local/bin/docker-compose
 - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
 - chmod +x docker-compose

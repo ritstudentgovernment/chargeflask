@@ -101,8 +101,8 @@ def make_charges():
             charge.schedule = [text.word(), text.word()]
             charge.resources = [text.word(), text.word()]
             charge.stakeholders = [text.word(), text.word()]
-            charge.priority = ChargePriorityType(random.randint(0,2))
-            charge.status = ChargeStatusType(random.randint(0,7))
+            charge.priority = random.randint(0,2)
+            charge.status = random.randint(0,7)
             charge_count = charge_count+1
             db.session.add(charge)
             db.session.commit()
@@ -120,7 +120,7 @@ def make_actions():
             action.description = text.sentence()
             action.assigned_to = 'TestUser'+str(new_action_id)
             action.charge = committee_id*2 + (action_id%2)
-            action.status = ActionStatusType(random.randint(0,6))
+            action.status = random.randint(0,6)
 
             db.session.add(action)
             db.session.commit()

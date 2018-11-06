@@ -4,7 +4,8 @@ description: Controller for Routes.
 created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 11/05/18
 """
-from flask import render_template, redirect
+from flask import render_template, redirect, request
+from saml import SamlRequest, SamlManager
 from app import app
 
 # Route to shibboleth login.

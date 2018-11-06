@@ -6,6 +6,8 @@ RUN apt-get -y update && apt-get -y install git gcc libldap2-dev libsasl2-dev li
 
 RUN mkdir /chargeflask
 
+RUN mkdir /chargeflask/saml
+
 RUN mkdir /chargeflask/saml/certs
 
 WORKDIR /chargeflask/saml/certs

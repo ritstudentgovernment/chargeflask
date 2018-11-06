@@ -5,7 +5,7 @@ created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 09/07/17
 """
 
-from flask import Flask, request, abort, jsonify, render_template, redirect
+from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import *
 from sqlalchemy_utils import ChoiceType
@@ -32,6 +32,7 @@ saml_manager = SamlManager()
 saml_manager.init_app(app)
 
 # Import each module created.
+from app.routes.controllers import *
 from app.users.controllers import *
 from app.committees.controllers import *
 from app.members.controllers import *
@@ -42,26 +43,3 @@ from app.notes.controllers import *
 from app.actions.models import Actions
 from app.notes.models import Notes
 db.create_all()
-
-# Route to shibboleth login.
-@app.route('/saml/login')
-def login_page():
-	return redirect("/saml/login")
-
-# Route to shibboleth logout.
-@app.route('/saml/logout')
-def logout_page():
-	return redirect("/saml/logout")
-
-# Route to everything else in the app.
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def catch_all(path):
-    return render_template("index.html")
-
-# Route to get shibboleth metadata.
-if app.config['DEBUG']:
-	@app.route('/metadata/')
-	def metadata():
-	  saml = SamlRequest(request)
-	  return saml.generate_metadata()

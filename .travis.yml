@@ -12,6 +12,8 @@ install:
 - pip install codecov
 - cp template.env .env
 - touch app/static/index.html
+- mkdir saml/certs
+- openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=New York/L=Rochester/O=RIT/OU=SG Services/CN=sg.rit.edu" -keyout saml/certs/sp.key -out saml/certs/sp.crt
 - sudo rm /usr/local/bin/docker-compose
 - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
 - chmod +x docker-compose

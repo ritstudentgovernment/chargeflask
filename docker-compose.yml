@@ -15,6 +15,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       TEST_DATABASE_NAME: ${TEST_DATABASE_NAME}
       SENTRY_DSN: ${SENTRY_DSN}
+      SAML_SETTINGS: ${SAML_SETTINGS}
 
   redis:
     image: redis:alpine
@@ -41,6 +42,7 @@ services:
       SQLALCHEMY_TEST_DATABASE_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${TEST_DATABASE_NAME}
       REDIS_URL: ${REDIS_URL}
       SENTRY_DSN: ${SENTRY_DSN}
+      SAML_SETTINGS: ${SAML_SETTINGS}
     links:
       - redis
       - postgres_db
@@ -63,6 +65,7 @@ services:
       SQLALCHEMY_TEST_DATABASE_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${TEST_DATABASE_NAME}
       REDIS_URL: ${REDIS_URL}
       SENTRY_DSN: ${SENTRY_DSN}
+      SAML_SETTINGS: ${SAML_SETTINGS}
     depends_on:
       - postgres_db
       - redis

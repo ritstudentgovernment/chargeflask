@@ -6,7 +6,7 @@ created on: 09/19/17
 """
 
 from flask_socketio import emit
-from app.check_data_type import ensure_dict
+from app.decorators import ensure_dict, get_user
 from app import socketio, db
 from app.committees.committees_response import Response
 from app.committees.models import Committees
@@ -39,9 +39,9 @@ def get_committees(broadcast = False):
 ##
 @socketio.on('get_permissions')
 @ensure_dict
-def get_permissions(user_data):
-
-    user = Users.verify_auth(user_data.get("token",""))
+@get_user
+def get_permissions(user, user_data):
+    
     committee = Committees.query.filter_by(id = user_data.get("id",-1)).first()
     permission_level = Permissions.CanView
 
@@ -119,9 +119,8 @@ def get_committee(committee_id, broadcast = False):
 ##
 @socketio.on('create_committee')
 @ensure_dict
-def create_committee(user_data):
-
-    user = Users.verify_auth(user_data.get("token",""))
+@get_user
+def create_committee(user, user_data):
 
     if user is not None and user.is_admin:
 
@@ -189,9 +188,8 @@ def create_committee(user_data):
 ##
 @socketio.on('edit_committee')
 @ensure_dict
-def edit_committee(user_data):
-
-    user = Users.verify_auth(user_data.get("token",""))
+@get_user
+def edit_committee(user, user_data):
 
     if user is not None and user.is_admin:
 

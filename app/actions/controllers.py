@@ -6,7 +6,7 @@ created on: 03/23/18
 """
 
 from flask_socketio import emit
-from app.check_data_type import ensure_dict
+from app.decorators import ensure_dict, get_user
 from app import socketio, db
 from app.actions.models import *
 from app.charges.models import *
@@ -81,8 +81,8 @@ def get_action(action_id, broadcast = False):
 ##
 @socketio.on('create_action')
 @ensure_dict
-def create_action(user_data):
-    user = Users.verify_auth(user_data.get("token",""))
+@get_user
+def create_action(user, user_data):
     charge = Charges.query.filter_by(id = user_data.get("charge","")).first()
     assigned_to = Users.query.filter_by(id = user_data.get("assigned_to","")).first()
 
@@ -141,8 +141,8 @@ def create_action(user_data):
 ##
 @socketio.on('edit_action')
 @ensure_dict
-def edit_action(user_data):
-    user = Users.verify_auth(user_data.get("token",""))
+@get_user
+def edit_action(user, user_data):
     action = Actions.query.filter_by(id = user_data.get("id","")).first()
 
     if action is None:

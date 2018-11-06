@@ -15,7 +15,7 @@ Prerequisites: Flask and PostgreSQL
 1. Install [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/install/)
 2. Pull project from this repo.
 3. Copy the `template.env` file at the root of the project to `.env` and fill out the environment variables.
-4.  Run `docker-compose up` from the root project directory. 
+4. Run `docker-compose up` from the root project directory. 
 
 
 **If you have a Mac, you will have to create the folders `/chargeflaskdata`, `chargeflaskdata/postgres-data`, `chargeflaskdata/redis-data` and give Docker permission to these folders.**
@@ -34,3 +34,7 @@ dc1320d2b173        chargeflask_postgres_db   "docker-entrypoint.s…"   27 hour
 
 
 
+### Shibboleth Setup
+
+1. Create a certificate pair inside the folder saml/certs by executing `openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout sp.key -out sp.crt`
+2. Modify `saml/settings.json` and `saml/advanced-settings.json`to your IDP and SP settings.

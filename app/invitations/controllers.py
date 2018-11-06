@@ -6,6 +6,7 @@ created on: 10/12/17
 """
 
 from flask_socketio import emit
+from app.decorators import ensure_dict, get_user
 from app import app, db, socketio
 from app.users.models import Users
 from app.invitations.models import Invitations
@@ -138,10 +139,11 @@ def send_request(new_user, committee):
 ## @emit       Data of a specific invitation or errors.
 ##
 @socketio.on('get_invitation')
-def get_invitation(user_data):
+@ensure_dict
+@get_user
+def get_invitation(user, user_data):
 
     invitation = Invitations.query.filter_by(id = user_data.get("invitation_id","")).first()
-    user = Users.verify_auth(user_data.get("token",""))
 
     if invitation is None:
         emit("get_invitation", Response.InviteDoesntExist)
@@ -186,10 +188,11 @@ def get_invitation(user_data):
 ## @emit       UserAdded, InviteDeleted or errors.
 ##
 @socketio.on('set_invitation')
-def set_invitation(user_data):
+@ensure_dict
+@get_user
+def set_invitation(user, user_data):
 
     invitation = Invitations.query.filter_by(id = user_data.get("invitation_id","")).first()
-    user = Users.verify_auth(user_data.get("token",""))
 
     if invitation is None:
         emit("set_invitation", Response.InviteDoesntExist)
@@ -209,7 +212,7 @@ def set_invitation(user_data):
 
     com_head = Users.query.filter_by(id= invitation.committee.head).first()
     com_id = invitation.committee.id
-    token = user_data.get("token","")
+    token = user.generate_auth()
 
     # If invitation, use the committe heads token.
     if invitation.isInvite:
@@ -231,8 +234,7 @@ def set_invitation(user_data):
 
         from app.members.controllers import add_to_committee
         returnValue = add_to_committee(add_data)
-        print("got here")
-
+        
         emit("set_invitation", Response.InviteAccept)
     else:
         emit("set_invitation", Response.InviteDeny)

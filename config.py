@@ -25,6 +25,8 @@ MAIL_PORT = 465
 MAIL_USERNAME = os.environ.get('MAIL_USERNAME', '')
 MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', '')
 
+SAML_SETTINGS_PATH = os.environ.get('SAML_SETTINGS', 'saml')
+
 # WebClient URL (For email support, client: https://git.io/vFDqH)
 # Shoud follow the pattern https://<client-url>/invitation/
 CLIENT_URL = os.environ.get('CLIENT_URL', 'http://localhost:3000/invitation/')

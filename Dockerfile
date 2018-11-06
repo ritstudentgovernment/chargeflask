@@ -13,3 +13,11 @@ ADD ./requirements.txt /chargeflask/requirements.txt
 RUN pip install -r requirements.txt
 
 ADD . /chargeflask
+
+RUN mkdir /chargeflask/certs
+
+WORKDIR /chargeflask/certs
+
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=New York/L=Rochester/O=RIT/OU=SG Services/CN=sg.rit.edu" -keyout sp.key -out sp.crt
+
+WORKDIR /chargeflask

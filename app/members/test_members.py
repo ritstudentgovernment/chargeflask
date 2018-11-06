@@ -96,9 +96,14 @@ class TestMembers(object):
 		self.socketio.emit("get_members", "testcommittee")
 		received = self.socketio.get_received()
 		commitee = received[0]["args"][0]
-		print()
+		
+		result = {
+			'id': 'testuser',
+			'name': "Test1 User"
+		}
+
 		assert commitee["committee_id"] == "testcommittee"
-		assert (commitee["members"] == [{'id': 'testuser'}])
+		assert (commitee["members"] == [result])
 
 	# Test add to committee when admin.
 	def test_add_to_committee(self):

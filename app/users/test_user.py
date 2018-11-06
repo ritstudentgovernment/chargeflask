@@ -12,9 +12,10 @@ from mock import patch, MagicMock
 from pytest_mock import mocker
 from app import app, db, socketio
 from app.users.models import Users
-from app.users.controllers import login_user
+from app.users.controllers import login_from_acs
 from flask_socketio import SocketIOTestClient
 from flask_sqlalchemy import SQLAlchemy
+from flask import url_for
 from app.users.users_response import Response
 
 
@@ -26,6 +27,7 @@ class TestUser(object):
         self.app = app.test_client()
 
         app.config['TESTING'] = True
+        app.config['SECRET_KEY'] = "test_key"
         app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_TEST_DATABASE_URI
         db = SQLAlchemy(app)
         db.session.close()
@@ -129,3 +131,21 @@ class TestUser(object):
 
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.AuthError
+
+    # Test error in shibboleth login.
+    def test_login_shib_error(self):
+        with app.app_context():
+            res = login_from_acs({'errors': "thisisanerror"})
+            assert res.get_json() == {'errors': 'thisisanerror'}
+
+    # Test shibboleth login failed.
+    def test_login_shib_failed(self):
+        with app.app_context():
+            res = login_from_acs({})
+            assert res.get_json() == {'error': 'login failed'}
+
+    def test_login_shib_success(self):
+        with app.test_request_context():
+            attributes = [[[],[""]],[],[[],[""]],[[],[""]],[],[[],[""]]]
+            res = login_from_acs({'logged_in': True, 'attributes': attributes})
+            assert res.status == "302 FOUND"

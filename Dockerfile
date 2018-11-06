@@ -6,9 +6,9 @@ RUN apt-get -y update && apt-get -y install git gcc libldap2-dev libsasl2-dev li
 
 RUN mkdir /chargeflask
 
-RUN mkdir /chargeflask/certs
+RUN mkdir /chargeflask/saml/certs
 
-WORKDIR /chargeflask/certs
+WORKDIR /chargeflask/saml/certs
 
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=New York/L=Rochester/O=RIT/OU=SG Services/CN=sg.rit.edu" -keyout sp.key -out sp.crt
 

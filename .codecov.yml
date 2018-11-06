@@ -3,4 +3,5 @@ coverage:
     patch: off
   ignore:
     - "app/email"
+    - "app/routes"
 

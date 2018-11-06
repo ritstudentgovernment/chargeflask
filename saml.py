@@ -20,7 +20,6 @@ class SamlManager(object):
     def init_app(self, app):
         app.saml_manager = self #expose for login_from_acs
         app.add_url_rule('/saml/login', view_func=SamlLogin.as_view('login'), endpoint='login')
-        app.add_url_rule('/saml/logout', view_func=SamlLogout.as_view('logout'))
         app.add_url_rule('/saml/acs', view_func=SamlACS.as_view('acs'))
         app.add_url_rule('/saml/sls', view_func=SamlSLS.as_view('sls'))
 

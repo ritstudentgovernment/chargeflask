@@ -6,6 +6,7 @@ created on: 11/05/18
 """
 from flask import render_template, redirect, request
 from saml import SamlRequest, SamlManager
+from flask_login import logout_user
 from app import app
 
 # Route to shibboleth login.
@@ -16,7 +17,8 @@ def login_page():
 # Route to shibboleth logout.
 @app.route('/saml/logout')
 def logout_page():
-	return redirect("/saml/logout")
+	logout_user()
+	return redirect('/')
 
 # Route to everything else in the app.
 @app.route('/', defaults={'path': ''})

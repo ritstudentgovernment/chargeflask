@@ -2,13 +2,13 @@
     "strict": false,
     "debug": true,
     "sp": {
-        "entityId": "http://773628ef.ngrok.io/",
+        "entityId": "http://f956cdf8.ngrok.io/",
         "assertionConsumerService": {
-            "url": "http://773628ef.ngrok.io/saml/acs",
+            "url": "http://f956cdf8.ngrok.io/saml/acs",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
         },
         "singleLogoutService": {
-            "url": "http://773628ef.ngrok.io/saml/sls",
+            "url": "http://f956cdf8.ngrok.io/saml/sls",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
         },
         "NameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",

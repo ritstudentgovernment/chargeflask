@@ -11,16 +11,16 @@ from sqlalchemy.dialects.postgresql import *
 from sqlalchemy_utils import ChoiceType
 from enum import Enum
 
-class NotificationType(Enum)
-    MentionedInNote  = 0
-    AssignedToTask = 1
-    MadeCommitteeHead = 2
+class NotificationType(Enum):
+    MentionedInNote  = "MentionedInNote"
+    AssignedToAction = "AssignedToAction"
+    MadeCommitteeHead = "MadeCommitteeHead"
+
 
 
 class Notifications(db.Model):
     __tablename__ = 'notifications'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user = db.Column(db.ForeignKey('users.id'))
-    notification_type = db.Column(ChoiceType(NotificationType, impl = db.Integer()))
+    type = db.Column(ChoiceType(NotificationType, impl = db.String()))
     destination = db.Column(db.String)
-    

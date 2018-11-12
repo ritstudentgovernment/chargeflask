@@ -15,6 +15,7 @@ from app.committees.models import *
 from app.charges.models import *
 from app.users.permissions import Permissions
 from app.users.models import Users
+from app.notifications.controllers import new_action, new_committee
 from flask_socketio import SocketIOTestClient
 from flask_sqlalchemy import SQLAlchemy
 import base64
@@ -25,13 +26,14 @@ class TestAction(object):
     @classmethod
     def setup_class(self):
         self.app = app.test_client()
-
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_DATABASE'] = config.SQLALCHEMY_TEST_DATABASE_URI
         db = SQLAlchemy(app)
         db.session.close()
         db.drop_all()
         db.create_all()
+        db.event.remove(Actions, "after_insert", new_action)
+        db.event.remove(Committees, "after_insert", new_committee)
         self.socketio = socketio.test_client(app);
         self.socketio.connect()
 
@@ -125,6 +127,8 @@ class TestAction(object):
 
     @classmethod
     def teardown_class(self):
+        db.event.listen(Actions, "after_insert", new_action)
+        db.event.listen(Committees, "after_insert", new_committee)
         db.session.close()
         db.drop_all()
         self.socketio.disconnect()

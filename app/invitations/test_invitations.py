@@ -13,6 +13,7 @@ from app.users.models import Users
 from mock import patch, MagicMock
 from app.committees.models import Committees
 from app.invitations.invitations_response import Response
+from app.notifications.controllers import new_request, new_committee
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -29,6 +30,8 @@ class TestInvitations(object):
         db.session.close()
         db.drop_all()
         db.create_all()
+        db.event.remove(Committees, "after_insert", new_committee)
+        db.event.remove(Invitations, "after_insert", new_request)
         self.socketio = socketio.test_client(app);
         self.socketio.connect()
 
@@ -91,6 +94,8 @@ class TestInvitations(object):
 
     @classmethod
     def teardown_class(self):
+        db.event.listen(Committees, "after_insert", new_committee)
+        db.event.listen(Invitations, "after_insert", new_request)
         db.session.close()
         db.drop_all()
         self.socketio.disconnect()

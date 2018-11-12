@@ -9,6 +9,7 @@ import pytest
 import config
 from app import app, db, socketio
 from app.committee_notes.committee_notes_response import Response
+from app.notifications.controllers import new_committee
 from app.committees.models import Committees
 from app.committee_notes.models import *
 from app.users.permissions import Permissions
@@ -28,6 +29,7 @@ class TestCommitteeNotes(object):
         db.session.close()
         db.drop_all()
         db.create_all()
+        db.event.remove(Committees, "after_insert", new_committee)
         self.socketio = socketio.test_client(app);
         self.socketio.connect()
 
@@ -35,6 +37,7 @@ class TestCommitteeNotes(object):
     def teardown_class(self):
         db.session.close()
         db.drop_all()
+        db.event.listen(Committees, "after_insert", new_committee)
         self.socketio.disconnect()
 
     @classmethod

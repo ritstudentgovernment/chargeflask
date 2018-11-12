@@ -14,6 +14,7 @@ from app.users.permissions import Permissions
 from app.charges.models import *
 from app.users.models import Users
 from flask_socketio import SocketIOTestClient
+from app.notifications.controllers import new_committee
 from flask_sqlalchemy import SQLAlchemy
 
 class TestCharges(object):
@@ -27,11 +28,13 @@ class TestCharges(object):
         db.session.close()
         db.drop_all()
         db.create_all()
+        db.event.remove(Committees, "after_insert", new_committee)
         self.socketio = socketio.test_client(app);
         self.socketio.connect()
 
     @classmethod
     def teardown_class(self):
+        db.event.listen(Committees, "after_insert", new_committee)
         db.session.close()
         db.drop_all()
         self.socketio.disconnect()

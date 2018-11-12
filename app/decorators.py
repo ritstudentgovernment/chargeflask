@@ -5,7 +5,7 @@ created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 09/13/18
 """
 import functools
-from flask_socketio import emit, disconnect
+from flask_socketio import emit, disconnect, join_room
 from app.users.models import Users
 from flask_login import current_user
 from flask import request
@@ -31,6 +31,8 @@ def get_user(f):
             user = Users.verify_auth(args[0].get("token",""))
         elif current_user.is_authenticated:
             user = current_user
+
+        if user: join_room(user.id)
 
         return f(user, *args, **kwargs)
     return wrapped

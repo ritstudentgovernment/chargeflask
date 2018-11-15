@@ -1,3 +1,10 @@
+"""
+filename: controllers.py
+description: Controllers for Notifications.
+created by: Omar De La Hoz (oed7416@rit.edu)
+created on: 11/08/18
+"""
+
 from sqlalchemy.event import listens_for
 from app.notes.models import Notes
 from app.users.models import Users

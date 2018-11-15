@@ -17,7 +17,7 @@ SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Secret key for signing tokens
-SECRET_KEY = os.environ.get('APP_SECRET_KEY', 'jdjdjd')
+SECRET_KEY = os.environ.get('APP_SECRET_KEY', '')
 
 # Email configuration
 MAIL_SERVER = os.environ.get('MAIL_HOST', 'mymail.rit.edu')

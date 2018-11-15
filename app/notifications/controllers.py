@@ -25,7 +25,21 @@ notifications_table = Notifications.__table__.insert()
 @get_user
 def get_notifications(user, user_data):
     notifications = Notifications.query.filter_by(user = user.id).all()
-    emit('get_notifications', notifications, room= user.id)
+    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination} for c in notifications]
+    emit('get_notifications', noti_ser)
+
+
+##
+## @brief      Sends new notifications to a user.
+##
+## @param      user  The user to send notifications to.
+##
+## @return     An array of notifications for the user.
+##
+def send_notifications(user):
+    notifications = Notifications.query.filter_by(user = user).all()
+    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination} for c in notifications]
+    emit('get_notifications', noti_ser, room= user)
 
 
 ##
@@ -52,8 +66,7 @@ def new_note(mapper, connection, new_note):
                 type = NotificationType.MentionedInNote,
                 destination = new_note.id
             )
-
-            get_notifications(user)
+            send_notifications(u)
 
 
 ##
@@ -73,9 +86,7 @@ def new_action(mapper, connection, new_action):
         type = NotificationType.AssignedToAction,
         destination = new_action.id
     )
-
-    user = Users(id = new_action.assigned_to)
-    get_notifications(user)
+    send_notifications(new_action.assigned_to)
 
 
 ##
@@ -95,9 +106,7 @@ def new_committee(mapper, connection, new_committee):
         type = NotificationType.MadeCommitteeHead,
         destination = new_committee.id
     )
-
-    user = Users(id = new_committee.head)
-    get_notifications(user)
+    send_notifications(new_committee.head)
 
 
 ##
@@ -118,6 +127,4 @@ def new_request(mapper, connection, new_request):
             type = NotificationType.UserRequest,
             destination = new_request.id
         )
-        
-        user = Users(id = new_request.committee.head)
-        get_notifications(user)
+        send_notifications(new_request.committee.head)

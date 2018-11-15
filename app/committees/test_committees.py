@@ -12,6 +12,7 @@ from app.committees.committees_response import Response
 from app.committees.models import Committees
 from app.users.permissions import Permissions
 from app.users.models import Users
+from app.notifications.controllers import new_committee
 from flask_socketio import SocketIOTestClient
 import base64
 from flask_sqlalchemy import SQLAlchemy
@@ -29,6 +30,7 @@ class TestCommittees(object):
         db.session.close()
         db.drop_all()
         db.create_all()
+        db.event.remove(Committees, "after_insert", new_committee)
         self.socketio = socketio.test_client(app);
         self.socketio.connect()
 
@@ -91,6 +93,7 @@ class TestCommittees(object):
     def teardown_class(self):
         db.session.close()
         db.drop_all()
+        db.event.listen(Committees, "after_insert", new_committee)
         self.socketio.disconnect()
 
 

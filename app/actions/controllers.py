@@ -152,7 +152,7 @@ def edit_action(user, user_data):
     charge = Charges.query.filter_by(id = action.charge).first()
     committee = Committees.query.filter_by(id = charge.committee).first()
 
-    if not user.is_admin and not user.id == committee.head:
+    if user is None or not user.is_admin and not user.id == committee.head:
         emit('edit_action', Response.UsrNotAuth)
         return
 

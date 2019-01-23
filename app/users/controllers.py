@@ -8,7 +8,7 @@ created on: 09/07/17
 from flask_socketio import emit
 from app.decorators import ensure_dict, get_user
 from app import socketio, db
-from app.users.models import Users
+from app.users.models import Users, Roles
 from app.users.users_response import Response
 from app import saml_manager
 from flask_login import login_user, current_user
@@ -123,3 +123,59 @@ def login_ldap(credentials):
         connect.unbind_s()
         emit('auth', Response.AuthError)
         return;
+
+
+##
+## @brief      Changes a users role to ManagerUser,
+##             AdminUser or NormalUser.
+##
+## @param      user       The user performing the edit.
+## @param      user_data  JSON object containing:
+##             
+##             - username: username of the user with
+##                         edited roles.
+##             - role: AdminUser, ManagerUser or NormalUser.
+##
+## @emit       Success if role was set, PermError if user is not
+##             an AdminUser, UserNotFound if user is not found,
+##             RoleNotFound if role doesn't exist and DBError if
+##             something went wrong in DB-side.
+##
+@socketio.on('edit_roles')
+@ensure_dict
+@get_user
+def edit_roles(user, user_data):
+    if not user.is_super:
+        emit('auth', Response.PermError)
+        print(user.is_super)
+        return;
+
+    edit_user = Users.query.filter_by(id = user_data["username"]).first()
+
+    if not edit_user:
+        emit('edit_roles', Response.UserNotFound)
+        return;
+
+    try:
+        role = Roles[user_data["role"]]
+    except:
+        emit('edit_roles', Response.RoleNotFound)
+        return;
+
+    if role == Roles.AdminUser:
+        edit_user.is_admin = True
+        edit_user.is_super = True
+    elif role == Roles.ManagerUser:
+        edit_user.is_admin = True
+        edit_user.is_super = False
+    else:
+        edit_user.is_admin = False
+        edit_user.is_super = False
+
+    try:
+        db.session.commit()
+        emit('edit_roles', {"success": "Role set to " + role.value + "."})
+    except Exception as e:
+        db.session.rollback()
+        emit('edit_roles', Response.DBError)
+    return;

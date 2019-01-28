@@ -11,6 +11,7 @@ from app import app, db, socketio
 from app.committees.committees_response import Response
 from app.committees.models import Committees
 from app.users.permissions import Permissions
+from app.members.models import Members, Roles
 from app.users.models import Users
 from app.notifications.controllers import new_committee
 from flask_socketio import SocketIOTestClient
@@ -302,7 +303,9 @@ class TestCommittees(object):
         db.session.add(testcomm)
         db.session.commit()
 
-        testcomm.members.append(self.test_user)
+        membership = Members(role= Roles.NormalMember)
+        membership.member = self.test_user
+        testcomm.members.append(membership)
 
         user_data = {
             "token": self.user_token,

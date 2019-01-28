@@ -10,6 +10,7 @@ import config
 from app import app, db, socketio
 from mock import patch, MagicMock
 from app.users.models import Users
+from app.members.models import Members, Roles
 from app.committees.models import Committees
 from flask_socketio import SocketIOTestClient
 from app.members.members_response import Response
@@ -39,8 +40,11 @@ class TestMembers(object):
 		db.drop_all()
 		db.create_all()
 
-		self.user_data = {"user_id": "testuser",
-						  "committee_id": "testcommittee"}
+		self.user_data = {
+			"user_id": "testuser",
+			"committee_id": "testcommittee",
+			"role": "NormalMember"
+		}
 
         # Create admin user for tests.
 		admin = Users(id = "adminuser")
@@ -61,10 +65,20 @@ class TestMembers(object):
 		self.user.email = "testuser@test.com"
 		self.user.is_admin = False
 		db.session.add(self.user)
-		#db.session.expunge(self.user)
 		db.session.commit()
 		self.user_token = self.user.generate_auth()
 		self.user_token = self.user_token.decode('ascii')
+
+		# Create normal user2 for tests.
+		self.user2 = Users(id = "test2user")
+		self.user2.first_name = "Test2"
+		self.user2.last_name = "User"
+		self.user2.email = "test2user@test.com"
+		self.user2.is_admin = False
+		db.session.add(self.user2)
+		db.session.commit()
+		self.user2_token = self.user2.generate_auth()
+		self.user2_token = self.user2_token.decode('ascii')
 
 		# Create a test committee.
 		self.committee = Committees(id = "testcommittee")
@@ -74,9 +88,13 @@ class TestMembers(object):
 		self.committee.meeting_time = "1200"
 		self.committee.meeting_day = 2
 		self.committee.head = "adminuser"
-		self.committee.members.append(self.user)
+
+		# Add user2 to committee.
+		role = Members(role= Roles.NormalMember)
+		role.member = self.user2
+		self.committee.members.append(role)
 		db.session.add(self.committee)
-		#db.session.expunge(self.committee)
+
 		db.session.commit()
 
 	@classmethod
@@ -101,8 +119,8 @@ class TestMembers(object):
 		commitee = received[0]["args"][0]
 		
 		result = {
-			'id': 'testuser',
-			'name': "Test1 User"
+			'id': 'test2user',
+			'name': "Test2 User"
 		}
 
 		assert commitee["committee_id"] == "testcommittee"
@@ -113,6 +131,7 @@ class TestMembers(object):
 		self.user_data["token"] = self.admin_token
 		self.socketio.emit("add_member_committee", self.user_data)
 		received = self.socketio.get_received()
+		assert received[0]["args"][0]["members"][1]["id"] == self.user_data["user_id"]
 		assert received[1]["args"][0] == Response.AddSuccess
 
 
@@ -136,10 +155,11 @@ class TestMembers(object):
 	# Test remove member not admin
 	def test_remove_member_admin(self):
 		self.user_data["token"] = self.admin_token
-		self.user_data["user_id"] = self.user.id
+		self.user_data["user_id"] = self.user2.id
 		self.socketio.emit("remove_member_committee", self.user_data)
 		received = self.socketio.get_received()
 		print (received)
+		assert received[0]["args"][0]["members"] == [] 
 		assert received[1]["args"][0] == Response.RemoveSuccess
 
 
@@ -172,10 +192,11 @@ class TestMembers(object):
 
 
 	# Test removing a member raises an Exception.
-	@patch('app.committees.models.Committees.members')
+	@patch('app.members.controllers.db.session.delete')
 	def test_remove_exception(self, mock_obj):
-		mock_obj.remove.side_effect = Exception("User couldn't be removed.")
+		mock_obj.side_effect = Exception("User couldn't be removed.")
 		self.user_data["token"] = self.admin_token
+		self.user_data["user_id"] = self.user2.id
 		self.socketio.emit("remove_member_committee", self.user_data)
 		received = self.socketio.get_received()
 		assert received[0]["args"][0] == Response.RemoveError

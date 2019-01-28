@@ -6,7 +6,6 @@ created on: 08/31/17
 """
 from app import app, db, login_manager
 from enum import Enum
-from app.members.models import members_table
 from flask_login import UserMixin
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
@@ -19,7 +18,7 @@ class Users(UserMixin, db.Model):
 	email = db.Column(db.String(255))
 	is_admin = db.Column(db.Boolean)
 	is_super = db.Column(db.Boolean)
-	committees = db.relationship('Committees', secondary= members_table, back_populates= 'members')
+	#committees = db.relationship('Members', back_populates= 'member')
 
 
 	@login_manager.user_loader

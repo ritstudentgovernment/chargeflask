@@ -55,7 +55,7 @@ def get_permissions(user, user_data):
             elif user.id == committee.head:
 
                 permission_level = Permissions.CanCreate
-            elif user in committee.members:
+            elif committee.members.filter_by(member= user).first():
 
                 permission_level = Permissions.CanContribute
         emit('get_permissions', permission_level)

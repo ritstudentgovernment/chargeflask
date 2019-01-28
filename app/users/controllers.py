@@ -64,6 +64,7 @@ def verify(user, user_data):
 
     emit('verify_auth', {
         'admin': user.is_admin,
+        'super': user.is_super,
         'username': user.id
     })
 
@@ -104,6 +105,7 @@ def login_ldap(credentials):
             emit('auth', {
                 'token': token.decode('ascii'),
                 'admin': admin,
+                'super': user.is_super,
                 'username': username
             })
 

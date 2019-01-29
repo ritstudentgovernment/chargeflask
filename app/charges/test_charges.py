@@ -124,7 +124,8 @@ class TestCharges(object):
             "title": "test charge",
             "priority": 0,
             "description": "test description",
-            "committee": "testcommittee"
+            "committee": "testcommittee",
+            "private": True
         }
 
         self.socketio.emit('create_charge', user_data)
@@ -143,6 +144,20 @@ class TestCharges(object):
         self.socketio.emit('create_charge', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.AddSuccess
+
+    def test_create_charge_no_permission(self):
+        user_data = {
+            "token": self.user_token2,
+            "title": "test charge",
+            "priority": 0,
+            "description": "test description",
+            "committee": "testcommittee"
+        }
+
+        self.socketio.emit('create_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.PermError
+
 
     # Test when a charge is created with no committee
     def test_create_charge_no_committee(self):

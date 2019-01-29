@@ -149,7 +149,6 @@ def login_ldap(credentials):
 def edit_roles(user, user_data):
     if not user.is_super:
         emit('auth', Response.PermError)
-        print(user.is_super)
         return;
 
     edit_user = Users.query.filter_by(id = user_data["username"]).first()

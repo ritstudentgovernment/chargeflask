@@ -14,3 +14,6 @@ class Response():
 	RemoveSuccess = {"success": "Member has been removed from committee."}
 	RemoveError = {"error": "Member couldn't be removed from committee."}
 	PermError = {"error": "User doesn't have permissions to remove members."}
+	RoleDoesntExist = {"error": "Role doesnt exist."}
+	EditSuccess = {"error": "Role successfuly edited."}
+	EditError = {"error": "Role couldn't be edited."}

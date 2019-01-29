@@ -29,7 +29,14 @@ def get_committee_members(committee_id, broadcast= False):
 
     if committee is not None:
         members = committee.members
-        mem_arr = [{"id": m.member.id, "name": m.member.first_name + " " + m.member.last_name} for m in members]
+        mem_arr = [
+            {
+                "id": m.member.id,
+                "name": m.member.first_name + " " + m.member.last_name,
+                "role": m.role.value
+            } 
+            for m in members
+        ]
         mem_data = {"committee_id": committee.id, "members": mem_arr}
         emit("get_members", mem_data, broadcast= broadcast)
     else:
@@ -42,10 +49,11 @@ def get_committee_members(committee_id, broadcast= False):
 ## @param      user_data  Contains the data needed to add a member to a committee.
 ##                        This can contain:
 ##
-##                        - token (required): Token of current user.
 ##                        - user_id (optional): Id of user to be added, if not
 ##                          specified, current user will be added to committee.
 ##                        - committee_id (required): Id of committee.
+##                        - role (optional): Role of Member, if not defined it
+##                                           will be set to NormalMember.
 ##
 ##                        Any other parameters will be ignored.
 ##
@@ -81,7 +89,7 @@ def add_to_committee(user, user_data):
     # If user is head or admin and user exists in app,
     # add user to committee.
     try:
-        membership = Members(role= Roles[user_data["role"]])
+        membership = Members(role= Roles[user_data.get("role", Roles.NormalMember.value)])
         membership.member = new_user
         committee.members.append(membership)
         db.session.commit()
@@ -96,10 +104,9 @@ def add_to_committee(user, user_data):
 ##
 ## @brief      Removes a member from a committee.
 ##
-## @param      user_data  Contains the data needed to add a member to a committee.
+## @param      user_data  Contains the data needed to remove a member from a committee.
 ##                        This can contain:
 ##
-##                        - token (required): Token of current user.
 ##                        - user_id (required): Id of user to be deleted.
 ##                        - committee_id (required): Id of committee.
 ##
@@ -131,4 +138,48 @@ def remove_from_committee(user, user_data):
         emit("remove_member_committee", Response.RemoveSuccess)
     except Exception as e:
         db.session.rollback()
-        emit("remove_member_committee", Response.RemoveError)   
+        emit("remove_member_committee", Response.RemoveError)
+
+
+##
+## @brief      Edits the role of a committee member
+##
+## @param      user_data  Contains the data to edit a users role.
+##                        This can contain:
+##                        
+##                        - user_id (required): Id of user to be deleted.
+##                        - committee_id (required): Id of committee.
+##                        - role (required): the users new role.
+##
+## @emit     Success if role was changed, error otherwise.
+##
+@socketio.on("edit_role_member_committee")
+@ensure_dict
+@get_user
+def edit_member_role(user, user_data):
+
+    committee = Committees.query.filter_by(id= user_data.get("committee_id",-1)).first()
+    modify_user = Users.query.filter_by(id= user_data.get("user_id","")).first()
+
+    try:
+        role = Roles[user_data["role"]]
+    except:
+        emit("edit_role_member_committee", Response.RoleDoesntExist)
+        return;
+
+    if committee is None or modify_user is None:
+        emit("edit_role_member_committee", Response.UserDoesntExist)
+        return;
+
+    if not committee.head == user.id or not user.is_admin:
+        emit("edit_role_member_committee", Response.PermError)
+        return;
+
+    try:
+        membership = committee.members.filter_by(member= modify_user).first()
+        membership.role = role
+        db.session.commit()
+        emit("edit_role_member_committee", Response.EditSuccess)
+    except Exception as e:
+        db.session.rollback()
+        emit("edit_role_member_committee", Response.EditError)

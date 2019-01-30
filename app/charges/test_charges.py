@@ -12,6 +12,7 @@ from app.charges.charges_response import Response
 from app.committees.models import Committees
 from app.users.permissions import Permissions
 from app.charges.models import *
+from app.members.models import Members, Roles
 from app.users.models import Users
 from flask_socketio import SocketIOTestClient
 from app.notifications.controllers import new_committee
@@ -79,6 +80,19 @@ class TestCharges(object):
         self.user_token2 = user2.generate_auth()
         self.user_token2 = self.user_token2.decode('ascii')
 
+        # Create normal user for tests.
+        user3 = Users(id = "activemember")
+        user3.first_name = "Active"
+        user3.last_name = "Member"
+        user3.email = "testuser@test.com"
+        user3.is_admin = False
+        db.session.add(user2)
+        db.session.commit()
+        self.test_user3 = user3
+        self.user_token3 = user3.generate_auth()
+        self.user_token3 = self.user_token3.decode('ascii')
+
+
         # Create a test committee.
         committee = Committees(id = "testcommittee")
         committee.title = "Test Committee"
@@ -88,7 +102,12 @@ class TestCharges(object):
         committee.meeting_day =  2
         committee.head = "testuser"
         self.committee = committee
-        db.session.add(committee)
+
+        # Add user3 to committee.
+        role = Members(role= Roles.ActiveMember)
+        role.member = self.test_user3
+        self.committee.members.append(role)
+        db.session.add(self.committee)
         db.session.commit()
 
         self.charge_dict={
@@ -125,7 +144,7 @@ class TestCharges(object):
             "priority": 0,
             "description": "test description",
             "committee": "testcommittee",
-            "private": True
+            "private": False
         }
 
         self.socketio.emit('create_charge', user_data)
@@ -135,6 +154,19 @@ class TestCharges(object):
     def test_head_create_charge(self):
         user_data = {
             "token": self.user_token,
+            "title": "test charge",
+            "priority": 0,
+            "description": "test description",
+            "committee": "testcommittee"
+        }
+
+        self.socketio.emit('create_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.AddSuccess
+
+    def test_active_member_create_charge(self):
+        user_data = {
+            "token": self.user_token3,
             "title": "test charge",
             "priority": 0,
             "description": "test description",
@@ -226,6 +258,20 @@ class TestCharges(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.InvalidPriority
 
+    def test_active_member_create_charge_public(self):
+        user_data = {
+            "token": self.user_token3,
+            "title": "test charge",
+            "priority": 0,
+            "description": "test description",
+            "committee": "testcommittee",
+            "private": False
+        }
+
+        self.socketio.emit('create_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.PermError
+
     # Test getting a charge
     def test_get_charge(self):
 
@@ -287,6 +333,34 @@ class TestCharges(object):
             "token": self.user_token2,
             "charge": 10,
             "title": "this is the new title"
+        }
+        self.charge_dict["title"] = user_data["title"]
+
+        self.socketio.emit('edit_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.PermError
+
+    def test_edit_charge_active_member_public(self):
+
+        user_data = {
+            "token": self.user_token3,
+            "charge": 10,
+            "title": "this is the new title",
+            "private": False
+        }
+        self.charge_dict["title"] = user_data["title"]
+
+        self.socketio.emit('edit_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.PermError
+
+    def test_edit_charge_active_member_public_notbool(self):
+
+        user_data = {
+            "token": self.user_token3,
+            "charge": 10,
+            "title": "this is the new title",
+            "private": "False"
         }
         self.charge_dict["title"] = user_data["title"]
 

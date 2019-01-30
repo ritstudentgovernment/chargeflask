@@ -10,6 +10,7 @@ from app.decorators import ensure_dict, get_user
 from app import socketio, db
 from app.charges.models import *
 from app.committees.models import Committees
+from app.members.models import Roles
 from app.charges.charges_response import Response
 from app.users.models import Users
 
@@ -118,7 +119,7 @@ def get_charge(charge_id, broadcast = False):
 ##             - private (optional): Set charge to private or not,
 ##                                   only committee head and admins
 ##                                   can use them. If not defined,
-##                                   private will be set to False.
+##                                   private will be set to True.
 ##             - priority (required): The charge's priority.
 ##             - description: The purpose of the charge.
 ##             - objectives: The objectives of a charge (Array).
@@ -136,7 +137,11 @@ def create_charge(user, user_data):
         emit("create_charge", Response.UsrChargeDontExist)
         return;
 
-    if user.id != committee.head and user.is_admin == False:
+    # Get the members role.
+    membership = committee.members.filter_by(member= user).first()
+
+    if (user.id != committee.head and user.is_admin == False and
+        (membership is None or membership.role != Roles.ActiveMember)):
         emit("create_charge", Response.PermError)
         return;
 
@@ -151,6 +156,12 @@ def create_charge(user, user_data):
         emit ("create_charge", Response.InvalidPriority)
         return;
 
+    # Only admins and committee heads can make charges public.
+    if ('private' in user_data and not user_data['private'] and
+        not user.is_admin and user.id != committee.head):
+        emit("create_charge", Response.PermError)
+        return;
+
     charge = Charges(title = user_data["title"])
     charge.author = user.id
     charge.description = user_data.get("description", "")
@@ -162,7 +173,7 @@ def create_charge(user, user_data):
     charge.resources = user_data.get("resources", [])
     charge.stakeholders = user_data.get("stakeholders", [])
     charge.paw_links = user_data.get("paw_links", "")
-    charge.private = user_data.get("private", False)
+    charge.private = user_data.get("private", True)
 
     db.session.add(charge)
 
@@ -191,6 +202,10 @@ def create_charge(user, user_data):
 ##             - description : new description
 ##             - priority: new priority
 ##             - status: new status
+##             - private (optional): Set charge to private or not,
+##                                   only committee head and admins
+##                                   can set privacy. If not defined,
+##                                   private will be set to True.
 ##
 ## @return     { description_of_the_return_value }
 ##
@@ -200,29 +215,37 @@ def create_charge(user, user_data):
 def edit_charge(user, user_data):
     charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
 
-    if charge is not None and user is not None:
-        committee = Committees.query.filter_by(id = charge.committee).first()
-
-        if (committee.head == user.id or user.is_admin):
-
-            for key in user_data:
-                if (key == "description" or key == "title" or key == "priority" or
-                    key == "status" or key == "paw_links"):
-                    setattr(charge, key, user_data[key])
-
-            try:
-                db.session.commit()
-                # Send successful edit notification to user
-                # and broadcast charge changes.
-                emit("edit_charge", Response.EditSuccess)
-
-                get_charge(charge.id, broadcast= True)
-                get_charges(charge.committee, broadcast= True)
-
-            except Exception as e:
-                db.session.rollback()
-                emit("edit_charge", Response.EditError)
-        else:
-            emit('edit_charge', Response.EditError)
-    else:
+    if charge is None or user is None:
         emit('edit_charge', Response.UsrChargeDontExist)
+        return;
+
+    committee = Committees.query.filter_by(id = charge.committee).first()
+    membership = committee.members.filter_by(member= user).first()
+
+    if (user.id != committee.head and user.is_admin == False and
+        (membership is None or membership.role != Roles.ActiveMember)):
+        emit("edit_charge", Response.PermError)
+        return;
+
+    # Only admins and committee heads can make charges public.
+    if ('private' in user_data and not user_data['private'] and
+        not user.is_admin and user.id != committee.head):
+        emit("edit_charge", Response.PermError)
+        return;
+
+    for key in user_data:
+        if (key == "description" or key == "title" or key == "priority" or
+            key == "status" or key == "paw_links" or key == "private"):
+            setattr(charge, key, user_data[key])
+
+    try:
+        db.session.commit()
+        # Send successful edit notification to user
+        # and broadcast charge changes.
+        emit("edit_charge", Response.EditSuccess)
+
+        get_charge(charge.id, broadcast= True)
+        get_charges(charge.committee, broadcast= True)
+    except Exception as e:
+        db.session.rollback()
+        emit("edit_charge", Response.EditError)

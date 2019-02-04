@@ -129,6 +129,7 @@ class TestCharges(object):
         charge.paw_links = "https://testlink.com"
         charge.priority = 0
         charge.status = 0
+        charge.private  = True
         self.charge = charge
 
         db.session.add(charge)
@@ -272,21 +273,55 @@ class TestCharges(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.PermError
 
-    # Test getting a charge
+    # Test getting a charge being a member.
     def test_get_charge(self):
 
-        self.socketio.emit('get_charge', 10)
+        user_data = {
+            "token": self.user_token3,
+            "charge": 10
+        }
+
+        self.socketio.emit('get_charge', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == self.charge_dict
+
+    # Test getting a charge being an admin.
+    def test_get_charge(self):
+
+        user_data = {
+            "token": self.admin_token,
+            "charge": 10
+        }
+
+        self.socketio.emit('get_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == self.charge_dict
+
+    # Test getting charge no permissions.
+    def test_get_charge_noperm(self):
+
+        user_data = {
+            "token": self.user_token2,
+            "charge": 10
+        }
+
+        self.socketio.emit('get_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.PermError
 
     # Test getting a charge that doesn't exist
     def test_get_charge_doesnt_exist(self):
 
-        self.socketio.emit('get_charge', 99999)
+        user_data = {
+            "token": self.user_token,
+            "charge": 99999
+        }
+
+        self.socketio.emit('get_charge', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.UsrChargeDontExist
 
-        # Test getting a charge
+    # Test getting a charge
     def test_get_charges(self):
         response_data = [ self.charge_dict ]
 

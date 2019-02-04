@@ -82,12 +82,21 @@ def get_charges(committee_id, broadcast = False):
 ##             charge.
 ##
 @socketio.on('get_charge')
-def get_charge(charge_id, broadcast = False):
+@ensure_dict
+@get_user
+def get_charge(user, user_data, broadcast = False):
 
-    charge = Charges.query.filter_by(id= charge_id).first()
+    charge = Charges.query.filter_by(id= user_data["charge"]).first()
 
     if charge is None:
         emit('get_charge', Response.UsrChargeDontExist)
+        return;
+
+    committee = Committees.query.filter_by(id = charge.committee).first()
+    membership = committee.members.filter_by(member= user).first()
+
+    if charge.private and (membership is None and not user.is_admin):
+        emit('get_charge', Response.PermError)
         return;
 
     charge_info = {
@@ -243,9 +252,10 @@ def edit_charge(user, user_data):
         # Send successful edit notification to user
         # and broadcast charge changes.
         emit("edit_charge", Response.EditSuccess)
-
-        get_charge(charge.id, broadcast= True)
+        print(user_data)
+        get_charge(user_data, broadcast= True)
         get_charges(charge.committee, broadcast= True)
     except Exception as e:
+        print(e)
         db.session.rollback()
         emit("edit_charge", Response.EditError)

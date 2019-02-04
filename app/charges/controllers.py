@@ -53,21 +53,33 @@ def get_all_charges(broadcast = False):
 ## @emit       Emits a list of charges for committee.
 ##
 @socketio.on('get_charges')
-def get_charges(committee_id, broadcast = False):
-    charges = Charges.query.filter_by(committee= committee_id).all()
-    charge_ser = [
-                    {
-                        "id": charge.id,
-                        "title": charge.title,
-                        "description": charge.description,
-                        "committee": charge.committee,
-                        "priority": charge.priority,
-                        "status": charge.status,
-                        "paw_links": charge.paw_links,
-                        "created_at": charge.created_at.isoformat()
-                    }
-                    for charge in charges
-                ]
+@ensure_dict
+@get_user
+def get_charges(user, user_data, broadcast = False):
+    charges = Charges.query.filter_by(committee= user_data.get("committee_id", "")).all()
+    charge_ser = []
+
+    if len(charges) == 0:
+        emit("get_charges", charge_ser, broadcast = broadcast)
+        return;
+
+    committee = Committees.query.filter_by(id = user_data.get("committee_id", "")).first()
+    membership = committee.members.filter_by(member= user).first()
+
+    for charge in charges:
+        if charge.private and membership is None:
+            continue;
+
+        charge_ser.append({
+            "id": charge.id,
+            "title": charge.title,
+            "description": charge.description,
+            "committee": charge.committee,
+            "priority": charge.priority,
+            "status": charge.status,
+            "paw_links": charge.paw_links,
+            "created_at": charge.created_at.isoformat()
+        });
     emit("get_charges", charge_ser, broadcast = broadcast)
 
 

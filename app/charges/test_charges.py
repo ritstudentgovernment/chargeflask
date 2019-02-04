@@ -325,14 +325,36 @@ class TestCharges(object):
     def test_get_charges(self):
         response_data = [ self.charge_dict ]
 
-        self.socketio.emit('get_charges', "testcommittee")
+        user_data = {
+            "token": self.user_token3,
+            "committee_id": "testcommittee",
+        }
+
+        self.socketio.emit('get_charges', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == response_data
+
+    # Test getting a charge not member
+    def test_get_charges_not_member(self):
+
+        user_data = {
+            "token": self.user_token2,
+            "committee_id": "testcommittee",
+        }
+
+        self.socketio.emit('get_charges', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == []
 
     # Test getting a charge that doesn't exist
     def test_get_charges_doesnt_exist(self):
 
-        self.socketio.emit('get_charges', "test")
+        user_data = {
+            "token": self.user_token3,
+            "committee_id": "test",
+        }
+
+        self.socketio.emit('get_charges', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == []
 

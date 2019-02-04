@@ -201,7 +201,7 @@ def create_charge(user, user_data):
     try:
         db.session.commit()
         emit('create_charge', Response.AddSuccess)
-        get_charges(committee.id, broadcast= True)
+        get_charges(user_data, broadcast= True)
     except Exception as e:
         db.session.rollback()
         db.session.flush()
@@ -264,10 +264,8 @@ def edit_charge(user, user_data):
         # Send successful edit notification to user
         # and broadcast charge changes.
         emit("edit_charge", Response.EditSuccess)
-        print(user_data)
         get_charge(user_data, broadcast= True)
-        get_charges(charge.committee, broadcast= True)
+        get_charges(user_data, broadcast= True)
     except Exception as e:
-        print(e)
         db.session.rollback()
         emit("edit_charge", Response.EditError)

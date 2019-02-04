@@ -117,6 +117,7 @@ class TestCharges(object):
             'committee': 'testcommittee',
             'status': 0,
             'priority': 0,
+            'private': True,
             'paw_links': "https://testlink.com"
         }
 

@@ -16,8 +16,7 @@ from app.users.models import Users
 
 
 ##
-## @brief      Gets the charges of all committees
-##             a user is part of.
+## @brief      Gets all public charges.
 ##
 ## @param      broadcast  The broadcast
 ##
@@ -27,19 +26,21 @@ from app.users.models import Users
 def get_all_charges(broadcast = False):
 
     charges = Charges.query.filter_by().all()
-    charge_ser = [
-                    {
-                        "id": charge.id,
-                        "title": charge.title,
-                        "description": charge.description,
-                        "committee": charge.committee,
-                        "priority": charge.priority,
-                        "status": charge.status,
-                        "paw_links": charge.paw_links,
-                        "created_at": charge.created_at.isoformat()
-                    }
-                    for charge in charges
-                ]
+
+    for charge in charges:
+        if charge.private:
+            continue;
+
+        charge_ser.append({
+            "id": charge.id,
+            "title": charge.title,
+            "description": charge.description,
+            "committee": charge.committee,
+            "priority": charge.priority,
+            "status": charge.status,
+            "paw_links": charge.paw_links,
+            "created_at": charge.created_at.isoformat()
+        });
     emit("get_all_charges", charge_ser, broadcast = broadcast)
 
 
@@ -78,6 +79,7 @@ def get_charges(user, user_data, broadcast = False):
             "priority": charge.priority,
             "status": charge.status,
             "paw_links": charge.paw_links,
+            "private": charge.private,
             "created_at": charge.created_at.isoformat()
         });
     emit("get_charges", charge_ser, broadcast = broadcast)
@@ -119,6 +121,7 @@ def get_charge(user, user_data, broadcast = False):
         "priority": charge.priority,
         "status": charge.status,
         "paw_links": charge.paw_links,
+        "private": charge.private,
         "created_at": charge.created_at.isoformat()
     }
     emit('get_charge', charge_info, broadcast= broadcast)

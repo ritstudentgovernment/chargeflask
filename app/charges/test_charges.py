@@ -359,6 +359,12 @@ class TestCharges(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == []
 
+    # Get all public charges.
+    def test_get_all_charges(self):
+        self.socketio.emit('get_all_charges')
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == []
+
     def test_edit_charge(self):
 
         user_data = {

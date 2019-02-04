@@ -26,6 +26,7 @@ from app.users.models import Users
 def get_all_charges(broadcast = False):
 
     charges = Charges.query.filter_by().all()
+    charge_ser = []
 
     for charge in charges:
         if charge.private:

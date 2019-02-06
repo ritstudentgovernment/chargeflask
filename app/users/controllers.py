@@ -15,6 +15,13 @@ from flask_login import login_user, current_user
 from flask import redirect, jsonify
 import ldap
 
+@socketio.on('get_all_users')
+def get_all_users():
+    users = Users.query.filter_by().all()
+    users_ser = [{"username": user.id, "name": user.first_name + " " + user.last_name} for user in users]
+    emit('get_all_users', users_ser)
+    return;
+
 
 # setup acs response handler
 @saml_manager.login_from_acs

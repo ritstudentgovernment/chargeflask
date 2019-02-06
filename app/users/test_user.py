@@ -149,3 +149,13 @@ class TestUser(object):
             attributes = [[[],[""]],[],[[],[""]],[[],[""]],[],[[],[""]]]
             res = login_from_acs({'logged_in': True, 'attributes': attributes})
             assert res.status == "302 FOUND"
+
+    def test_get_all_users(self):
+        return_data = [{
+            "username": self.user.id,
+            "name": self.user.first_name + " " + self.user.last_name
+        }]
+
+        self.socketio.emit("get_all_users")
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == return_data

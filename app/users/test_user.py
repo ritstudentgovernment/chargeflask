@@ -159,5 +159,3 @@ class TestUser(object):
         self.socketio.emit("get_all_users")
         received = self.socketio.get_received()
         assert received[0]["args"][0] == return_data
-
-

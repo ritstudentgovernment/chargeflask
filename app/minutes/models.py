@@ -11,7 +11,7 @@ class Minutes(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	title = db.Column(db.String)
 	topics = db.relationship("Topics")
-	date = db.Column(db.DateTime)
+	date = db.Column(db.Integer) # EPOCH datetime.
 	committee_id = db.Column(db.String, db.ForeignKey('committees.id'))
 	committee = db.relationship("Committee", back_populates="minutes")
 

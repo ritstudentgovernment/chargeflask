@@ -1,6 +1,6 @@
 """
 filename: controllers.py
-description: Cronrollers for Minutes.
+description: Controllers for Minutes.
 created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 02/12/19
 """

@@ -164,10 +164,16 @@ class TestUser(object):
             assert res.status == "302 FOUND"
 
     def test_get_all_users(self):
-        return_data = [{
-            "username": self.user.id,
-            "name": self.user.first_name + " " + self.user.last_name
-        }]
+        return_data = [
+            {
+                "username": self.user.id,
+                "name": self.user.first_name + " " + self.user.last_name,
+            },
+            {
+                "username": self.admin_user.id,
+                "name": self.admin_user.first_name + " " + self.admin_user.last_name
+            }
+        ]
 
         self.socketio.emit("get_all_users")
         received = self.socketio.get_received()

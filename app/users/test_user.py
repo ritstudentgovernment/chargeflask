@@ -11,7 +11,7 @@ import config
 from mock import patch, MagicMock
 from pytest_mock import mocker
 from app import app, db, socketio
-from app.users.models import Users
+from app.users.models import Users, Roles
 from app.users.controllers import login_from_acs
 from flask_socketio import SocketIOTestClient
 from flask_sqlalchemy import SQLAlchemy
@@ -51,6 +51,19 @@ class TestUser(object):
         db.session.commit() 
         self.user_token = self.user.generate_auth() 
         self.user_token = self.user_token.decode('ascii') 
+
+        # Create admin user for tests.
+        self.admin_user = Users(id = "adminuser") 
+        self.admin_user.first_name = "Admin" 
+        self.admin_user.last_name = "User" 
+        self.admin_user.email = "adminuser@test.com" 
+        self.admin_user.is_admin = True 
+        self.admin_user.is_super = True
+        db.session.add(self.admin_user) 
+        db.session.commit() 
+        self.admin_user_token = self.admin_user.generate_auth() 
+        self.admin_user_token = self.admin_user_token.decode('ascii')
+
 
     @classmethod
     def teardown_class(self):
@@ -151,11 +164,119 @@ class TestUser(object):
             assert res.status == "302 FOUND"
 
     def test_get_all_users(self):
-        return_data = [{
-            "username": self.user.id,
-            "name": self.user.first_name + " " + self.user.last_name
-        }]
+        return_data = [
+            {
+                "username": self.user.id,
+                "name": self.user.first_name + " " + self.user.last_name,
+            },
+            {
+                "username": self.admin_user.id,
+                "name": self.admin_user.first_name + " " + self.admin_user.last_name
+            }
+        ]
 
         self.socketio.emit("get_all_users")
         received = self.socketio.get_received()
         assert received[0]["args"][0] == return_data
+
+    # Test edit roles without being an admin.
+    def test_edit_roles_no_permissions(self):
+        self.socketio.emit("edit_roles", 
+            {
+                "token": self.user_token, 
+                "username": "testuser",
+                "role": Roles.AdminUser.value
+            }
+        )
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.PermError
+
+    # Test edit role of non-existing user.
+    def test_edit_roles_user_not_found(self):
+        self.socketio.emit("edit_roles", 
+            {
+                "token": self.admin_user_token, 
+                "username": "non-existing",
+                "role": Roles.AdminUser.value
+            }
+        )
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.UserNotFound
+
+    # Test edit non existing role.
+    def test_edit_role_not_found(self):
+        self.socketio.emit("edit_roles", 
+            {
+                "token": self.admin_user_token, 
+                "username": "testuser",
+                "role": "NonExistingRole"
+            }
+        )
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.RoleNotFound
+
+    # Test set roles to manager user.
+    def test_set_to_manager(self):
+        self.socketio.emit("edit_roles", 
+            {
+                "token": self.admin_user_token, 
+                "username": "testuser",
+                "role": Roles.ManagerUser.value
+            }
+        )
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == {"success": "Role set to ManagerUser."}
+
+    # Test manager shouldnt edit roles.
+    def test_manager_cant_edit_role(self):
+        self.socketio.emit("edit_roles",
+            {
+                "token": self.user_token, 
+                "username": "adminuser",
+                "role": Roles.ManagerUser.value
+            }
+        )
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.PermError
+
+    # Test set manager to admin user.
+    def test_set_to_admin(self):
+        self.socketio.emit("edit_roles", 
+            {
+                "token": self.admin_user_token, 
+                "username": "testuser",
+                "role": Roles.AdminUser.value
+            }
+        )
+
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == {"success": "Role set to AdminUser."}
+
+    # Test set admin to normal user.
+    def test_set_to_normal(self):
+
+        # Make testuser an admin.
+        self.socketio.emit("edit_roles", 
+            {
+                "token": self.admin_user_token, 
+                "username": "testuser",
+                "role": Roles.AdminUser.value
+            }
+        )
+
+        # Make admin a normal user.
+        self.socketio.emit("edit_roles", 
+            {
+                "token": self.user_token, 
+                "username": "adminuser",
+                "role": Roles.NormalUser.value
+            }
+        )
+
+        received = self.socketio.get_received()
+        assert received[1]["args"][0] == {"success": "Role set to NormalUser."}

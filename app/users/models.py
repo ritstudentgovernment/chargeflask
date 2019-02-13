@@ -5,7 +5,7 @@ created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 08/31/17
 """
 from app import app, db, login_manager
-from app.members.models import members_table
+from enum import Enum
 from flask_login import UserMixin
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
@@ -17,7 +17,8 @@ class Users(UserMixin, db.Model):
 	last_name = db.Column(db.String(255))
 	email = db.Column(db.String(255))
 	is_admin = db.Column(db.Boolean)
-	committees = db.relationship('Committees', secondary= members_table, back_populates= 'members')
+	is_super = db.Column(db.Boolean)
+	#committees = db.relationship('Members', back_populates= 'member')
 
 
 	@login_manager.user_loader
@@ -42,3 +43,11 @@ class Users(UserMixin, db.Model):
 			return None
 		user = Users.query.get(data['id'])
 		return user
+
+##
+## @brief      Class for User Roles.
+##
+class Roles(Enum):
+	NormalUser = 'NormalUser'
+	AdminUser = 'AdminUser'
+	ManagerUser = 'ManagerUser'

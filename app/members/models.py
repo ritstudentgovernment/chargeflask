@@ -6,10 +6,20 @@ created on: 08/31/17
 """
 
 from app import db
+from enum import Enum
+from sqlalchemy_utils import ChoiceType
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 
-members_table = db.Table('members', db.Model.metadata,
-	db.Column('committees_id', db.String(255), db.ForeignKey('committees.id')),
-	db.Column('users_id', db.String(255), db.ForeignKey('users.id'))
-)
+class Roles(Enum):
+	NormalMember = "NormalMember"
+	ActiveMember = "ActiveMember"
+	MinuteTaker = "MinuteTaker"
+
+class Members(db.Model):
+	__tablename__ = 'members'
+	committees_id = db.Column(db.String(255), db.ForeignKey('committees.id'), primary_key=True)
+	users_id = db.Column(db.String(255), db.ForeignKey('users.id'), primary_key=True)
+	role = db.Column(ChoiceType(Roles, impl=db.String()))
+	member = db.relationship('Users', backref= db.backref('committees', lazy='dynamic'))
+	committee = db.relationship('Committees', backref= db.backref('members', lazy='dynamic'))

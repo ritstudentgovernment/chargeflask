@@ -28,3 +28,4 @@ class Charges(db.Model):
     paw_links = db.Column(db.String)
     priority = db.Column(db.Integer)
     status = db.Column(db.Integer)
+    private = db.Column(db.Boolean)

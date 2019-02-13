@@ -5,7 +5,6 @@ created by: Omar De La Hoz (oed7416@rit.edu)
 created on: 08/31/17
 """
 from app import db
-from app.members.models import members_table
 
 class Committees(db.Model):
     __tablename__ = 'committees'
@@ -18,4 +17,4 @@ class Committees(db.Model):
     meeting_time = db.Column(db.String(4))   # In the format of "1300" for 1:00PM
     meeting_day = db.Column(db.Integer)      # Where 0-Sunday and 6-Saturday
     enabled = db.Column(db.Boolean, default= True)
-    members = db.relationship('Users', secondary= members_table, back_populates="committees")
+    #members = db.relationship('Members', back_populates="committee")

@@ -6,4 +6,8 @@ created on: 10/12/18
 """
 
 class Response():
-	AuthError = {'error': 'Authentication error.'}
+    AuthError = {'error': 'Authentication error.'}
+    PermError = {'error': 'Insufficient permissions to perform this action.'}
+    DBError = {'error': 'Could not complete action.'}
+    UserNotFound = {'error': 'User not found.'}
+    RoleNotFound = {'error': 'Role not found.'}

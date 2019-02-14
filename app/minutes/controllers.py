@@ -14,6 +14,26 @@ from app.minutes.models import Minutes, Topics
 from app.minutes.minutes_response import Response
 from app.users.models import Users
 
+@socketio.on('get_minute')
+@ensure_dict
+@get_user
+def get_minute(user, user_data):
+    minute = Minutes.query.filter_by(id= user_data.get("minute_id", "")).first()
+    
+    if minute is None or user is None:
+        emit('get_minute', Response.MinuteDoesntExist)
+        return
+    
+    committee = minute.committee 
+
+    membership = committee.members.filter_by(member = user).first()
+
+    if minute.private and (membership is None or not user.is_admin or committee.head != user.id):
+        emit('get_minute', Response.PermError)
+        return
+    
+    emit('get_minute', minute)
+
 @socketio.on('get_minutes')
 @ensure_dict
 @get_user

@@ -18,7 +18,6 @@ class Minutes(db.Model):
 	def as_dict(self):
 		return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
-
 class Topics(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	topic = db.Column(db.String)

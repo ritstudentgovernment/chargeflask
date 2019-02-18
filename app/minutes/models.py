@@ -13,7 +13,7 @@ class Minutes(db.Model):
 	topics = db.relationship("Topics")
 	date = db.Column(db.Integer) # EPOCH datetime.
 	committee_id = db.Column(db.String, db.ForeignKey('committees.id'))
-	committee = db.relationship("Committee", back_populates="minutes")
+	committee = db.relationship("Committees", backref= db.backref('minutes', lazy='dynamic'))
 
 
 class Topics(db.Model):

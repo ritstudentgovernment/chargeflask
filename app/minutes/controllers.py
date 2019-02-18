@@ -18,13 +18,14 @@ from app.users.models import Users
 @ensure_dict
 @get_user
 def create_minute(user, user_data):
-    committee =  Committees.query.filter_by(id = user_data.get("committee","")).first()
+    committee =  Committees.query.filter_by(id = user_data.get("committee_id","")).first()
 
     if committee is None or user is None:
         emit('create_minute', Response.UserDoesntExist)
         return
     
-    if user_data["title"] is None or user_data["date"] is None:
+    if (user_data.get("title","") == "" or 
+        user_data.get("date","") == ""):
         emit('create_minute', Response.AddError)
         return
 
@@ -36,10 +37,14 @@ def create_minute(user, user_data):
         emit('create_minute', Response.PermError)
         return
     
+    if user.id != committee.head and not user_data["private"]:
+        emit('create_minute', Response.PermError)
+        return
+    
     minute = Minutes(title= user_data["title"])
     minute.date = int(user_data["date"])
 
-    if user_data["topics"]:
+    if "topics" in user_data:
         for topic in user_data["topics"]:
             t_obj = Topics(topic= topic["topic"], body= topic["body"])
             minute.topics.append(t_obj)

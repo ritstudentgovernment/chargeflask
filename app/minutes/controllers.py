@@ -20,6 +20,9 @@ from app.users.models import Users
 def create_minute(user, user_data):
     committee =  Committees.query.filter_by(id = user_data.get("committee_id","")).first()
 
+    print(committee)
+    print(user)
+
     if committee is None or user is None:
         emit('create_minute', Response.UserDoesntExist)
         return
@@ -49,9 +52,8 @@ def create_minute(user, user_data):
             t_obj = Topics(topic= topic["topic"], body= topic["body"])
             minute.topics.append(t_obj)
     
-    db.session.add(minute)
-
     try:
+        db.session.add(minute)
         db.session.commit()
         emit('create_minute', Response.AddSuccess)
     except:

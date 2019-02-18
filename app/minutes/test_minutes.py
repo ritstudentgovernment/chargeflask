@@ -190,4 +190,13 @@ class TestMinutes(object):
         received = self.socketio.get_received()
         response = received[0]["args"][0]
         assert response == Response.AddSuccess
-        
+    
+    @patch('app.minutes.controllers.db.session.add')
+    def test_create_minute_exception(self, mock_obj):
+        mock_obj.side_effect = Exception("Minute couldn't be added.")
+        self.user_data["token"] = self.admin_token
+        self.user_data["committee_id"] = self.committee.id
+        self.socketio.emit("create_minute", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.AddError

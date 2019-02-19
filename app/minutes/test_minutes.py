@@ -370,3 +370,77 @@ class TestMinutes(object):
         response = received[0]["args"][0]
         assert response == Response.DeleteTopicSuccess
     
+    def test_get_minute(self):
+        
+        user_data = {
+            "token": self.user_token,
+            "minutes": self.minute
+        }
+
+        self.socketio.emit('get_minute', user_data)
+        #received = self.socketio.get_received()
+        assert received[0]["args"][0] == self.charge_dict
+        
+    def test_get_minute_noperm(self):
+        
+        user_data = {
+            "token": self.user_token,
+            "minutes": self.minute
+        }
+
+        self.socketio.emit('get_minute', user_data)
+        #received = self.socketio.get_received()
+        assert received[0]["args"][0] == self.charge_dict
+
+
+    def test_get_minute_doesnt_exist(self):
+        
+        user_data = {
+            "token": self.user_token,
+            "minutes": self.minute
+        }
+
+        self.socketio.emit('get_minute', user_data)
+        #received = self.socketio.get_received()
+        assert received[0]["args"][0] == self.charge_dict
+
+    def test_get_minute_no_user(self):
+        
+        user_data = {
+            "token": self.user_token,
+            "minutes": self.minute
+        }
+
+        self.socketio.emit('get_minute', user_data)
+        #received = self.socketio.get_received()
+        assert received[0]["args"][0] == self.charge_dict
+
+    def test_get_minute_no_committe(self):
+        user_data = {
+            "token": self.user2_token,
+            "minutes": self.minute
+        }
+
+        self.socketio.emit('get_minute', user_data)
+        #received = self.socketio.get_received()
+        assert received[0]["args"][0] == self.charge_dict
+    
+    def test_get_minute_not_member(self):
+        user_data = {
+            "token": self.user2_token,
+            "minutes": self.minute
+        }
+
+        self.socketio.emit('get_minute', user_data)
+        #received = self.socketio.get_received()
+        assert received[0]["args"][0] == self.charge_dict
+
+    def test_get_minute_private(self):
+        user_data = {
+            "token": self.user2_token,
+            "minutes": self.minute
+        }
+
+        self.socketio.emit('get_minute', user_data)
+        #received = self.socketio.get_received()
+        assert received[0]["args"][0] == self.charge_dict

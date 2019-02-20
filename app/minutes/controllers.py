@@ -104,7 +104,7 @@ def add_topics(user, user_data):
 @socketio.on('delete_minute_topics')
 @ensure_dict
 @get_user
-def remove_topics(user, user_data):
+def delete_topics(user, user_data):
 
     if user is None:
         emit('delete_minute_topics', Response.UserDoesntExist)
@@ -115,21 +115,23 @@ def remove_topics(user, user_data):
         return
     
     for topic in user_data["topics"]:
-        
-        topic_del = Topics.query.filter_by(id = user_data.get(topic.id,"")).first()
+        topic_del = Topics.query.filter_by(id = topic.get("id", -1)).first()
+
+        if topic_del is None:
+            emit('delete_minute_topics', Response.InvalidData)
+            return
         
         if user.id != topic_del.minute.committee.head and user.is_admin == False:
             emit('delete_minute_topics', Response.PermError)
             return
         
-        if topic_del is not None:
-            topic_del.delete()
+        db.session.delete(topic_del)
     
     try:
         db.session.commit()
-        emit('create_minute_topics', Response.DeleteTopicSuccess)
+        emit('delete_minute_topics', Response.DeleteTopicSuccess)
     except:
         db.session.rollback()
         db.session.flush()
-        emit("create_minute_topics", Response.DeleteTopicError)
+        emit("delete_minute_topics", Response.DeleteTopicError)
 

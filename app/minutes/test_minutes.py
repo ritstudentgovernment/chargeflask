@@ -14,7 +14,7 @@ from app.members.models import Members, Roles
 from app.committees.models import Committees
 from flask_socketio import SocketIOTestClient
 from app.minutes.minutes_response import Response
-from app.minutes.models import Minutes
+from app.minutes.models import Minutes, Topics
 from app.notifications.controllers import new_committee
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
@@ -101,12 +101,11 @@ class TestMinutes(object):
             "private": False
         }
 
-        self.minute = Minutes(
-            title="Test Minute",
-            date= 282827
-        )
-
+        self.minute = Minutes(title="Test Minute", date= 282827)
+        self.topic = Topics(topic="Topic", body="Body")
+        self.minute.topics.append(self.topic)
         self.committee.minutes.append(self.minute)
+
         db.session.commit()
     
     @classmethod
@@ -274,7 +273,7 @@ class TestMinutes(object):
         response = received[0]["args"][0]
         assert response == Response.AddTopicSuccess
     
-    
+
     @patch('app.minutes.models.Minutes.topics')
     def test_create_minute_topics_exception(self, mock_obj):
         mock_obj.append.side_effect = Exception("Topics couldn't be added.")
@@ -291,3 +290,68 @@ class TestMinutes(object):
         received = self.socketio.get_received()
         response = received[0]["args"][0]
         assert response == Response.AddTopicError
+    
+    def test_delete_minute_topics_no_user(self):
+        self.user_data["token"] = ""
+        self.user_data["topics"] = [
+            {
+                "id": self.topic.id,
+                "topic": "Topic",
+                "body": "Body"
+            }
+        ]
+
+        self.socketio.emit("delete_minute_topics", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.UserDoesntExist
+    
+    def test_delete_minute_topics_no_topics(self):
+        self.user_data["token"] = self.admin_token
+        self.socketio.emit("delete_minute_topics", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.InvalidData
+    
+    def test_delete_minute_topics_not_topic_id(self):
+        self.user_data["token"] = self.admin_token
+        self.user_data["topics"] = [
+            {
+                "topic": "Topic",
+                "body": "Body"
+            }
+        ]
+        self.socketio.emit("delete_minute_topics", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.InvalidData
+    
+    def test_delete_minute_topics_no_perm(self):
+        self.user_data["token"] = self.user_token
+        self.user_data["topics"] = [
+            {
+                "id": self.topic.id,
+                "topic": "Topic",
+                "body": "Body"
+            }
+        ]
+
+        self.socketio.emit("delete_minute_topics", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.PermError
+    
+    def test_delete_minute_topics_success(self):
+        self.user_data["token"] = self.admin_token
+        self.user_data["topics"] = [
+            {
+                "id": self.topic.id,
+                "topic": "Topic",
+                "body": "Body"
+            }
+        ]
+
+        self.socketio.emit("delete_minute_topics", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.DeleteTopicSuccess

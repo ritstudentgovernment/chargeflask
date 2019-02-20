@@ -89,7 +89,7 @@ def get_charges(user, user_data, broadcast = False):
 ##
 ## @brief      Gets a charge by its ID.
 ##
-## @param      charge_id  The charge identifier
+## @param      charge     The charge identifier
 ## @param      broadcast  Flag to broadcast list of charges
 ##                        to all users.
 ##

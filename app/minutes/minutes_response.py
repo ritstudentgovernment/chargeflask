@@ -6,8 +6,21 @@ created on: 10/11/17
 """
 
 class Response():
-    UserDoesntExist = {"error": "User or committee don't exist."}
+
+    # General Responses
     InvalidData = {"error": "Input data is not correct."}
-    PermError = {"error": "User doesn't have permissions to create minute."}
-    AddSuccess = {"success": "Minute has been added to committee."}
-    AddError = {"error": "Minute couldn't be added to committee."}
+    PermError = {"error": "User doesn't have permissions to complete this action."}
+    UserDoesntExist = {"error": "User doesn't exist."}
+    CommitteeDoesntExist = {"error": "Committee doesn't exist."}
+    
+    # Minute Responses
+    AddMinuteSuccess = {"success": "Minute has been added to committee."}
+    AddMinuteError = {"error": "Minute couldn't be added to committee."}
+    MinuteDoesntExist = {"error": "Minute doesn't exist."}
+
+    # Topic Responses
+    AddTopicSuccess = {"success": "Topic has been added to committee."}
+    AddTopicError = {"error": "Topic couldn't be added to committee."}
+    DeleteTopicSuccess = {"success": "Topic has been deleted."}
+    DeleteTopicError = {"success": "Topic couldn't deleted."}
+    TopicDoesntExist = {"error": "Topic doesn't exist."}

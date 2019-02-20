@@ -14,6 +14,7 @@ from app.members.models import Members, Roles
 from app.committees.models import Committees
 from flask_socketio import SocketIOTestClient
 from app.minutes.minutes_response import Response
+from app.minutes.models import Minutes
 from app.notifications.controllers import new_committee
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
@@ -100,6 +101,12 @@ class TestMinutes(object):
             "private": False
         }
 
+        self.minute = Minutes(
+            title="Test Minute",
+            date= 282827
+        )
+
+        self.committee.minutes.append(self.minute)
         db.session.commit()
     
     @classmethod
@@ -121,21 +128,21 @@ class TestMinutes(object):
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == Response.UserDoesntExist
+        assert response == Response.CommitteeDoesntExist
     
     def test_create_minute_no_title(self):
         del self.user_data['title']
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == Response.AddError
+        assert response == Response.AddMinuteError
     
     def test_create_minute_no_date(self):
         del self.user_data['date']
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == Response.AddError
+        assert response == Response.AddMinuteError
     
     def test_create_minute_normal_user_public(self):
         self.user_data["token"] = self.user_token
@@ -164,7 +171,7 @@ class TestMinutes(object):
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == Response.AddSuccess
+        assert response == Response.AddMinuteSuccess
     
     def test_create_minute_minute_taker_private(self):
         self.user_data["private"] = True
@@ -172,7 +179,7 @@ class TestMinutes(object):
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == Response.AddSuccess
+        assert response == Response.AddMinuteSuccess
     
     def test_create_minute_with_topics(self):
         self.user_data["topics"] = [
@@ -189,7 +196,7 @@ class TestMinutes(object):
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == Response.AddSuccess
+        assert response == Response.AddMinuteSuccess
     
     @patch('app.minutes.controllers.db.session.add')
     def test_create_minute_exception(self, mock_obj):
@@ -199,4 +206,88 @@ class TestMinutes(object):
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == Response.AddError
+        assert response == Response.AddMinuteError
+    
+    def test_create_minute_topics_no_user(self):
+        self.user_data["token"] = ""
+        self.user_data["minute_id"] = self.minute.id
+        self.user_data["topics"] = [
+            {
+                "topic": "Topic One",
+                "body": "Body of topic."
+            }
+        ]
+
+        self.socketio.emit("create_minute_topics", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.UserDoesntExist
+    
+    def test_create_minute_topics_no_minute(self):
+        self.user_data["minute_id"] = -1
+        self.user_data["topics"] = [
+            {
+                "topic": "Topic One",
+                "body": "Body of topic."
+            }
+        ]
+
+        self.socketio.emit("create_minute_topics", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.MinuteDoesntExist
+    
+    def test_create_minute_topics_no_topics(self):
+        self.user_data["minute_id"] = self.minute.id
+        self.socketio.emit("create_minute_topics", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.InvalidData
+    
+    def test_create_minute_topics_no_perm(self):
+        self.user_data["token"] = self.user_token
+        self.user_data["minute_id"] = self.minute.id
+        self.user_data["topics"] = [
+            {
+                "topic": "Topic One",
+                "body": "Body of topic."
+            }
+        ]
+
+        self.socketio.emit("create_minute_topics", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.PermError
+    
+    
+    def test_create_minute_topics(self):
+        self.user_data["minute_id"] = self.minute.id
+        self.user_data["topics"] = [
+            {
+                "topic": "Topic One",
+                "body": "Body of topic."
+            }
+        ]
+
+        self.socketio.emit("create_minute_topics", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.AddTopicSuccess
+    
+    
+    @patch('app.minutes.models.Minutes.topics')
+    def test_create_minute_topics_exception(self, mock_obj):
+        mock_obj.append.side_effect = Exception("Topics couldn't be added.")
+        self.user_data["token"] = self.admin_token
+        self.user_data["minute_id"] = self.minute.id
+        self.user_data["topics"] = [
+            {
+                "topic": "Topic One",
+                "body": "Body of topic."
+            }
+        ]
+
+        self.socketio.emit("create_minute_topics", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.AddTopicError

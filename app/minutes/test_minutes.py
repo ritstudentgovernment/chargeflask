@@ -101,7 +101,7 @@ class TestMinutes(object):
             "private": False
         }
 
-        self.minute = Minutes(title="Test Minute", date= 282827)
+        self.minute = Minutes(title="Test Minute", date= 282827, private= True)
         self.topic = Topics(topic="Topic", body="Body")
         self.minute.topics.append(self.topic)
         self.committee.minutes.append(self.minute)
@@ -114,6 +114,20 @@ class TestMinutes(object):
         db.drop_all()
         db.event.listen(Committees, "after_insert", new_committee)
         self.socketio.disconnect()
+    
+    def test_get_minutes(self):
+        self.socketio.emit("get_minutes", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        print(response)
+        result = [{
+            'id': 1,
+            'title': 'Test Minute',
+            'date': 282827,
+            'committee_id': 'testcommittee',
+            'topics': [{'topic': 'Topic', 'body': 'Body'}]
+        }]
+        assert response == result
     
     def test_create_minute_no_user(self):
         del self.user_data['token']
@@ -355,3 +369,4 @@ class TestMinutes(object):
         received = self.socketio.get_received()
         response = received[0]["args"][0]
         assert response == Response.DeleteTopicSuccess
+    

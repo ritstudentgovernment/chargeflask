@@ -14,6 +14,42 @@ from app.minutes.models import Minutes, Topics
 from app.minutes.minutes_response import Response
 from app.users.models import Users
 
+@socketio.on('get_minutes')
+@ensure_dict
+@get_user
+def get_minutes(user, user_data):
+    committee = Committees.query.filter_by(id = user_data.get("committee_id","")).first()
+
+    if user is None:
+        emit('get_minutes', Response.UserDoesntExist)
+        return
+    
+    if committee is None:
+        emit('get_minutes', Response.CommitteeDoesntExist)
+        return
+    
+    # Get the members role.
+    membership = committee.members.filter_by(member= user).first()
+    minutes = None
+
+    if (membership is None and not user.is_admin and committee.head != user.id):
+        minutes = committee.minutes.filter_by(private= False).all()
+    else:
+        minutes = committee.minutes.all()
+    
+    minute_data = []
+    
+    for minute in minutes:
+        minute_data.append({
+            'id': minute.id,
+            'title': minute.title,
+            'date': minute.date,
+            'committee_id': minute.committee_id,
+            'topics': [{"topic": t.topic, "body": t.body} for t in minute.topics]
+        })
+    emit('get_minutes', minute_data)
+
+
 @socketio.on('create_minute')
 @ensure_dict
 @get_user
@@ -47,6 +83,7 @@ def create_minute(user, user_data):
     
     minute = Minutes(title= user_data["title"])
     minute.date = int(user_data["date"])
+    minute.private = user_data["private"]
 
     if "topics" in user_data:
         for topic in user_data["topics"]:

@@ -11,8 +11,12 @@ class Minutes(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	title = db.Column(db.String)
 	date = db.Column(db.Integer) # EPOCH datetime.
+	private = db.Column(db.Boolean)
 	committee_id = db.Column(db.String, db.ForeignKey('committees.id'))
 	committee = db.relationship("Committees", backref= db.backref('minutes', lazy='dynamic'))
+	
+	def as_dict(self):
+		return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Topics(db.Model):

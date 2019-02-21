@@ -18,9 +18,13 @@ from app.users.models import Users
 @ensure_dict
 @get_user
 def get_minute(user, user_data):
-    minute = Minutes.query.filter_by(id= user_data.get("minute_id", "")).first()
+    minute = Minutes.query.filter_by(id= user_data.get("minute_id", -1)).first()
     
-    if minute is None or user is None:
+    if user is None:
+        emit('get_minute', Response.UserDoesntExist)
+        return
+
+    if minute is None:
         emit('get_minute', Response.MinuteDoesntExist)
         return
     
@@ -28,11 +32,19 @@ def get_minute(user, user_data):
 
     membership = committee.members.filter_by(member = user).first()
 
-    if minute.private and (membership is None or not user.is_admin or committee.head != user.id):
+    if minute.private and (membership is None and not user.is_admin and committee.head != user.id):
         emit('get_minute', Response.PermError)
         return
     
-    emit('get_minute', minute)
+    minute_data = {
+        'id': minute.id,
+        'title': minute.title,
+        'date': minute.date,
+        'committee_id': minute.committee_id,
+        'topics': [{"topic": t.topic, "body": t.body} for t in minute.topics]
+    }
+    
+    emit('get_minute', minute_data)
 
 @socketio.on('get_minutes')
 @ensure_dict

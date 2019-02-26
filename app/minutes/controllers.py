@@ -14,6 +14,14 @@ from app.minutes.models import Minutes, Topics
 from app.minutes.minutes_response import Response
 from app.users.models import Users
 
+##
+## @brief      Gets a minute
+##
+## @param      minute
+##
+## @emit       returns a valid minute.
+##
+
 @socketio.on('get_minute')
 @ensure_dict
 @get_user
@@ -46,6 +54,14 @@ def get_minute(user, user_data):
     
     emit('get_minute', minute_data)
 
+##
+## @brief      Gets an array of minutes
+##
+## @param      committee     contains committees properties
+## @param      membership    defines member's role and permissions
+##
+## @emit       Emits a list of minutes
+##
 @socketio.on('get_minutes')
 @ensure_dict
 @get_user
@@ -81,7 +97,14 @@ def get_minutes(user, user_data):
         })
     emit('get_minutes', minute_data)
 
-
+##
+## @brief      creates a new minute
+##
+## @param      committee     contains committees properties
+## @param      membership    defines member's role and permissions
+##
+## @emit       Emits a list of minutes
+##
 @socketio.on('create_minute')
 @ensure_dict
 @get_user
@@ -131,7 +154,13 @@ def create_minute(user, user_data):
         db.session.flush()
         emit("create_minute", Response.AddMinuteError)
 
-
+## @brief      Adds a list of minute topics
+##
+## @param      committee     contains committees properties
+## @param      membership    defines member's role and permissions
+##
+## @emit       Emits a list of minute topics
+##
 @socketio.on('create_minute_topics')
 @ensure_dict
 @get_user
@@ -169,7 +198,13 @@ def add_topics(user, user_data):
         db.session.flush()
         emit("create_minute_topics", Response.AddTopicError)
 
-
+## @brief      Deletes topic(s)
+##
+## @param      committee     contains committees properties
+## @param      membership    defines member's role and permissions
+##
+## @emit       Emits updated topics
+##
 @socketio.on('delete_minute_topics')
 @ensure_dict
 @get_user

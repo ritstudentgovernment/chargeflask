@@ -13,11 +13,13 @@ from app.users.models import Users
 from app.members.models import Members, Roles
 from app.committees.models import Committees
 from flask_socketio import SocketIOTestClient
+from app.minutes.models import Minutes
 from app.minutes.minutes_response import Response
 from app.minutes.models import Minutes, Topics
 from app.notifications.controllers import new_committee
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
+
 
 class TestMinutes(object):
 
@@ -51,27 +53,38 @@ class TestMinutes(object):
         self.admin_token = admin.generate_auth()
         self.admin_token = self.admin_token.decode('ascii')
 
-        # Create normal user for tests.
-        self.user = Users(id = "testuser")
-        self.user.first_name = "Test1"
-        self.user.last_name = "User"
-        self.user.email = "testuser@test.com"
-        self.user.is_admin = False
-        db.session.add(self.user)
+        # Create normal member for tests.
+        self.normal_member = Users(id = "testuser")
+        self.normal_member.first_name = "Test1"
+        self.normal_member.last_name = "User"
+        self.normal_member.email = "testuser@test.com"
+        self.normal_member.is_admin = False
+        db.session.add(self.normal_member)
         db.session.commit()
-        self.user_token = self.user.generate_auth()
-        self.user_token = self.user_token.decode('ascii')
+        self.normal_member_token = self.normal_member.generate_auth()
+        self.normal_member_token = self.normal_member_token.decode('ascii')
 
-        # Create normal user2 for tests.
-        self.user2 = Users(id = "test2user")
-        self.user2.first_name = "Test2"
-        self.user2.last_name = "User"
-        self.user2.email = "test2user@test.com"
-        self.user2.is_admin = False
-        db.session.add(self.user2)
+        # Create normal minute taker for tests.
+        self.minute_taker = Users(id = "test2user")
+        self.minute_taker.first_name = "Test2"
+        self.minute_taker.last_name = "User"
+        self.minute_taker.email = "test2user@test.com"
+        self.minute_taker.is_admin = False
+        db.session.add(self.minute_taker)
         db.session.commit()
-        self.user2_token = self.user2.generate_auth()
-        self.user2_token = self.user2_token.decode('ascii')
+        self.minute_taker_token = self.minute_taker.generate_auth()
+        self.minute_taker_token = self.minute_taker_token.decode('ascii')
+
+        # Create normal minute taker for tests.
+        self.not_member = Users(id = "test3user")
+        self.not_member.first_name = "Test3"
+        self.not_member.last_name = "User"
+        self.not_member.email = "test3user@test.com"
+        self.not_member.is_admin = False
+        db.session.add(self.not_member)
+        db.session.commit()
+        self.not_member_token = self.not_member.generate_auth()
+        self.not_member_token = self.not_member_token.decode('ascii')
 
         # Create a test committee.
         self.committee = Committees(id = "testcommittee")
@@ -83,13 +96,13 @@ class TestMinutes(object):
         self.committee.head = "adminuser"
 
         # Add user to committee as normal member.
-        role = Members(role= Roles.NormalMember)
-        role.member = self.user
-        self.committee.members.append(role)
+        normal_role = Members(role= Roles.NormalMember)
+        normal_role.member = self.normal_member
+        self.committee.members.append(normal_role)
 
-        role2 = Members(role= Roles.MinuteTaker)
-        role2.member = self.user2
-        self.committee.members.append(role2)
+        minute_taker_role = Members(role= Roles.MinuteTaker)
+        minute_taker_role.member = self.minute_taker
+        self.committee.members.append(minute_taker_role)
 
         db.session.add(self.committee)
 
@@ -158,7 +171,7 @@ class TestMinutes(object):
         assert response == Response.AddMinuteError
     
     def test_create_minute_normal_user_public(self):
-        self.user_data["token"] = self.user_token
+        self.user_data["token"] = self.normal_member_token
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
@@ -166,14 +179,14 @@ class TestMinutes(object):
     
     def test_create_minute_normal_member_private(self):
         self.user_data["private"] = True
-        self.user_data["token"] = self.user_token
+        self.user_data["token"] = self.normal_member_token
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
         assert response == Response.PermError
     
     def test_create_minute_minute_taker_public(self):
-        self.user_data["token"] = self.user2_token
+        self.user_data["token"] = self.minute_taker_token
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
@@ -188,7 +201,7 @@ class TestMinutes(object):
     
     def test_create_minute_minute_taker_private(self):
         self.user_data["private"] = True
-        self.user_data["token"] = self.user2_token
+        self.user_data["token"] = self.minute_taker_token
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
@@ -258,7 +271,7 @@ class TestMinutes(object):
         assert response == Response.InvalidData
     
     def test_create_minute_topics_no_perm(self):
-        self.user_data["token"] = self.user_token
+        self.user_data["token"] = self.normal_member_token
         self.user_data["minute_id"] = self.minute.id
         self.user_data["topics"] = [
             {
@@ -341,7 +354,7 @@ class TestMinutes(object):
         assert response == Response.InvalidData
     
     def test_delete_minute_topics_no_perm(self):
-        self.user_data["token"] = self.user_token
+        self.user_data["token"] = self.normal_member_token
         self.user_data["topics"] = [
             {
                 "id": self.topic.id,
@@ -370,3 +383,57 @@ class TestMinutes(object):
         response = received[0]["args"][0]
         assert response == Response.DeleteTopicSuccess
     
+    def test_get_minute(self):
+        
+        user_data = {
+            "token": self.normal_member_token,
+            "minute_id": self.minute.id
+        }
+
+        result = {
+            'id': 1,
+            'title': 'Test Minute',
+            'date': 282827,
+            'committee_id': 'testcommittee',
+            'topics': [{'topic': 'Topic', 'body': 'Body'}]
+        }
+
+        self.socketio.emit('get_minute', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == result
+    
+    def test_get_minute_doesnt_exist(self):
+        user_data = {
+            "token": self.normal_member_token,
+            "minute_id": -1
+        }
+
+        self.socketio.emit('get_minute', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.MinuteDoesntExist
+
+    def test_get_minute_no_user(self):
+        user_data = {
+            "token": '',
+            "minute_id": self.minute.id
+        }
+
+        self.socketio.emit('get_minute', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.UserDoesntExist
+
+    def test_get_minute_no_minute(self):
+        self.socketio.emit('get_minute', self.user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.MinuteDoesntExist
+
+    def test_get_minute_notmember_private(self):
+        user_data = {
+            "token": self.not_member_token,
+            "minute_id": self.minute.id,
+            "private": True,
+            'committee_id': ''
+        }
+        self.socketio.emit('get_minute', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.PermError

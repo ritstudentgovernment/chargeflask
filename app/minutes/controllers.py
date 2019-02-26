@@ -168,6 +168,46 @@ def create_minute(user, user_data):
         emit("create_minute", Response.AddMinuteError)
 
 
+## @brief      Deletes a Minute
+##
+## @param      user         The user object
+## @param      user_data    Contains the following keys:
+##             
+##             - minute_id (Integer) The id of the minute to delete.
+##
+## @emit       Emits DeleteMinuteSuccess on deletion.
+##
+@socketio.on('delete_minute')
+@ensure_dict
+@get_user
+def delete_minute(user, user_data):
+    minute = Minutes.query.filter_by(id = user_data.get("minute_id",-1)).first()
+
+    if user is None:
+        emit('delete_minute', Response.UserDoesntExist)
+        return
+
+    if minute is None:
+        emit('delete_minute', Response.MinuteDoesntExist)
+        return
+    
+    if user.id != minute.committee.head and not user.is_admin:
+        emit('delete_minute', Response.PermError)
+        return
+
+    try:
+        # Delete all the topics for this minute.
+        for topic in minute.topics:
+            db.session.delete(topic)
+        
+        db.session.delete(minute)
+        emit('delete_minute', Response.DeleteMinuteSuccess)
+    except:
+        db.session.rollback()
+        db.session.flush()
+        emit('delete_minute', Response.DeleteMinuteError)
+
+
 ## @brief      Adds a list of minute topics
 ##
 ## @param      user         The user object

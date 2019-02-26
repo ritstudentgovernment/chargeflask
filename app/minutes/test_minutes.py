@@ -313,6 +313,44 @@ class TestMinutes(object):
         response = received[0]["args"][0]
         assert response == Response.AddMinuteError
     
+    def test_delete_minute_no_user(self):
+        del self.user_data['token']
+        self.user_data["minute_id"] = self.minute.id
+        self.socketio.emit("delete_minute", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.UserDoesntExist
+    
+    def test_delete_minute_no_minute(self):
+        self.socketio.emit("delete_minute", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.MinuteDoesntExist
+    
+    def test_delete_minute_no_perm(self):
+        self.user_data["token"] = self.normal_member_token
+        self.user_data["minute_id"] = self.minute.id
+        self.socketio.emit("delete_minute", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.PermError
+    
+    def test_delete_minute_success(self):
+        self.user_data["minute_id"] = self.minute.id
+        self.socketio.emit("delete_minute", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.DeleteMinuteSuccess
+    
+    @patch('app.minutes.controllers.db.session.delete')
+    def test_delete_minute_exception(self, mock_obj):
+        mock_obj.side_effect = Exception("Minute couldn't be deleted.")
+        self.user_data["minute_id"] = self.minute.id
+        self.socketio.emit("delete_minute", self.user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.DeleteMinuteError
+    
     def test_create_minute_topics_no_user(self):
         self.user_data["token"] = ""
         self.user_data["minute_id"] = self.minute.id

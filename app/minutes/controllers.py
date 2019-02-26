@@ -303,6 +303,39 @@ def delete_topics(user, user_data):
         db.session.flush()
         emit("delete_minute_topics", Response.DeleteTopicError)
 
+@socketio.on('edit_minute')
+@ensure_dict
+@get_user
+def edit_minute(user, user_data):
+    minute = Minutes.query.filter_by(id= user_data.get("minute_id", -1)).first()
+
+    if user is None:
+        emit('edit_minute', Response.UserDoesntExist)
+        return
+
+    if minute is None:
+        emit('edit_minute', Response.MinuteDoesntExist)
+        return
+    
+    committee = minute.committee 
+
+    membership = committee.members.filter_by(member = user).first()
+
+    if minute.private and (membership is None and not user.is_admin and committee.head != user.id):
+        emit('edit_minute', Response.PermError)
+        return
+
+    for key in user_data:
+        if( key == "title" or key =="topic" or key = "body"):
+            setattr(minute, key, user_data[key])
+    try:
+        db.session.commit()
+        emit("edit_minute", Response.EditSuccess)
+        get_minute(user, user_data)
+        get_minutes(user, user_data)
+    except Exception as e:
+        db.session.rollback()
+        emit("edit_minute", Response.EditError)
 
 ## @brief      Updates topic(s)
 ##

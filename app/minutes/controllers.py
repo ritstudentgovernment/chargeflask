@@ -91,6 +91,7 @@ def get_minutes(user, user_data):
         minute_data.append({
             'id': minute.id,
             'title': minute.title,
+            'private': minute.private,
             'date': minute.date,
             'committee_id': minute.committee_id,
             'topics': [{"topic": t.topic, "body": t.body} for t in minute.topics]
@@ -225,7 +226,7 @@ def delete_topics(user, user_data):
             emit('delete_minute_topics', Response.InvalidData)
             return
         
-        if user.id != topic_del.minute.committee.head and user.is_admin == False:
+        if user.id != topic_del.minute.committee.head and not user.is_admin:
             emit('delete_minute_topics', Response.PermError)
             return
         
@@ -239,3 +240,42 @@ def delete_topics(user, user_data):
         db.session.flush()
         emit("delete_minute_topics", Response.DeleteTopicError)
 
+
+@socketio.on('update_minute_topics')
+@ensure_dict
+@get_user
+def update_topics(user, user_data):
+
+    if user is None:
+        emit('update_minute_topics', Response.UserDoesntExist)
+        return
+    
+    if "topics" not in user_data:
+        emit('update_minute_topics', Response.InvalidData)
+        return
+    
+    try:
+        for topic in user_data["topics"]:
+            topic_upd = Topics.query.filter_by(id = topic.get("id", -1)).first()
+
+            if topic_upd is None:
+                emit('update_minute_topics', Response.InvalidData)
+                return
+
+            membership = topic_upd.minute.committee.members.filter_by(member= user).first()
+    
+            if (user.id != topic_upd.minute.committee.head and
+                not user.is_admin and
+                (membership is None or membership.role != Roles.MinuteTaker)):
+                emit('update_minute_topics', Response.PermError)
+                return
+            
+            topic_upd.title = topic["topic"]
+            topic_upd.body = topic["body"]
+            db.session.commit()
+        emit('update_minute_topics', Response.UpdateTopicSuccess)
+    except:
+        db.session.rollback()
+        db.session.flush()
+        emit('update_minute_topics', Response.UpdateTopicError)
+        return

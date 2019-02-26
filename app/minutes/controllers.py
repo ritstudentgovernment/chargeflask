@@ -14,14 +14,17 @@ from app.minutes.models import Minutes, Topics
 from app.minutes.minutes_response import Response
 from app.users.models import Users
 
+
 ##
-## @brief      Gets a minute
+## @brief      Gets a minute object.
 ##
-## @param      minute
+## @param      user         The user object
+## @param      user_data    Contains the following keys:
+##             
+##             - minute_id (Integer)   the id of the minute.
 ##
 ## @emit       returns a valid minute.
 ##
-
 @socketio.on('get_minute')
 @ensure_dict
 @get_user
@@ -51,14 +54,16 @@ def get_minute(user, user_data):
         'committee_id': minute.committee_id,
         'topics': [{"topic": t.topic, "body": t.body} for t in minute.topics]
     }
-    
     emit('get_minute', minute_data)
+
 
 ##
 ## @brief      Gets an array of minutes
 ##
-## @param      committee     contains committees properties
-## @param      membership    defines member's role and permissions
+## @param      user         The user object
+## @param      user_data    Contains the following keys:
+##             
+##             - committee_id (Integer)   the id of the committee.
 ##
 ## @emit       Emits a list of minutes
 ##
@@ -98,13 +103,20 @@ def get_minutes(user, user_data):
         })
     emit('get_minutes', minute_data)
 
+
 ##
-## @brief      creates a new minute
+## @brief      Creates a new minute
 ##
-## @param      committee     contains committees properties
-## @param      membership    defines member's role and permissions
+## @param      user         The user object
+## @param      user_data    Contains the following keys:
+##             
+##             - committee_id (Integer)   the id of the committee.
+##             - title (String)           the title of the minute
+##             - date (Integer)           Epoch date of minute creation.
+##             - private (Boolean)        True if minute is private.
+##             - topics ([Object])        (optional) If defined, check add_topics.
 ##
-## @emit       Emits a list of minutes
+## @emit       Emits a AddMinuteSuccess on minute creation.
 ##
 @socketio.on('create_minute')
 @ensure_dict
@@ -155,12 +167,20 @@ def create_minute(user, user_data):
         db.session.flush()
         emit("create_minute", Response.AddMinuteError)
 
+
 ## @brief      Adds a list of minute topics
 ##
-## @param      committee     contains committees properties
-## @param      membership    defines member's role and permissions
+## @param      user         The user object
+## @param      user_data    Contains the following keys:
+##             
+##             - minute_id (Integer)   the id of the minute.
+##             - topics ([Object])     Contains an array of objects,
+##                                      if defined it contains the keys:
 ##
-## @emit       Emits a list of minute topics
+##                                     - topic (String): Topic title.
+##                                     - body (String): Topic body.
+##
+## @emit       Emits AddTopicSuccess on list creation.
 ##
 @socketio.on('create_minute_topics')
 @ensure_dict
@@ -199,12 +219,15 @@ def add_topics(user, user_data):
         db.session.flush()
         emit("create_minute_topics", Response.AddTopicError)
 
+
 ## @brief      Deletes topic(s)
 ##
-## @param      committee     contains committees properties
-## @param      membership    defines member's role and permissions
+## @param      user         The user object
+## @param      user_data    Contains the following keys:
+##             
+##             - topics ([Object]) The topic objects to delete.
 ##
-## @emit       Emits updated topics
+## @emit       Emits DeleteTopicSuccess on deletion.
 ##
 @socketio.on('delete_minute_topics')
 @ensure_dict
@@ -241,6 +264,15 @@ def delete_topics(user, user_data):
         emit("delete_minute_topics", Response.DeleteTopicError)
 
 
+## @brief      Updates topic(s)
+##
+## @param      user         The user object
+## @param      user_data    Contains the following keys:
+##             
+##             - topics ([Object]) The topic objects to update.
+##
+## @emit       Emits UpdateTopicSuccess on update.
+##
 @socketio.on('update_minute_topics')
 @ensure_dict
 @get_user

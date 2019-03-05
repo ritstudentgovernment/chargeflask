@@ -242,7 +242,7 @@ def edit_charge(user, user_data):
 
     if charge is None or user is None:
         emit('edit_charge', Response.UsrChargeDontExist)
-        return;
+        return
 
     committee = Committees.query.filter_by(id = charge.committee).first()
     membership = committee.members.filter_by(member= user).first()
@@ -250,13 +250,13 @@ def edit_charge(user, user_data):
     if (user.id != committee.head and user.is_admin == False and
         (membership is None or membership.role != Roles.ActiveMember)):
         emit("edit_charge", Response.PermError)
-        return;
+        return
 
     # Only admins and committee heads can make charges public.
     if ('private' in user_data and not user_data['private'] and
         not user.is_admin and user.id != committee.head):
         emit("edit_charge", Response.PermError)
-        return;
+        return
 
     for key in user_data:
         if (key == "description" or key == "title" or key == "priority" or

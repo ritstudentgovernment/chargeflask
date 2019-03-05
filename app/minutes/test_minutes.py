@@ -580,3 +580,33 @@ class TestMinutes(object):
         received = self.socketio.get_received()
         response = received[0]["args"][0]
         assert response == Response.UpdateTopicSuccess
+    
+    def test_edit_minute_admin(self):
+        user_data = {
+            "token": self.admin_token,
+            "minute_id": self.minute.id
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.EditSuccess
+
+    def test_edit_minute_committee_head(self):
+        user_data = {
+            "token": self.admin_token,
+            "minute_id": self.minute.id
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.EditSuccess
+    
+    def test_edit_minute_minute_taker(self):
+        user_data = {
+            "token": self.minute_taker_token,
+            "minute_id": self.minute.id
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.EditSuccess

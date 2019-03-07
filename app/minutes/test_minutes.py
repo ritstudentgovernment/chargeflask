@@ -580,3 +580,87 @@ class TestMinutes(object):
         received = self.socketio.get_received()
         response = received[0]["args"][0]
         assert response == Response.UpdateTopicSuccess
+    
+    def test_edit_minute_admin(self):
+        user_data = {
+            "token": self.admin_token,
+            "minute_id": self.minute.id
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.EditSuccess
+
+    def test_edit_minute_committee_head(self):
+        user_data = {
+            "token": self.admin_token,
+            "minute_id": self.minute.id
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.EditSuccess
+    
+    def test_edit_minute_minute_taker(self):
+        user_data = {
+            "token": self.minute_taker_token,
+            "minute_id": self.minute.id
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.EditSuccess
+    
+    def test_edit_minute_no_user(self):
+        user_data = {
+            "token": "",
+            "minute_id": self.minute.id
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.UserDoesntExist
+    
+    def test_edit_minute_doesnt_exist(self):
+        user_data = {
+            "token": self.admin_token,
+            "minute_id": -1
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.MinuteDoesntExist
+    
+    def test_edit_minute_private_not_member(self):
+        user_data = {
+            "token": self.not_member_token,
+            "minute_id": self.minute.id,
+            "private": True,
+            'committee_id': ''
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.PermError
+
+    def test_edit_minute_topic_success(self):
+        user_data = {
+            "token": self.admin_token,
+            "minute_id": self.minute.id,
+            "topic": "test_topic",
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.EditSuccess
+    
+    def test_edit_minute_body_success(self):
+        user_data = {
+            "token": self.admin_token,
+            "minute_id": self.minute.id,
+            "body": "test_body",
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.EditSuccess

@@ -303,6 +303,49 @@ def delete_topics(user, user_data):
         db.session.flush()
         emit("delete_minute_topics", Response.DeleteTopicError)
 
+## @brief      Edits a minute
+##
+## @param      user         The user object
+## @param      user_data    Contains the following keys:
+##             
+##             - minute_id (Integer)   the id of the minute.
+##
+## @emit       Emits - Updates given minute on success
+##
+
+@socketio.on('edit_minute')
+@ensure_dict
+@get_user
+def edit_minute(user, user_data):
+    minute = Minutes.query.filter_by(id= user_data.get("minute_id", -1)).first()
+
+    if user is None:
+        emit('edit_minute', Response.UserDoesntExist)
+        return
+
+    if minute is None:
+        emit('edit_minute', Response.MinuteDoesntExist)
+        return
+    
+    committee = minute.committee 
+
+    membership = committee.members.filter_by(member= user).first()
+
+    if (user.id != committee.head and user.is_admin == False and
+        (membership is None or membership.role != Roles.MinuteTaker)):
+        emit('edit_minute', Response.PermError)
+        return
+
+    for key in user_data:
+        if(key =="topic" or key == "body"):
+            setattr(minute, key, user_data[key])
+    try:
+        db.session.commit()
+        emit("edit_minute", Response.EditSuccess)
+    except:
+        db.session.rollback()
+        db.session.flush()
+        emit("edit_minute", Response.EditError)
 
 ## @brief      Updates topic(s)
 ##

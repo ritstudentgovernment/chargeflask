@@ -336,11 +336,6 @@ def edit_minute(user, user_data):
         emit('edit_minute', Response.PermError)
         return
 
-
-    if minute.private and (membership is None and not user.is_admin and committee.head != user.id):
-        emit('edit_minute', Response.PermError)
-        return
-
     for key in user_data:
         if( key == "title" or key =="topic" or key == "body"):
             setattr(minute, key, user_data[key])

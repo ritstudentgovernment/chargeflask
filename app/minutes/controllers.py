@@ -303,6 +303,16 @@ def delete_topics(user, user_data):
         db.session.flush()
         emit("delete_minute_topics", Response.DeleteTopicError)
 
+## @brief      Edits a minute
+##
+## @param      user         The user object
+## @param      user_data    Contains the following keys:
+##             
+##             - minute_id (Integer)   the id of the minute.
+##
+## @emit       Emits - Updates given minute on success
+##
+
 @socketio.on('edit_minute')
 @ensure_dict
 @get_user
@@ -319,7 +329,13 @@ def edit_minute(user, user_data):
     
     committee = minute.committee 
 
-    membership = committee.members.filter_by(member = user).first()
+    membership = committee.members.filter_by(member= user).first()
+
+    if (user.id != committee.head and user.is_admin == False and
+        (membership is None or membership.role != Roles.MinuteTaker)):
+        emit('edit_minute', Response.PermError)
+        return
+
 
     if minute.private and (membership is None and not user.is_admin and committee.head != user.id):
         emit('edit_minute', Response.PermError)
@@ -331,10 +347,9 @@ def edit_minute(user, user_data):
     try:
         db.session.commit()
         emit("edit_minute", Response.EditSuccess)
-        get_minute(user, user_data)
-        get_minutes(user, user_data)
-    except Exception as e:
+    except:
         db.session.rollback()
+        db.session.flush()
         emit("edit_minute", Response.EditError)
 
 ## @brief      Updates topic(s)

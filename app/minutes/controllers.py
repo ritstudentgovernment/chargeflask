@@ -337,7 +337,7 @@ def edit_minute(user, user_data):
         return
 
     for key in user_data:
-        if( key == "title" or key =="topic" or key == "body"):
+        if(key =="topic" or key == "body"):
             setattr(minute, key, user_data[key])
     try:
         db.session.commit()

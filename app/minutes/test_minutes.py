@@ -643,14 +643,24 @@ class TestMinutes(object):
         response = received[0]["args"][0]
         assert response == Response.PermError
 
-    # @patch('app.minutes.controllers.db.session.commit')
-    # def test_edit_minute_exception(self, mock_obj):
-    #     mock_obj.side_effect = Exception("Minute couldn't be added.")
-    #     user_data = {
-    #         "token": self.admin_token,
-    #         "minute_id": self.minute.id
-    #     }
-    #     self.socketio.emit("edit_minute", user_data)
-    #     received = self.socketio.get_received()
-    #     response = received[0]["args"][0]
-    #     assert response == Response.EditError
+    def test_edit_minute_topic_success(self):
+        user_data = {
+            "token": self.admin_token,
+            "minute_id": self.minute.id,
+            "topic": "test_topic",
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.EditSuccess
+    
+    def test_edit_minute_body_success(self):
+        user_data = {
+            "token": self.admin_token,
+            "minute_id": self.minute.id,
+            "body": "test_body",
+        }
+        self.socketio.emit("edit_minute", user_data)
+        received = self.socketio.get_received()
+        response = received[0]["args"][0]
+        assert response == Response.EditSuccess

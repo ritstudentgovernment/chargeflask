@@ -41,6 +41,7 @@ from app.actions.controllers import *
 from app.committee_notes.controllers import *
 from app.notes.controllers import *
 from app.notifications.controllers import *
+from app.minutes.controllers import *
 
 from app.actions.models import Actions
 from app.notes.models import Notes

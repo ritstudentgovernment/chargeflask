@@ -152,6 +152,7 @@ def create_minute(user, user_data):
     minute = Minutes(title= user_data["title"])
     minute.date = int(user_data["date"])
     minute.private = user_data["private"]
+    minute.committee = committee
 
     if "topics" in user_data:
         for topic in user_data["topics"]:

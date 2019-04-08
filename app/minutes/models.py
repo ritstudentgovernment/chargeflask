@@ -10,7 +10,7 @@ class Minutes(db.Model):
 	__tablename__ = 'minutes'
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	title = db.Column(db.String)
-	date = db.Column(db.Integer) # EPOCH datetime.
+	date = db.Column(db.BigInteger) # EPOCH datetime.
 	private = db.Column(db.Boolean)
 	committee_id = db.Column(db.String, db.ForeignKey('committees.id'))
 	committee = db.relationship("Committees", backref= db.backref('minutes', lazy='dynamic'))

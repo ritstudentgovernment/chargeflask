@@ -257,10 +257,15 @@ def edit_charge(user, user_data):
         not user.is_admin and user.id != committee.head):
         emit("edit_charge", Response.PermError)
         return
+    
+    # Only admins can move charges to a different committee.
+    if ('committee' in user_data and user.is_admin == False):
+        emit("edit_charge", Response.PermError)
+        return
 
     for key in user_data:
         if (key == "description" or key == "title" or key == "priority" or
-            key == "status" or key == "paw_links" or key == "private"):
+            key == "status" or key == "paw_links" or key == "private" or key == "committee"):
             setattr(charge, key, user_data[key])
 
     try:

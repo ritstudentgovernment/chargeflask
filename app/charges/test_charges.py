@@ -103,11 +103,22 @@ class TestCharges(object):
         committee.head = "testuser"
         self.committee = committee
 
+        # Create a test committee.
+        committee2 = Committees(id = "testcommittee2")
+        committee2.title = "Test Committee2"
+        committee2.description = "Test Description"
+        committee2.location = "Test Location"
+        committee2.meeting_time = "1300"
+        committee2.meeting_day =  2
+        committee2.head = "testuser"
+        self.committee2 = committee2
+
         # Add user3 to committee.
         role = Members(role= Roles.ActiveMember)
         role.member = self.test_user3
         self.committee.members.append(role)
         db.session.add(self.committee)
+        db.session.add(self.committee2)
         db.session.commit()
 
         self.charge_dict={
@@ -414,6 +425,29 @@ class TestCharges(object):
         }
         self.charge_dict["title"] = user_data["title"]
 
+        self.socketio.emit('edit_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.PermError
+    
+    def test_edit_charge_change_committee(self):
+        user_data = {
+            "token": self.admin_token,
+            "charge": 10,
+            "committee": self.committee2.id
+        }
+
+        self.charge_dict["committee"] = user_data["committee"]
+
+        self.socketio.emit('edit_charge', user_data)
+        received = self.socketio.get_received()
+        assert received[1]["args"][0] == self.charge_dict
+
+    def test_edit_charge_change_committee_no_perm(self):
+        user_data = {
+            "token": self.user_token,
+            "charge": 10,
+            "committee": self.committee.id
+        }
         self.socketio.emit('edit_charge', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.PermError

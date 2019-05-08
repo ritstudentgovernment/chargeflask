@@ -32,8 +32,10 @@ def get_committees(broadcast = False):
 ##
 ## @brief      Get a users permissions for a specific committee.
 ##
-## @param      user_data  Contains user "token" (optional) and
-##                        "id" of committee. (required.)
+## @param      !user_data  Data to get permissions of a user.
+##
+##             + id: [String] The committee id.
+##             + token: [String] The user token.
 ##
 ## @emit       Integer describing the user permissions.
 ##
@@ -66,7 +68,7 @@ def get_permissions(user, user_data):
 ##
 ## @brief      Gets a specific committee by its id.
 ##
-## @param      committee_id  The committee identifier
+## @param      !committee_id  [String] The committee identifier
 ##
 ## @emit       An object containing a detailed view of a specific
 ##             committee.
@@ -103,17 +105,17 @@ def get_committee(committee_id, broadcast = False):
 ##
 ## @brief      Creates a committee. (Must be admin user)
 ##
-## @param      user_data  The user data required to create a committee.
+## @param      !test_param This is a test parameter.
+## @param      !user_data  The user data required to create a committee.
 ##
-##                        All the following fields are required:
-##
-##                        token - Token of the current user
-##                        title - The title of the new committee
-##                        head - Head of committee (Must exist in app)
-##                        description - Description of new committee
-##                        location - Location of committee meetings
-##                        meeting_time - Time of committee meeting
-##                        meeting_day - Day of the week of committee meeting
+##             + token: [String] Token of the current user
+##             + title: [String] The title of the new committee
+##             + head: [String] Head of committee (Must exist in app)
+##             + description: [String] Description of new committee
+##             + location: [String] Location of committee meetings
+##             + meeting_time: [String] In the format of "1300" for 100PM
+##             + meeting_day: [Number] Where 0-Sunday and 6-Saturday
+##             - committee_img: [String] Base64 picture.
 ##
 ## @emit       Emits a success message if created, error if not.
 ##
@@ -172,15 +174,15 @@ def create_committee(user, user_data):
 ##
 ## @brief      Edits a committee (Must be admin user)
 ##
-## @param      user_data  The user data to edit a committee, must
-##                        contain a token and any of the following
-##                        fields:
-##                        - description
-##                        - head
-##                        - location
-##                        - meeting_time
-##                        - enabled
-##                        - committee_img
+## @param      !user_data  The user data to edit a committee.
+##
+##                        + token: [String] The user token.
+##                        - description: [String[ The new description of the commmitte.
+##                        - head: [String] The new committee head id.
+##                        - location: [String] The new location.
+##                        - meeting_time: [String] The new meeting time.
+##                        - enabled: [Boolean] The new status.
+##                        - committee_img: [String] The new committee image.
 ##
 ##                        Any other field will be ignored.
 ##

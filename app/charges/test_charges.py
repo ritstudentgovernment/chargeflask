@@ -188,7 +188,7 @@ class TestCharges(object):
 
         self.socketio.emit('create_charge', user_data)
         received = self.socketio.get_received()
-        assert received[0]["args"][0] == Response.AddSuccess
+        assert received[0]["args"][0] == Response.PermError
 
     def test_create_charge_no_permission(self):
         user_data = {

@@ -15,6 +15,7 @@ class Roles(Enum):
 	NormalMember = "NormalMember"
 	ActiveMember = "ActiveMember"
 	MinuteTaker = "MinuteTaker"
+	CommitteeHead = "CommitteeHead"
 
 class Members(db.Model):
 	__tablename__ = 'members'

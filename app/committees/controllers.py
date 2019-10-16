@@ -11,6 +11,7 @@ from app import socketio, db
 from app.committees.committees_response import Response
 from app.committees.models import Committees
 from app.users.models import Users
+from app.members.models import Members, Roles
 from app.users.permissions import Permissions
 import base64
 
@@ -143,7 +144,11 @@ def create_committee(user, user_data):
                 new_committee.location = user_data["location"]
                 new_committee.meeting_time = user_data["meeting_time"]
                 new_committee.meeting_day = user_data["meeting_day"]
+                
                 new_committee.head = user_data["head"]
+                membership = Members(role= Roles.CommitteeHead)
+                membership.member = Users.query.filter_by(id= user_data["head"]).first()
+                new_committee.members.append(membership)
 
                 if "committee_img" in user_data:
                     com_img = base64.b64decode(user_data["committee_img"])

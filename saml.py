@@ -92,7 +92,8 @@ class SamlRequest(object):
             not_auth_warn=self.not_auth_warn,
             success_slo=self.success_slo,
             attributes=self.attributes,
-            logged_in=self.logged_in
+            logged_in=self.logged_in,
+            reason=self.auth.get_last_error_reason()
         )
 
     def prepare_flask_request(self, request_data):

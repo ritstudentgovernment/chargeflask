@@ -34,9 +34,9 @@ def login_from_acs(acs):
     else:
         attributes = list(acs.get("attributes"))
         username = attributes[0][1][0]
-        firstname = attributes[5][1][0]
-        lastname = attributes[3][1][0]
-        email = attributes[2][1][0]
+        firstname = attributes[1][1][0]
+        lastname = attributes[2][1][0]
+        email = attributes[3][1][0]
 
         user = Users.query.filter_by(id = username).first()
 

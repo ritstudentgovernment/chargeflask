@@ -90,11 +90,21 @@ class TestMembers(object):
         self.committee.meeting_day = 2
         self.committee.head = "adminuser"
 
+        # Create a seconnd test committee.
+        self.committee2 = Committees(id = "testcommittee2")
+        self.committee2.title = "Test Committee"
+        self.committee2.description = "Test Description"
+        self.committee2.location = "Test Location"
+        self.committee2.meeting_time = "1200"
+        self.committee2.meeting_day = 2
+        self.committee2.head = "adminuser"
+
         # Add user2 to committee.
         role = Members(role= Roles.NormalMember)
         role.member = self.user2
         self.committee.members.append(role)
         db.session.add(self.committee)
+        db.session.add(self.committee2)
 
         db.session.commit()
 
@@ -136,6 +146,17 @@ class TestMembers(object):
         self.socketio.emit("add_member_committee", self.user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0]["members"][1]["id"] == self.user_data["user_id"]
+        assert received[1]["args"][0] == Response.AddSuccess
+    
+
+    # Test add user to more than one committee.
+    def test_add_to_second_committee(self):
+        self.user_data["token"] = self.admin_token
+        self.user_data["committee_id"] = "testcommittee2"
+        self.user_data["user_id"] = "test2user"
+        self.socketio.emit("add_member_committee", self.user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0]["members"][0]["id"] == self.user_data["user_id"]
         assert received[1]["args"][0] == Response.AddSuccess
 
 

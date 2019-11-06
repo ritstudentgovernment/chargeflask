@@ -10,7 +10,8 @@ from app.decorators import ensure_dict, get_user
 from app import socketio, db
 from app.committees.models import Committees
 from app.members.models import Roles
-from app.minutes.models import Minutes, Topics
+from app.minutes.models import Minutes
+from app.charges.models import Charges
 from app.minutes.minutes_response import Response
 from app.users.models import Users
 
@@ -50,9 +51,10 @@ def get_minute(user, user_data):
     minute_data = {
         'id': minute.id,
         'title': minute.title,
+        'body': minute.body,
         'date': minute.date,
         'committee_id': minute.committee_id,
-        'topics': [{"topic": t.topic, "body": t.body} for t in minute.topics]
+        'charges': [{"id": c.id, "title": c.title} for c in minute.charges]
     }
     emit('get_minute', minute_data)
 
@@ -96,10 +98,11 @@ def get_minutes(user, user_data):
         minute_data.append({
             'id': minute.id,
             'title': minute.title,
+            'body': minute.body,
             'private': minute.private,
             'date': minute.date,
             'committee_id': minute.committee_id,
-            'topics': [{"topic": t.topic, "body": t.body} for t in minute.topics]
+            'charges': [{"id": c.id, "title": c.title} for c in minute.charges]
         })
     emit('get_minutes', minute_data)
 
@@ -112,9 +115,10 @@ def get_minutes(user, user_data):
 ##             
 ##             - committee_id (Integer)   the id of the committee.
 ##             - title (String)           the title of the minute
+##             - body (String)            the text of the minute.
 ##             - date (Integer)           Epoch date of minute creation.
 ##             - private (Boolean)        True if minute is private.
-##             - topics ([Object])        (optional) If defined, check add_topics.
+##             - charges ([String])       (optional) A list of charge_ids.
 ##
 ## @emit       Emits a AddMinuteSuccess on minute creation.
 ##
@@ -132,7 +136,8 @@ def create_minute(user, user_data):
         emit('create_minute', Response.CommitteeDoesntExist)
         return
     
-    if (user_data.get("title","") == "" or 
+    if (user_data.get("title","") == "" or
+        user_data.get("body","") == "" or 
         user_data.get("date","") == ""):
         emit('create_minute', Response.AddMinuteError)
         return
@@ -150,14 +155,15 @@ def create_minute(user, user_data):
         return
     
     minute = Minutes(title= user_data["title"])
+    minute.body = user_data["body"]
     minute.date = int(user_data["date"])
     minute.private = user_data["private"]
     minute.committee = committee
 
-    if "topics" in user_data:
-        for topic in user_data["topics"]:
-            t_obj = Topics(topic= topic["topic"], body= topic["body"])
-            minute.topics.append(t_obj)
+    if "charges" in user_data:
+        for charge_id in user_data["charges"]:
+            charge = Charges.query.filter_by(id = charge_id).first()
+            minute.charges.append(charge)
     
     try:
         db.session.add(minute)
@@ -197,10 +203,6 @@ def delete_minute(user, user_data):
         return
 
     try:
-        # Delete all the topics for this minute.
-        for topic in minute.topics:
-            db.session.delete(topic)
-        
         db.session.delete(minute)
         emit('delete_minute', Response.DeleteMinuteSuccess)
     except:
@@ -208,101 +210,6 @@ def delete_minute(user, user_data):
         db.session.flush()
         emit('delete_minute', Response.DeleteMinuteError)
 
-
-## @brief      Adds a list of minute topics
-##
-## @param      user         The user object
-## @param      user_data    Contains the following keys:
-##             
-##             - minute_id (Integer)   the id of the minute.
-##             - topics ([Object])     Contains an array of objects,
-##                                      if defined it contains the keys:
-##
-##                                     - topic (String): Topic title.
-##                                     - body (String): Topic body.
-##
-## @emit       Emits AddTopicSuccess on list creation.
-##
-@socketio.on('create_minute_topics')
-@ensure_dict
-@get_user
-def add_topics(user, user_data):
-    minute = Minutes.query.filter_by(id = user_data.get("minute_id",-1)).first()
-
-    if user is None:
-        emit('create_minute_topics', Response.UserDoesntExist)
-        return
-
-    if minute is None:
-        emit('create_minute_topics', Response.MinuteDoesntExist)
-        return
-    
-    if "topics" not in user_data:
-        emit('create_minute_topics', Response.InvalidData)
-        return
-    
-    membership = minute.committee.members.filter_by(member= user).first()
-    
-    if (user.id != minute.committee.head and user.is_admin == False and
-        (membership is None or membership.role != Roles.MinuteTaker)):
-        emit('create_minute_topics', Response.PermError)
-        return
-    
-    try:
-        for topic in user_data["topics"]:
-            t_obj = Topics(topic= topic["topic"], body= topic["body"])
-            minute.topics.append(t_obj)
-        
-        db.session.commit()
-        emit('create_minute_topics', Response.AddTopicSuccess)
-    except:
-        db.session.rollback()
-        db.session.flush()
-        emit("create_minute_topics", Response.AddTopicError)
-
-
-## @brief      Deletes topic(s)
-##
-## @param      user         The user object
-## @param      user_data    Contains the following keys:
-##             
-##             - topics ([Object]) The topic objects to delete.
-##
-## @emit       Emits DeleteTopicSuccess on deletion.
-##
-@socketio.on('delete_minute_topics')
-@ensure_dict
-@get_user
-def delete_topics(user, user_data):
-
-    if user is None:
-        emit('delete_minute_topics', Response.UserDoesntExist)
-        return
-    
-    if "topics" not in user_data:
-        emit('delete_minute_topics', Response.InvalidData)
-        return
-    
-    for topic in user_data["topics"]:
-        topic_del = Topics.query.filter_by(id = topic.get("id", -1)).first()
-
-        if topic_del is None:
-            emit('delete_minute_topics', Response.InvalidData)
-            return
-        
-        if user.id != topic_del.minute.committee.head and not user.is_admin:
-            emit('delete_minute_topics', Response.PermError)
-            return
-        
-        db.session.delete(topic_del)
-    
-    try:
-        db.session.commit()
-        emit('delete_minute_topics', Response.DeleteTopicSuccess)
-    except:
-        db.session.rollback()
-        db.session.flush()
-        emit("delete_minute_topics", Response.DeleteTopicError)
 
 ## @brief      Edits a minute
 ##
@@ -336,62 +243,39 @@ def edit_minute(user, user_data):
         (membership is None or membership.role != Roles.MinuteTaker)):
         emit('edit_minute', Response.PermError)
         return
+    
+    if (user.id != committee.head and 
+        "private" in user_data and not user_data["private"]):
+        emit('create_minute', Response.PermError)
+        return
+    
+    deleted = []
+    new = []
+
+    if "charges" in user_data:
+        existing = set([x.id for x in minute.charges])
+        deleted = list(existing - set(user_data["charges"]))
+        new = list(set(user_data["charges"]) - existing)
+    
+    deleted = [i for i, j in zip(minute.charges, deleted) if i.id == j]
+
+    q = db.session.query(Charges)
+    new = q.filter(Charges.id.in_(new)).all()
 
     for key in user_data:
-        if(key =="topic" or key == "body"):
+        if(key =="title" or key == "body" or key == "private"):
             setattr(minute, key, user_data[key])
+    
     try:
+        for charge in new:
+            minute.charges.append(charge)
+        
+        for charge in deleted:
+            minute.charges.remove(charge)
+        
         db.session.commit()
-        emit("edit_minute", Response.EditSuccess)
-    except:
+        emit('edit_minute', Response.EditSuccess)
+    except Exception as e:
         db.session.rollback()
         db.session.flush()
         emit("edit_minute", Response.EditError)
-
-## @brief      Updates topic(s)
-##
-## @param      user         The user object
-## @param      user_data    Contains the following keys:
-##             
-##             - topics ([Object]) The topic objects to update.
-##
-## @emit       Emits UpdateTopicSuccess on update.
-##
-@socketio.on('update_minute_topics')
-@ensure_dict
-@get_user
-def update_topics(user, user_data):
-
-    if user is None:
-        emit('update_minute_topics', Response.UserDoesntExist)
-        return
-    
-    if "topics" not in user_data:
-        emit('update_minute_topics', Response.InvalidData)
-        return
-    
-    try:
-        for topic in user_data["topics"]:
-            topic_upd = Topics.query.filter_by(id = topic.get("id", -1)).first()
-
-            if topic_upd is None:
-                emit('update_minute_topics', Response.InvalidData)
-                return
-
-            membership = topic_upd.minute.committee.members.filter_by(member= user).first()
-    
-            if (user.id != topic_upd.minute.committee.head and
-                not user.is_admin and
-                (membership is None or membership.role != Roles.MinuteTaker)):
-                emit('update_minute_topics', Response.PermError)
-                return
-            
-            topic_upd.title = topic["topic"]
-            topic_upd.body = topic["body"]
-            db.session.commit()
-        emit('update_minute_topics', Response.UpdateTopicSuccess)
-    except:
-        db.session.rollback()
-        db.session.flush()
-        emit('update_minute_topics', Response.UpdateTopicError)
-        return

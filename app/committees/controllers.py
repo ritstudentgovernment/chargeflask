@@ -224,7 +224,7 @@ def edit_committee(user, user_data):
             new_head = Users.query.filter_by(id = user_data["head"]).first()
 
             if new_head is None:
-                emit("edit_committee", Response.EditError)
+                emit("edit_committee", Response.UsrDoesntExist)
                 return
             
             membership = committee.members.filter_by(users_id= committee.head).first()

@@ -199,15 +199,22 @@ class TestMembers(object):
         assert received[0]["args"][0] == Response.PermError
 
 
-    # Test remove member not admin
+    # Test remove member admin
     def test_remove_member_admin(self):
         self.user_data["token"] = self.admin_token
         self.user_data["user_id"] = self.user2.id
         self.socketio.emit("remove_member_committee", self.user_data)
         received = self.socketio.get_received()
-        print (received)
         assert received[0]["args"][0]["members"] == [] 
         assert received[1]["args"][0] == Response.RemoveSuccess
+    
+    # Test remove committee head should fail.
+    def test_remove_head_admin(self):
+        self.user_data["token"] = self.admin_token
+        self.user_data["user_id"] = "adminuser"
+        self.socketio.emit("remove_member_committee", self.user_data)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.RemoveHeadError
 
 
     # Test remove nonexistent member.

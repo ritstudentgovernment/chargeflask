@@ -196,37 +196,49 @@ def create_committee(user, user_data):
 @get_user
 def edit_committee(user, user_data):
 
-    if user is not None and user.is_admin:
-
-        committee = Committees.query.filter_by(id= user_data.get("id")).first()
-
-        if committee is not None:
-
-            for key in user_data:
-
-                if (key == "description" or key == "head" or key == "location" or
-                    key == "meeting_time" or key == "enabled" or key == "committee_img"):
-
-                    if key == "committee_img":
-
-                        com_img = base64.b64decode(user_data["committee_img"])
-                        setattr(committee, key, com_img)
-                    else:
-
-                        setattr(committee, key, user_data[key])
-
-            try:
-                db.session.commit()
-
-                # Send successful edit notification to user
-                # and broadcast committee changes.
-                emit("edit_committee", Response.EditSuccess)
-                get_committee(committee.id, broadcast= True)
-                get_committees(broadcast= True)
-            except Exception as e:
-                db.session.rollback()
-                emit("edit_committee", Response.EditError)
-        else:
-            emit('edit_committee', Response.ComDoesntExist)
-    else:
+    if user is None or not user.is_admin:
         emit('edit_committee', Response.UsrDoesntExist)
+        return;
+ 
+    committee = Committees.query.filter_by(id= user_data.get("id")).first()
+
+    if committee is None:
+        emit('edit_committee', Response.ComDoesntExist)
+        return;
+    
+    for key in user_data:
+
+        if (key == "description" or key == "location" or
+            key == "meeting_time" or key == "enabled" or key == "committee_img"):
+            
+            if key == "committee_img":
+
+                com_img = base64.b64decode(user_data["committee_img"])
+                setattr(committee, key, com_img)
+            else:
+                setattr(committee, key, user_data[key])
+
+    try:
+
+        if "head" in user_data and committee.head != user_data["head"]:
+            new_head = Users.query.filter_by(id = user_data["head"]).first()
+
+            if new_head is None:
+                emit("edit_committee", Response.EditError)
+                return
+            
+            membership = committee.members.filter_by(users_id= committee.head).first()
+            membership.member = new_head
+            committee.head = new_head.id
+
+        db.session.commit()
+    
+        # Send successful edit notification to user
+        # and broadcast committee changes.
+        emit("edit_committee", Response.EditSuccess)
+        get_committee(committee.id, broadcast= True)
+        get_committees(broadcast= True)
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        emit("edit_committee", Response.EditError)

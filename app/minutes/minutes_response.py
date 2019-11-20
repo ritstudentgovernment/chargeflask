@@ -17,7 +17,7 @@ class Response():
     AddMinuteSuccess = {"success": "Minute has been added to committee."}
     AddMinuteError = {"error": "Minute couldn't be added to committee."}
     MinuteDoesntExist = {"error": "Minute doesn't exist."}
-    EditSuccess = {"error": "Minute successfully edited."}
+    EditSuccess = {"success": "Minute successfully edited."}
     EditError = {"error": "Minute couldn't be edited."}
     DeleteMinuteSuccess =  {"error": "Minute successfully deleted."}
     DeleteMinuteError =  {"error": "Minute couldn't be deleted."}

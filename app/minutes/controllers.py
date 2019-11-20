@@ -53,6 +53,7 @@ def get_minute(user, user_data):
         'title': minute.title,
         'body': minute.body,
         'date': minute.date,
+        'private': minute.private,
         'committee_id': minute.committee_id,
         'charges': [{"id": c.id, "title": c.title} for c in minute.charges]
     }

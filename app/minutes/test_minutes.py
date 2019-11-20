@@ -203,6 +203,7 @@ class TestMinutes(object):
             'title': 'Test Minute',
             'body': 'TestBody',
             'date': 282827,
+            'private': True,
             'committee_id': 'testcommittee',
             'charges': [{'id': 10, 'title': "Test Charge"}]
         }

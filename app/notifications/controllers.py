@@ -163,3 +163,25 @@ def update_notification(user, user_data):
         db.session.rollback()
         emit('update_notification', {"error": "Notification not updated correctly."})
     return;
+
+##
+## @brief      Deletes the notification from the DB
+##
+## @param      user       The user object.
+## @param      user_data  The user's token.
+##
+## @return     An array of notifications for the user.
+##
+@socketio.on('delete_notification')
+@ensure_dict
+@get_user
+def update_notification(user, user_data):
+    notification = Notifications.query.filter_by(id = user_data["notificationId"]).first()
+     
+    try:
+        db.session.delete(notification)
+        emit('delete_minute', {"success": "Notification deleted."})
+    except:
+        db.session.rollback()
+        db.session.flush()
+        emit('delete_minute', {"error": "Notification was not deleted."})

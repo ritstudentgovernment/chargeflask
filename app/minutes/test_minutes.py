@@ -15,7 +15,8 @@ from app.committees.models import Committees
 from flask_socketio import SocketIOTestClient
 from app.minutes.models import Minutes
 from app.minutes.minutes_response import Response
-from app.minutes.models import Minutes, Topics
+from app.minutes.models import Minutes
+from app.charges.models import Charges
 from app.notifications.controllers import new_committee
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
@@ -48,7 +49,6 @@ class TestMinutes(object):
         admin.email = "adminuser@test.com"
         admin.is_admin = True
         db.session.add(admin)
-        #db.session.expunge(admin)
         db.session.commit()
         self.admin_token = admin.generate_auth()
         self.admin_token = self.admin_token.decode('ascii')
@@ -110,13 +110,37 @@ class TestMinutes(object):
             "token": self.admin_token,
             "committee_id": self.committee.id,
             "title": "New Minute",
+            "body": "This is a test body.",
             "date": 565745465,
             "private": False
         }
 
-        self.minute = Minutes(title="Test Minute", date= 282827, private= True)
-        self.topic = Topics(topic="Topic", body="Body")
-        self.minute.topics.append(self.topic)
+        # Create a test charge.
+        charge = Charges(id = 10)
+        charge.author = "testuser"
+        charge.title = "Test Charge"
+        charge.description = "Test Description"
+        charge.committee = "testcommittee"
+        charge.paw_links = "https://testlink.com"
+        charge.priority = 0
+        charge.status = 0
+        self.charge = charge
+        db.session.add(charge)
+
+        # Create a new test charge.
+        new_charge = Charges(id = 11)
+        new_charge.author = "testuser"
+        new_charge.title = "Test Charge"
+        new_charge.description = "Test Description"
+        new_charge.committee = "testcommittee"
+        new_charge.paw_links = "https://testlink.com"
+        new_charge.priority = 0
+        new_charge.status = 0
+        self.new_charge = new_charge
+        db.session.add(new_charge)
+
+        self.minute = Minutes(title="Test Minute", body="TestBody", date= 282827, private= True)
+        self.minute.charges.append(self.charge)
         self.committee.minutes.append(self.minute)
 
         db.session.commit()
@@ -159,10 +183,11 @@ class TestMinutes(object):
         result = [{
             'id': 1,
             'title': 'Test Minute',
+            'body': 'TestBody',
             'date': 282827,
             'private': True,
             'committee_id': 'testcommittee',
-            'topics': [{'topic': 'Topic', 'body': 'Body'}]
+            'charges': [{'id': 10, 'title': "Test Charge"}]
         }]
         assert response == result
     
@@ -176,9 +201,11 @@ class TestMinutes(object):
         result = {
             'id': 1,
             'title': 'Test Minute',
+            'body': 'TestBody',
             'date': 282827,
+            'private': True,
             'committee_id': 'testcommittee',
-            'topics': [{'topic': 'Topic', 'body': 'Body'}]
+            'charges': [{'id': 10, 'title': "Test Charge"}]
         }
 
         self.socketio.emit('get_minute', user_data)
@@ -286,18 +313,8 @@ class TestMinutes(object):
         response = received[0]["args"][0]
         assert response == Response.AddMinuteSuccess
     
-    def test_create_minute_with_topics(self):
-        self.user_data["topics"] = [
-            {
-                "topic": "Topic 1",
-                "body": "This is the body of topic one."
-            },
-            {
-                "topic": "Topic 2",
-                "body": "This is the bod of topic two."
-            }
-        ]
-
+    def test_create_minute_with_charges(self):
+        self.user_data["charges"] = [self.new_charge.id]
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
@@ -351,240 +368,13 @@ class TestMinutes(object):
         response = received[0]["args"][0]
         assert response == Response.DeleteMinuteError
     
-    def test_create_minute_topics_no_user(self):
-        self.user_data["token"] = ""
-        self.user_data["minute_id"] = self.minute.id
-        self.user_data["topics"] = [
-            {
-                "topic": "Topic One",
-                "body": "Body of topic."
-            }
-        ]
-
-        self.socketio.emit("create_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.UserDoesntExist
-    
-    def test_create_minute_topics_no_minute(self):
-        self.user_data["minute_id"] = -1
-        self.user_data["topics"] = [
-            {
-                "topic": "Topic One",
-                "body": "Body of topic."
-            }
-        ]
-
-        self.socketio.emit("create_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.MinuteDoesntExist
-    
-    def test_create_minute_topics_no_topics(self):
-        self.user_data["minute_id"] = self.minute.id
-        self.socketio.emit("create_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.InvalidData
-    
-    def test_create_minute_topics_no_perm(self):
-        self.user_data["token"] = self.normal_member_token
-        self.user_data["minute_id"] = self.minute.id
-        self.user_data["topics"] = [
-            {
-                "topic": "Topic One",
-                "body": "Body of topic."
-            }
-        ]
-
-        self.socketio.emit("create_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.PermError
-    
-    
-    def test_create_minute_topics(self):
-        self.user_data["minute_id"] = self.minute.id
-        self.user_data["topics"] = [
-            {
-                "topic": "Topic One",
-                "body": "Body of topic."
-            }
-        ]
-
-        self.socketio.emit("create_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.AddTopicSuccess
-    
-
-    @patch('app.minutes.models.Minutes.topics')
-    def test_create_minute_topics_exception(self, mock_obj):
-        mock_obj.append.side_effect = Exception("Topics couldn't be added.")
-        self.user_data["token"] = self.admin_token
-        self.user_data["minute_id"] = self.minute.id
-        self.user_data["topics"] = [
-            {
-                "topic": "Topic One",
-                "body": "Body of topic."
-            }
-        ]
-
-        self.socketio.emit("create_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.AddTopicError
-    
-    def test_delete_minute_topics_no_user(self):
-        self.user_data["token"] = ""
-        self.user_data["topics"] = [
-            {
-                "id": self.topic.id,
-                "topic": "Topic",
-                "body": "Body"
-            }
-        ]
-
-        self.socketio.emit("delete_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.UserDoesntExist
-    
-    def test_delete_minute_topics_no_topics(self):
-        self.user_data["token"] = self.admin_token
-        self.socketio.emit("delete_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.InvalidData
-    
-    def test_delete_minute_topics_not_topic_id(self):
-        self.user_data["token"] = self.admin_token
-        self.user_data["topics"] = [
-            {
-                "topic": "Topic",
-                "body": "Body"
-            }
-        ]
-        self.socketio.emit("delete_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.InvalidData
-    
-    def test_delete_minute_topics_no_perm(self):
-        self.user_data["token"] = self.normal_member_token
-        self.user_data["topics"] = [
-            {
-                "id": self.topic.id,
-                "topic": "Topic",
-                "body": "Body"
-            }
-        ]
-
-        self.socketio.emit("delete_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.PermError
-    
-    def test_delete_minute_topics_success(self):
-        self.user_data["token"] = self.admin_token
-        self.user_data["topics"] = [
-            {
-                "id": self.topic.id,
-                "topic": "Topic",
-                "body": "Body"
-            }
-        ]
-
-        self.socketio.emit("delete_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.DeleteTopicSuccess
-    
-    def test_update_minute_topics_no_user(self):
-        self.user_data["token"] = ""
-        self.user_data["topics"] = [
-            {
-                "id": self.topic.id,
-                "topic": "Topic",
-                "body": "New body"
-            }
-        ]
-
-        self.socketio.emit("update_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.UserDoesntExist
-    
-    def test_update_minute_topics_no_topics(self):
-        self.socketio.emit("update_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.InvalidData
-    
-
-    def test_update_minute_topics_topic_doesnt_exist(self):
-        self.user_data["topics"] = [
-            {
-                "id": 999,
-                "topic": "Topic",
-                "body": "New body"
-            }
-        ]
-
-        self.socketio.emit("update_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.InvalidData
-    
-    def test_update_minute_topics_no_perms(self):
-        self.user_data["token"] = self.not_member_token
-        self.user_data["topics"] = [
-            {
-                "id": self.topic.id,
-                "topic": "Topic",
-                "body": "New body"
-            }
-        ]
-
-        self.socketio.emit("update_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.PermError
-    
-    def test_update_minute_topics_success_minute_taker(self):
-        self.user_data["token"] = self.minute_taker_token
-        self.user_data["topics"] = [
-            {
-                "id": self.topic.id,
-                "topic": "Topic",
-                "body": "New body"
-            }
-        ]
-
-        self.socketio.emit("update_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.UpdateTopicSuccess
-    
-    def test_update_minute_topics_success_admin(self):
-        self.user_data["token"] = self.admin_token
-        self.user_data["topics"] = [
-            {
-                "id": self.topic.id,
-                "topic": "New Topic",
-                "body": "New body"
-            }
-        ]
-
-        self.socketio.emit("update_minute_topics", self.user_data)
-        received = self.socketio.get_received()
-        response = received[0]["args"][0]
-        assert response == Response.UpdateTopicSuccess
-    
     def test_edit_minute_admin(self):
         user_data = {
             "token": self.admin_token,
-            "minute_id": self.minute.id
+            "minute_id": self.minute.id,
+            "title": "newtitle",
+            "body": "newbody",
+            "charges": [11] # Get rid of old charge and add new.
         }
         self.socketio.emit("edit_minute", user_data)
         received = self.socketio.get_received()
@@ -642,17 +432,18 @@ class TestMinutes(object):
         received = self.socketio.get_received()
         response = received[0]["args"][0]
         assert response == Response.PermError
-
-    def test_edit_minute_topic_success(self):
+    
+    def test_edit_minute_private_minute_taker(self):
         user_data = {
-            "token": self.admin_token,
+            "token": self.minute_taker_token,
             "minute_id": self.minute.id,
-            "topic": "test_topic",
+            "private": False,
+            'committee_id': ''
         }
         self.socketio.emit("edit_minute", user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == Response.EditSuccess
+        assert response == Response.PermError
     
     def test_edit_minute_body_success(self):
         user_data = {

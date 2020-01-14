@@ -15,10 +15,11 @@ class Roles(Enum):
 	NormalMember = "NormalMember"
 	ActiveMember = "ActiveMember"
 	MinuteTaker = "MinuteTaker"
+	CommitteeHead = "CommitteeHead"
 
 class Members(db.Model):
 	__tablename__ = 'members'
-	committees_id = db.Column(db.String(255), db.ForeignKey('committees.id'))
+	committees_id = db.Column(db.String(255), db.ForeignKey('committees.id'), primary_key=True)
 	users_id = db.Column(db.String(255), db.ForeignKey('users.id'), primary_key=True)
 	role = db.Column(ChoiceType(Roles, impl=db.String()))
 	member = db.relationship('Users', backref= db.backref('committees', lazy='dynamic'))

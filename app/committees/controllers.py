@@ -11,6 +11,7 @@ from app import socketio, db
 from app.committees.committees_response import Response
 from app.committees.models import Committees
 from app.users.models import Users
+from app.members.models import Members, Roles
 from app.users.permissions import Permissions
 import base64
 
@@ -143,7 +144,11 @@ def create_committee(user, user_data):
                 new_committee.location = user_data["location"]
                 new_committee.meeting_time = user_data["meeting_time"]
                 new_committee.meeting_day = user_data["meeting_day"]
+                
                 new_committee.head = user_data["head"]
+                membership = Members(role= Roles.CommitteeHead)
+                membership.member = Users.query.filter_by(id= user_data["head"]).first()
+                new_committee.members.append(membership)
 
                 if "committee_img" in user_data:
                     com_img = base64.b64decode(user_data["committee_img"])
@@ -191,37 +196,49 @@ def create_committee(user, user_data):
 @get_user
 def edit_committee(user, user_data):
 
-    if user is not None and user.is_admin:
-
-        committee = Committees.query.filter_by(id= user_data.get("id")).first()
-
-        if committee is not None:
-
-            for key in user_data:
-
-                if (key == "description" or key == "head" or key == "location" or
-                    key == "meeting_time" or key == "enabled" or key == "committee_img"):
-
-                    if key == "committee_img":
-
-                        com_img = base64.b64decode(user_data["committee_img"])
-                        setattr(committee, key, com_img)
-                    else:
-
-                        setattr(committee, key, user_data[key])
-
-            try:
-                db.session.commit()
-
-                # Send successful edit notification to user
-                # and broadcast committee changes.
-                emit("edit_committee", Response.EditSuccess)
-                get_committee(committee.id, broadcast= True)
-                get_committees(broadcast= True)
-            except Exception as e:
-                db.session.rollback()
-                emit("edit_committee", Response.EditError)
-        else:
-            emit('edit_committee', Response.ComDoesntExist)
-    else:
+    if user is None or not user.is_admin:
         emit('edit_committee', Response.UsrDoesntExist)
+        return;
+ 
+    committee = Committees.query.filter_by(id= user_data.get("id")).first()
+
+    if committee is None:
+        emit('edit_committee', Response.ComDoesntExist)
+        return;
+    
+    for key in user_data:
+
+        if (key == "description" or key == "location" or
+            key == "meeting_time" or key == "enabled" or key == "committee_img"):
+            
+            if key == "committee_img":
+
+                com_img = base64.b64decode(user_data["committee_img"])
+                setattr(committee, key, com_img)
+            else:
+                setattr(committee, key, user_data[key])
+
+    try:
+
+        if "head" in user_data and committee.head != user_data["head"]:
+            new_head = Users.query.filter_by(id = user_data["head"]).first()
+
+            if new_head is None:
+                emit("edit_committee", Response.UsrDoesntExist)
+                return
+            
+            membership = committee.members.filter_by(users_id= committee.head).first()
+            membership.member = new_head
+            committee.head = new_head.id
+
+        db.session.commit()
+    
+        # Send successful edit notification to user
+        # and broadcast committee changes.
+        emit("edit_committee", Response.EditSuccess)
+        get_committee(committee.id, broadcast= True)
+        get_committees(broadcast= True)
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        emit("edit_committee", Response.EditError)

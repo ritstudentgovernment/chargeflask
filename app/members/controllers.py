@@ -129,6 +129,10 @@ def remove_from_committee(user, user_data):
     if not committee.head == user.id or not user.is_admin:
         emit("remove_member_committee", Response.PermError)
         return;
+    
+    if committee.head == delete_user.id:
+        emit("remove_member_committee", Response.RemoveHeadError)
+        return;
 
     try:
         membership = committee.members.filter_by(member= delete_user).first()

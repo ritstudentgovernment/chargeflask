@@ -92,14 +92,15 @@ class SamlRequest(object):
             not_auth_warn=self.not_auth_warn,
             success_slo=self.success_slo,
             attributes=self.attributes,
-            logged_in=self.logged_in
+            logged_in=self.logged_in,
+            reason=self.auth.get_last_error_reason()
         )
 
     def prepare_flask_request(self, request_data):
         url_data = urlparse(request_data.url)
         return {
             'http_host': request_data.host,
-            'server_port': url_data.port,
+            'server_port': 443,
             'script_name': request_data.path,
             'get_data': request_data.args.copy(),
             'post_data': request_data.form.copy()

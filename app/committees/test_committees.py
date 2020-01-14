@@ -175,6 +175,39 @@ class TestCommittees(object):
         self.socketio.emit('edit_committee', edit_fields)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.EditSuccess
+    
+    # Test admin editing a committee_head.
+    def test_admin_edit_committee_head(self):
+        membership = Members(role= Roles.CommitteeHead)
+        membership.member = Users.query.filter_by(id= self.test_committee.head).first()
+        self.test_committee.members.append(membership)
+        db.session.add(self.test_committee)
+        db.session.commit()
+
+        edit_fields = {
+            "token": self.admin_token,
+            "id": self.test_committee.id,
+            "head": "adminuser"
+        }
+
+        self.socketio.emit('edit_committee', edit_fields)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.EditSuccess
+    
+    # Test admin editing a committee head doesnt exist.
+    def test_admin_edit_committee_head_noexist(self):
+        db.session.add(self.test_committee)
+        db.session.commit()
+
+        edit_fields = {
+            "token": self.admin_token,
+            "id": self.test_committee.id,
+            "head": "noexist"
+        }
+
+        self.socketio.emit('edit_committee', edit_fields)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.UsrDoesntExist
 
     # Test not admin editing a committee.
     def test_nonadmin_edit_committee(self):

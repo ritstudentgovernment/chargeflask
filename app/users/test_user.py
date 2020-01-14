@@ -159,7 +159,7 @@ class TestUser(object):
 
     def test_login_shib_success(self):
         with app.test_request_context():
-            attributes = [[[],[""]],[],[[],[""]],[[],[""]],[],[[],[""]]]
+            attributes = [('', ['']), ('', ['']), ('', ['']), ('', [''])]
             res = login_from_acs({'logged_in': True, 'attributes': attributes})
             assert res.status == "302 FOUND"
 

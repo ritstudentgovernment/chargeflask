@@ -122,9 +122,7 @@ def get_committee(committee_id, broadcast = False):
 @ensure_dict
 @get_user
 def create_committee(user, user_data):
-
-    print(user_data)
-
+    
     if user is not None and user.is_admin:
 
         # Build committee id string.
@@ -156,8 +154,6 @@ def create_committee(user, user_data):
                     com_img = base64.b64decode(user_data["committee_img"])
                     new_committee.committee_img = com_img
                 
-                print(new_committee)
-                print("TESTING new committee")
                 db.session.add(new_committee)
                 try:
 
@@ -165,12 +161,9 @@ def create_committee(user, user_data):
                     emit('create_committee', Response.AddSuccess)
                     get_committees(broadcast= True)
                 except Exception as e:
-                    print(e)
-                    print("TESTING exception")
 
                     db.session.rollback()
                     db.session.flush()
-                    # Breaking here
                     emit("create_committee", Response.AddError)
             else:
                 emit('create_committee', Response.AddError)

@@ -32,7 +32,6 @@ notifications_table = Notifications.__table__.insert()
 @get_user
 def get_notifications(user, user_data):
     notifications = Notifications.query.filter_by(user = user.id).all()
-    #TODO testing
     noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed} for c in notifications]
     emit('get_notifications', noti_ser)
 
@@ -46,7 +45,6 @@ def get_notifications(user, user_data):
 ##
 def send_notifications(user):
     notifications = Notifications.query.filter_by(user = user).all()
-    #TODO testing
     noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed} for c in notifications]
     emit('get_notifications', noti_ser, room= user)
 
@@ -74,7 +72,7 @@ def new_note(mapper, connection, new_note):
                 user = u,
                 type = NotificationType.MentionedInNote,
                 destination = new_note.id,
-                viewed = False #TODO testing
+                viewed = False
             )
             send_notifications(u)
 

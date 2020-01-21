@@ -69,8 +69,9 @@ def get_charges(user, user_data, broadcast = False):
     membership = committee.members.filter_by(member= user).first()
 
     for charge in charges:
-        if charge.private and membership is None:
-            continue;
+        if charge.private:
+            if (membership is None or membership.role != Roles.CommitteeHead) or not user.is_admin or not user.is_super:
+                continue;
 
         charge_ser.append({
             "id": charge.id,

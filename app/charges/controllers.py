@@ -155,8 +155,14 @@ def get_charge(user, user_data, broadcast = False):
 @socketio.on('create_charge')
 @ensure_dict
 @get_user
-def create_charge(user, user_data):
+def create_charge(user, user_data):    
     committee = Committees.query.filter_by(id = user_data.get("committee","")).first()
+    
+    # The charge title must be at least 2 characters long and cannot contain special characters
+    invalid_chars = r'/^()#@![]{}`~\?%*:|"<>.'
+    if user_data['title'] is None or len(user_data['title']) <= 1 or any(char in user_data['title'] for char in invalid_chars):
+        emit('create_charge', Response.InvalidTitle)
+        return
 
     if committee is None or user is None:
         emit("create_charge", Response.UsrChargeDontExist)
@@ -238,6 +244,12 @@ def create_charge(user, user_data):
 @get_user
 def edit_charge(user, user_data):
     charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
+
+    # The charge title must be at least 2 characters long and cannot contain special characters
+    invalid_chars = r'/^()#@![]{}`~\?%*:|"<>.'
+    if not user_data['title'] or len(user_data['title']) <= 1 or any(char in user_data['title'] for char in invalid_chars):
+        emit('edit_charge', Response.InvalidTitle)
+        return
 
     if charge is None or user is None:
         emit('edit_charge', Response.UsrChargeDontExist)

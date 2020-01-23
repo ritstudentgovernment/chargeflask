@@ -156,7 +156,6 @@ def get_charge(user, user_data, broadcast = False):
 @ensure_dict
 @get_user
 def create_charge(user, user_data):
-    print(user_data)
     committee = Committees.query.filter_by(id = user_data.get("committee","")).first()
 
     if committee is None or user is None:

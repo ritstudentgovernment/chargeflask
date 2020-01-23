@@ -190,7 +190,7 @@ def create_charge(user, user_data):
     charge.author = user.id
     charge.description = user_data.get("description", "")
     charge.committee = committee.id
-    charge.status = 0
+    charge.status = int(user_data.get("status", ""))
     charge.priority = 0
     charge.objectives = user_data.get("objectives", [])
     charge.schedule = user_data.get("schedules", [])

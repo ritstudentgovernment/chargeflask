@@ -32,7 +32,7 @@ notifications_table = Notifications.__table__.insert()
 @get_user
 def get_notifications(user, user_data):
     notifications = Notifications.query.filter_by(user = user.id).all()
-    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed} for c in notifications]
+    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed, "message": c.message, "redirect": c.redirect} for c in notifications]
     emit('get_notifications', noti_ser)
 
 
@@ -45,7 +45,7 @@ def get_notifications(user, user_data):
 ##
 def send_notifications(user):
     notifications = Notifications.query.filter_by(user = user).all()
-    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed} for c in notifications]
+    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed, "message": c.message, "redirect": c.redirect} for c in notifications]
     emit('get_notifications', noti_ser, room= user)
 
 
@@ -72,7 +72,9 @@ def new_note(mapper, connection, new_note):
                 user = u,
                 type = NotificationType.MentionedInNote,
                 destination = new_note.id,
-                viewed = False
+                viewed = False,
+                message = create_message(NotificationType.MentionedInNote, destination),
+                redirect = create_redirect_string(NotificationType.MentionedInNote, destination)
             )
             send_notifications(u)
 
@@ -93,7 +95,9 @@ def new_action(mapper, connection, new_action):
         user = new_action.assigned_to,
         type = NotificationType.AssignedToAction,
         destination = new_action.id,
-        viewed = False
+        viewed = False,
+        message = create_message(NotificationType.AssignedToAction, destination),
+        redirect = create_redirect_string(NotificationType.AssignedToAction, destination)
     )
     send_notifications(new_action.assigned_to)
 
@@ -114,7 +118,9 @@ def new_committee(mapper, connection, new_committee):
         user = new_committee.head,
         type = NotificationType.MadeCommitteeHead,
         destination = new_committee.id,
-        viewed = False
+        viewed = False,
+        message = create_message(NotificationType.MadeCommitteeHead, destination),
+        redirect = create_redirect_string(NotificationType.MadeCommitteeHead, destination)
     )
     send_notifications(new_committee.head)
 
@@ -136,7 +142,9 @@ def new_request(mapper, connection, new_request):
             user = new_request.committee.head,
             type = NotificationType.UserRequest,
             destination = new_request.id,
-            viewed = False
+            viewed = False,
+            message = create_message(NotificationType.UserRequest, destination),
+            redirect = create_redirect_string(NotificationType.UserRequest, destination)
         )
         send_notifications(new_request.committee.head)
 
@@ -173,7 +181,7 @@ def update_notification(user, user_data):
 @socketio.on('delete_notification')
 @ensure_dict
 @get_user
-def update_notification(user, user_data):
+def delete_notification(user, user_data):
     notification = Notifications.query.filter_by(id = user_data["notificationId"]).first()
      
     try:
@@ -183,3 +191,58 @@ def update_notification(user, user_data):
         db.session.rollback()
         db.session.flush()
         emit('delete_minute', {"error": "Notification was not deleted."})
+
+##
+## @brief      Creates the message for the notification on the frontend
+##
+## @param      user       The user object.
+## @param      user_data  The user's token.
+##
+## @return     An array of notifications for the user.
+##
+@ensure_dict
+@get_user
+def create_message(type, destination):
+     
+    # if (notification.type === 'MadeCommitteeHead') {
+    #     message = 'You have been made the head of the committee: ' + notification.destination
+    #     notification.redirectString = '/committee/' + notification.destination
+    #   } else if (notification.type === 'AssignedToAction') {
+    #     message = 'You have been assigned to the task: ' + notification.destination
+    #     notification.redirectString = '/charge/' + notification.destination
+    #   } else if (notification.type === 'MentionedInNote') {
+    #     message = 'You have been mentioned in the note: ' + notification.destination
+    #     notification.redirectString = '/charge/' + notification.destination
+    #   } else if (notification.type === 'UserRequest') {
+    #     message = 'The user ' + notification.destination + ' requests for you to close the charge: '
+    #     notification.redirectString = '/committee/' + notification.destination
+    #   }
+      return 'message'
+
+##
+## @brief      Creates the redirect string for the notification on the frontend
+##
+## @param      user       The user object.
+## @param      user_data  The user's token.
+##
+## @return     An array of notifications for the user.
+##
+@ensure_dict
+@get_user
+def create_redirect_string(type, destination):
+
+    #  if (notification.type === 'MadeCommitteeHead') {
+    #     message = 'You have been made the head of the committee: ' + notification.destination
+    #     notification.redirectString = '/committee/' + notification.destination
+    #   } else if (notification.type === 'AssignedToAction') {
+    #     message = 'You have been assigned to the task: ' + notification.destination
+    #     notification.redirectString = '/charge/' + notification.destination
+    #   } else if (notification.type === 'MentionedInNote') {
+    #     message = 'You have been mentioned in the note: ' + notification.destination
+    #     notification.redirectString = '/charge/' + notification.destination
+    #   } else if (notification.type === 'UserRequest') {
+    #     message = 'The user ' + notification.destination + ' has a request for you.'
+    #     notification.redirectString = '/committee/' + notification.destination
+    #   }
+      return 'redirect'
+    

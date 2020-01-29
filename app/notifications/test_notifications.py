@@ -143,9 +143,6 @@ class TestNotifications(object):
         db.session.close()
         db.drop_all()
 
-
-    #TODO Tests from here down are failing on the current version of this branch
-
     # Test when a user is made committee head on create.
     def test_new_committee(self):
         self.test_committee_dict["token"] = self.admin_token
@@ -158,7 +155,9 @@ class TestNotifications(object):
             'id': 1, 
             'type': 'MadeCommitteeHead',
             'user': 'testuser',
-            'viewed': False
+            'viewed': False,
+            'message': 'message',
+            'redirect': 'redirect_string'
         }
         assert received[2]["args"][0][0] == expected
 
@@ -173,7 +172,9 @@ class TestNotifications(object):
             'user': 'testuser',
             'id': 1,
             'type': 'AssignedToAction',
-            'viewed': False
+            'viewed': False,
+            'message': 'message',
+            'redirect': 'redirect_string'
         }
         assert received[0]["args"][0][0] == expected
 
@@ -194,7 +195,9 @@ class TestNotifications(object):
             'destination': '1',
             'type': 'UserRequest',
             'user': 'testuser',
-            'viewed': False
+            'viewed': False,
+            'message': 'message',
+            'redirect': 'redirect_string'
         }
         assert received[1]["args"][0][0] == expected
 
@@ -215,6 +218,8 @@ class TestNotifications(object):
             'id': 1,
             'type': 'MentionedInNote',
             'user': 'testuser',
-            'viewed': False
+            'viewed': False,
+            'message': 'message',
+            'redirect': 'redirect_string'
         }
         assert received[0]["args"][0][0] == expected

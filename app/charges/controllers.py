@@ -158,9 +158,6 @@ def create_charge(user, user_data):
         emit("create_charge", Response.UsrChargeDontExist)
         return
 
-    # Get the members role.
-    membership = committee.members.filter_by(member= user).first()
-
     if (user.id != committee.head and not user.is_admin):
         emit("create_charge", Response.PermError)
         return

@@ -20,18 +20,15 @@ from app.users.models import Users
 ##
 ## @param      broadcast  The broadcast
 ##
-## @return     All charges.
+## @return     All public charges.
 ##
 @socketio.on('get_all_charges')
 def get_all_charges(broadcast = False):
 
-    charges = Charges.query.filter_by().all()
+    charges = Charges.query.filter_by(private = False).all()
     charge_ser = []
 
     for charge in charges:
-        if charge.private:
-            continue;
-
         charge_ser.append({
             "id": charge.id,
             "title": charge.title,

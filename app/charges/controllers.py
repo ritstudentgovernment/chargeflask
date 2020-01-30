@@ -160,7 +160,11 @@ def create_charge(user, user_data):
     
     # The charge title must be at least 2 characters long and cannot contain special characters
     invalid_chars = r'/^()#@![]{}`~\?%*:|"<>.'
-    if user_data['title'] is None or len(user_data['title']) <= 1 or any(char in user_data['title'] for char in invalid_chars):
+    titleNoneType = not user_data['title']
+    titleTooShort = (len(user_data['title']) <= 1)
+    titleInvalidChars = any(char in user_data['title'] for char in invalid_chars)
+
+    if titleNoneType or titleTooShort or titleInvalidChars:
         emit('create_charge', Response.InvalidTitle)
         return
 
@@ -247,7 +251,11 @@ def edit_charge(user, user_data):
 
     # The charge title must be at least 2 characters long and cannot contain special characters
     invalid_chars = r'/^()#@![]{}`~\?%*:|"<>.'
-    if not user_data['title'] or len(user_data['title']) <= 1 or any(char in user_data['title'] for char in invalid_chars):
+    titleNoneType = not user_data['title']
+    titleTooShort = len(user_data['title']) <= 1
+    titleInvalidChars = any(char in user_data['title'] for char in invalid_chars)
+
+    if titleNoneType or titleTooShort or titleInvalidChars:
         emit('edit_charge', Response.InvalidTitle)
         return
 

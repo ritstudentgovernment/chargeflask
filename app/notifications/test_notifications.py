@@ -156,8 +156,8 @@ class TestNotifications(object):
             'type': 'MadeCommitteeHead',
             'user': 'testuser',
             'viewed': False,
-            'message': 'message',
-            'redirect': 'redirect_string'
+            'message': 'You have been made the head of the committee: testcommittee1',
+            'redirect': '/committee/testcommittee1'
         }
         assert received[2]["args"][0][0] == expected
 
@@ -173,8 +173,8 @@ class TestNotifications(object):
             'id': 1,
             'type': 'AssignedToAction',
             'viewed': False,
-            'message': 'message',
-            'redirect': 'redirect_string'
+            'message': 'You have been assigned to the task: 1,
+            'redirect': '/charge/1'
         }
         assert received[0]["args"][0][0] == expected
 
@@ -196,8 +196,8 @@ class TestNotifications(object):
             'type': 'UserRequest',
             'user': 'testuser',
             'viewed': False,
-            'message': 'message',
-            'redirect': 'redirect_string'
+            'message': 'A user requests for you to close the charge: 1', # TODO this needs updating
+            'redirect': '/committee/1'
         }
         assert received[1]["args"][0][0] == expected
 
@@ -219,7 +219,7 @@ class TestNotifications(object):
             'type': 'MentionedInNote',
             'user': 'testuser',
             'viewed': False,
-            'message': 'message',
-            'redirect': 'redirect_string'
+            'message': 'You have been mentioned in the note: 1,
+            'redirect': '/charge/1'
         }
         assert received[0]["args"][0][0] == expected

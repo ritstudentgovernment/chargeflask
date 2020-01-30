@@ -195,54 +195,35 @@ def delete_notification(user, user_data):
 ##
 ## @brief      Creates the message for the notification on the frontend
 ##
-## @param      user       The user object.
-## @param      user_data  The user's token.
+## @return     the notification message to be displayed on the frontend.
 ##
-## @return     An array of notifications for the user.
-##
-@ensure_dict
-@get_user
 def create_message(type, destination):
      
-    # if (notification.type === 'MadeCommitteeHead') {
-    #     message = 'You have been made the head of the committee: ' + notification.destination
-    #     notification.redirectString = '/committee/' + notification.destination
-    #   } else if (notification.type === 'AssignedToAction') {
-    #     message = 'You have been assigned to the task: ' + notification.destination
-    #     notification.redirectString = '/charge/' + notification.destination
-    #   } else if (notification.type === 'MentionedInNote') {
-    #     message = 'You have been mentioned in the note: ' + notification.destination
-    #     notification.redirectString = '/charge/' + notification.destination
-    #   } else if (notification.type === 'UserRequest') {
-    #     message = 'The user ' + notification.destination + ' requests for you to close the charge: '
-    #     notification.redirectString = '/committee/' + notification.destination
-    #   }
-      return 'message'
+    if (type == 'MadeCommitteeHead'):
+        message = 'You have been made the head of the committee: ' + destination
+    elif (type == 'AssignedToAction'): 
+        message = 'You have been assigned to the task: ' + destination
+    elif (type == 'MentionedInNote'):
+        message = 'You have been mentioned in the note: ' + destination
+    elif (type == 'UserRequest'):
+        message = 'A user requests for you to close the charge: ' + destination #TODO this needs updating
+    
+    return message
 
 ##
 ## @brief      Creates the redirect string for the notification on the frontend
 ##
-## @param      user       The user object.
-## @param      user_data  The user's token.
+## @return     the redirect string to be used on the frontend when the user opens the notification
 ##
-## @return     An array of notifications for the user.
-##
-@ensure_dict
-@get_user
 def create_redirect_string(type, destination):
 
-    #  if (notification.type === 'MadeCommitteeHead') {
-    #     message = 'You have been made the head of the committee: ' + notification.destination
-    #     notification.redirectString = '/committee/' + notification.destination
-    #   } else if (notification.type === 'AssignedToAction') {
-    #     message = 'You have been assigned to the task: ' + notification.destination
-    #     notification.redirectString = '/charge/' + notification.destination
-    #   } else if (notification.type === 'MentionedInNote') {
-    #     message = 'You have been mentioned in the note: ' + notification.destination
-    #     notification.redirectString = '/charge/' + notification.destination
-    #   } else if (notification.type === 'UserRequest') {
-    #     message = 'The user ' + notification.destination + ' has a request for you.'
-    #     notification.redirectString = '/committee/' + notification.destination
-    #   }
-      return 'redirect'
+    if (type == 'MadeCommitteeHead'):
+        redirect = '/committee/' + destination
+    elif (type == 'AssignedToAction'):
+        redirect = '/charge/' + destination
+    elif (type == 'MentionedInNote'):
+        redirect = '/charge/' + destination
+    elif (type == 'UserRequest'):
+        redirect = '/committee/' + destination
     
+    return redirect

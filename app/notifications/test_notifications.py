@@ -143,7 +143,6 @@ class TestNotifications(object):
         db.session.close()
         db.drop_all()
 
-
     # Test when a user is made committee head on create.
     def test_new_committee(self):
         self.test_committee_dict["token"] = self.admin_token
@@ -155,7 +154,10 @@ class TestNotifications(object):
             'destination': 'testcommittee1', 
             'id': 1, 
             'type': 'MadeCommitteeHead',
-            'user': 'testuser'
+            'user': 'testuser',
+            'viewed': False,
+            'message': 'You have been made the head of the committee: testcommittee1',
+            'redirect': '/committee/testcommittee1'
         }
         assert received[2]["args"][0][0] == expected
 
@@ -169,7 +171,10 @@ class TestNotifications(object):
             'destination': '1',
             'user': 'testuser',
             'id': 1,
-            'type': 'AssignedToAction'
+            'type': 'AssignedToAction',
+            'viewed': False,
+            'message': 'You have been assigned to the task: 1,
+            'redirect': '/charge/1'
         }
         assert received[0]["args"][0][0] == expected
 
@@ -179,7 +184,7 @@ class TestNotifications(object):
         test_invitation = {
             'committee_id': 'testcommittee',
             'user_id': 'testuser2',
-            'token': self.user_token_two
+            'token': self.user_token_two,
         }
         self.socketio.emit('add_member_committee', test_invitation)
         self.socketio.emit('get_notifications', {"token": self.user_token})
@@ -189,7 +194,10 @@ class TestNotifications(object):
             'id': 1,
             'destination': '1',
             'type': 'UserRequest',
-            'user': 'testuser'
+            'user': 'testuser',
+            'viewed': False,
+            'message': 'A user requests for you to close the charge: 1', # TODO this needs updating
+            'redirect': '/committee/1'
         }
         assert received[1]["args"][0][0] == expected
 
@@ -209,6 +217,9 @@ class TestNotifications(object):
             'destination': '1',
             'id': 1,
             'type': 'MentionedInNote',
-            'user': 'testuser'
+            'user': 'testuser',
+            'viewed': False,
+            'message': 'You have been mentioned in the note: 1,
+            'redirect': '/charge/1'
         }
         assert received[0]["args"][0][0] == expected

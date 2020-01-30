@@ -238,8 +238,8 @@ def edit_charge(user, user_data):
         return
     
     # Only admins can move charges to a different committee.
-    committee = user_data.get("committee", committee.id)
-    if (committee != committee.id and not user.is_admin):
+    committee_id = user_data.get("committee", committee.id)
+    if (committee_id != committee.id and not user.is_admin):
         emit("edit_charge", Response.PermError)
         return
 

@@ -59,7 +59,7 @@ def get_charges(user, user_data, broadcast = False):
     committee = Committees.query.filter_by(id = committee_id).first()
     membership = committee.members.filter_by(member= user).first()
 
-    if user.is_admin or membership is not None:
+    if (user is not None and user.is_admin) or membership is not None:
         charges = Charges.query.filter_by(committee= committee_id).all()
     else:
         charges = Charges.query.filter_by(committee= committee_id, private = False).all()
@@ -95,19 +95,20 @@ def get_charges(user, user_data, broadcast = False):
 @ensure_dict
 @get_user
 def get_charge(user, user_data, broadcast = False):
-
-    charge = Charges.query.filter_by(id= user_data["charge"]).first()
+    charge_id = user_data.get("charge", -1)
+    charge = Charges.query.filter_by(id= charge_id).first()
 
     if charge is None:
         emit('get_charge', Response.UsrChargeDontExist)
-        return;
+        return
 
     committee = Committees.query.filter_by(id = charge.committee).first()
     membership = committee.members.filter_by(member= user).first()
 
-    if charge.private and (membership is None and not user.is_admin):
-        emit('get_charge', Response.PermError)
-        return;
+    if charge.private:
+        if user is None or not user.is_admin or membership is None:
+            emit('get_charge', Response.PermError)
+            return
 
     charge_info = {
         "id": charge.id,

@@ -59,10 +59,10 @@ def get_charges(user, user_data, broadcast = False):
     committee = Committees.query.filter_by(id = committee_id).first()
     membership = committee.members.filter_by(member= user).first()
 
-    if membership is None:
-        charges = Charges.query.filter_by(committee= committee_id, private = False).all()
-    else:
+    if user.is_admin or membership is not None:
         charges = Charges.query.filter_by(committee= committee_id).all()
+    else:
+        charges = Charges.query.filter_by(committee= committee_id, private = False).all()
     
     charge_ser = []
 

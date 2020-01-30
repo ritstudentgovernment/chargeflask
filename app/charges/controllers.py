@@ -156,31 +156,25 @@ def create_charge(user, user_data):
 
     if committee is None or user is None:
         emit("create_charge", Response.UsrChargeDontExist)
-        return;
+        return
 
     # Get the members role.
     membership = committee.members.filter_by(member= user).first()
 
-    if (user.id != committee.head and user.is_admin == False):
+    if (user.id != committee.head and not user.is_admin):
         emit("create_charge", Response.PermError)
-        return;
+        return
 
     if "title" not in user_data:
         emit ("create_charge", Response.InvalidTitle)
-        return;
+        return
 
     if ("priority" not in user_data or
         type(user_data["priority"]) != int or 
         user_data["priority"] < 0 or
         user_data["priority"] > 2):
         emit ("create_charge", Response.InvalidPriority)
-        return;
-
-    # Only admins and committee heads can make charges public.
-    if ('private' in user_data and not user_data['private'] and
-        not user.is_admin and user.id != committee.head):
-        emit("create_charge", Response.PermError)
-        return;
+        return
 
     charge = Charges(title = user_data["title"])
     charge.author = user.id

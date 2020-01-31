@@ -146,7 +146,7 @@ def create_minute(user, user_data):
     # Get the members role.
     membership = committee.members.filter_by(member= user).first()
 
-    if membership is None:
+    if membership is None and not user.is_admin:
         emit('create_minute', Response.PermError)
         return
     

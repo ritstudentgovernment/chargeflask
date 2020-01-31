@@ -150,7 +150,8 @@ def create_minute(user, user_data):
         emit('create_minute', Response.PermError)
         return
     
-    if not user_data["private"] and (user.id != committee.head or not user.is_admin):
+    is_public = not user_data.get("private", False)
+    if is_public and (user.id != committee.head or not user.is_admin):
         emit('create_minute', Response.PermError)
         return
     
@@ -243,7 +244,7 @@ def edit_minute(user, user_data):
         emit('edit_minute', Response.PermError)
         return
     
-    if "private" in user_data and not user_data["private"]:
+    if not user_data.get("private", False):
         if user.id != committee.head and not user.is_admin:
             emit('create_minute', Response.PermError)
             return

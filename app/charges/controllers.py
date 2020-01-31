@@ -54,30 +54,31 @@ def get_all_charges(broadcast = False):
 @socketio.on('get_charges')
 @ensure_dict
 @get_user
-def get_charges(user, user_data, broadcast = False):
+def get_charges(user, user_data, broadcast = False):   
+    charge_ser = []
     committee_id = user_data.get("committee_id", "")
     committee = Committees.query.filter_by(id = committee_id).first()
-    membership = committee.members.filter_by(member= user).first()
 
-    if (user is not None and user.is_admin) or membership is not None:
-        charges = Charges.query.filter_by(committee= committee_id).all()
-    else:
-        charges = Charges.query.filter_by(committee= committee_id, private = False).all()
-    
-    charge_ser = []
+    if committee is not None:
+        membership = committee.members.filter_by(member= user).first()
+        if (user is not None and user.is_admin) or membership is not None:
+            charges = Charges.query.filter_by(committee= committee_id).all()
+        else:
+            charges = Charges.query.filter_by(committee= committee_id, private = False).all()
 
-    for charge in charges:
-        charge_ser.append({
-            "id": charge.id,
-            "title": charge.title,
-            "description": charge.description,
-            "committee": charge.committee,
-            "priority": charge.priority,
-            "status": charge.status,
-            "paw_links": charge.paw_links,
-            "private": charge.private,
-            "created_at": charge.created_at.isoformat()
-        })
+        for charge in charges:
+            charge_ser.append({
+                "id": charge.id,
+                "title": charge.title,
+                "description": charge.description,
+                "committee": charge.committee,
+                "priority": charge.priority,
+                "status": charge.status,
+                "paw_links": charge.paw_links,
+                "private": charge.private,
+                "created_at": charge.created_at.isoformat()
+            })
+
     emit("get_charges", charge_ser, broadcast = broadcast)
 
 
@@ -106,7 +107,7 @@ def get_charge(user, user_data, broadcast = False):
     membership = committee.members.filter_by(member= user).first()
 
     if charge.private:
-        if user is None or not user.is_admin or membership is None:
+        if user is None or (not user.is_admin and membership is None):
             emit('get_charge', Response.PermError)
             return
 

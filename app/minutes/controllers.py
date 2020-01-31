@@ -239,15 +239,14 @@ def edit_minute(user, user_data):
 
     membership = committee.members.filter_by(member= user).first()
 
-    if (user.id != committee.head and user.is_admin == False and
-        (membership is None or membership.role != Roles.MinuteTaker)):
+    if membership is None and not user.is_admin:
         emit('edit_minute', Response.PermError)
         return
     
-    if (user.id != committee.head and 
-        "private" in user_data and not user_data["private"]):
-        emit('create_minute', Response.PermError)
-        return
+    if "private" in user_data and not user_data["private"]:
+        if user.id != committee.head and not user.is_admin:
+            emit('create_minute', Response.PermError)
+            return
     
     deleted = []
     new = []

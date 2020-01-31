@@ -394,7 +394,8 @@ class TestMinutes(object):
     def test_edit_minute_minute_taker(self):
         user_data = {
             "token": self.minute_taker_token,
-            "minute_id": self.minute.id
+            "minute_id": self.minute.id,
+            "private": True
         }
         self.socketio.emit("edit_minute", user_data)
         received = self.socketio.get_received()

@@ -44,7 +44,7 @@ def get_minute(user, user_data):
 
     membership = committee.members.filter_by(member = user).first()
 
-    if minute.private and (membership is None and not user.is_admin and committee.head != user.id):
+    if minute.private and (membership is None and not user.is_admin):
         emit('get_minute', Response.PermError)
         return
     
@@ -88,7 +88,7 @@ def get_minutes(user, user_data):
     membership = committee.members.filter_by(member= user).first()
     minutes = None
 
-    if (membership is None and not user.is_admin and committee.head != user.id):
+    if (membership is None and not user.is_admin):
         minutes = committee.minutes.filter_by(private= False).all()
     else:
         minutes = committee.minutes.all()

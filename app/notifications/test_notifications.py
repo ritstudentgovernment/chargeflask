@@ -196,11 +196,7 @@ class TestNotifications(object):
             'type': 'UserRequest',
             'user': 'testuser',
             'viewed': False,
-<<<<<<< HEAD
             'message': 'testuser requests to join your committee.',
-=======
-            'message': 'A user requests for you to close the charge: 1', # TODO this needs updating
->>>>>>> f905311569b758619b533b5da86aa71f7bd700fb
             'redirect': '/committee/1'
         }
         assert received[1]["args"][0][0] == expected
@@ -223,12 +219,7 @@ class TestNotifications(object):
             'type': 'MentionedInNote',
             'user': 'testuser',
             'viewed': False,
-<<<<<<< HEAD
             'message': 'You have been mentioned in a note. In the task: Test Action',
             'redirect': '/charge/10'
-=======
-            'message': 'You have been mentioned in the note: 1,
-            'redirect': '/charge/1'
->>>>>>> f905311569b758619b533b5da86aa71f7bd700fb
         }
         assert received[0]["args"][0][0] == expected

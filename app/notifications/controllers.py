@@ -74,13 +74,8 @@ def new_note(mapper, connection, new_note):
                 type = NotificationType.MentionedInNote,
                 destination = new_note.id,
                 viewed = False,
-<<<<<<< HEAD
                 message = create_message(NotificationType.MentionedInNote, action.title),
                 redirect = create_redirect_string(NotificationType.MentionedInNote, action.charge)
-=======
-                message = create_message(NotificationType.MentionedInNote, destination),
-                redirect = create_redirect_string(NotificationType.MentionedInNote, destination)
->>>>>>> f905311569b758619b533b5da86aa71f7bd700fb
             )
             send_notifications(u)
 
@@ -103,13 +98,8 @@ def new_action(mapper, connection, new_action):
         type = NotificationType.AssignedToAction,
         destination = new_action.id,
         viewed = False,
-<<<<<<< HEAD
         message = create_message(NotificationType.AssignedToAction, new_action.title),
         redirect = create_redirect_string(NotificationType.AssignedToAction, new_action.charge)
-=======
-        message = create_message(NotificationType.AssignedToAction, destination),
-        redirect = create_redirect_string(NotificationType.AssignedToAction, destination)
->>>>>>> f905311569b758619b533b5da86aa71f7bd700fb
     )
     send_notifications(new_action.assigned_to)
 
@@ -132,13 +122,8 @@ def new_committee(mapper, connection, new_committee):
         type = NotificationType.MadeCommitteeHead,
         destination = new_committee.id,
         viewed = False,
-<<<<<<< HEAD
         message = create_message(NotificationType.MadeCommitteeHead, new_committee.title),
         redirect = create_redirect_string(NotificationType.MadeCommitteeHead, new_committee.id)
-=======
-        message = create_message(NotificationType.MadeCommitteeHead, destination),
-        redirect = create_redirect_string(NotificationType.MadeCommitteeHead, destination)
->>>>>>> f905311569b758619b533b5da86aa71f7bd700fb
     )
     send_notifications(new_committee.head)
 
@@ -161,13 +146,8 @@ def new_request(mapper, connection, new_request):
             type = NotificationType.UserRequest,
             destination = new_request.id,
             viewed = False,
-<<<<<<< HEAD
             message = create_message(NotificationType.UserRequest, new_request.id),
             redirect = create_redirect_string(NotificationType.UserRequest, new_request.id)
-=======
-            message = create_message(NotificationType.UserRequest, destination),
-            redirect = create_redirect_string(NotificationType.UserRequest, destination)
->>>>>>> f905311569b758619b533b5da86aa71f7bd700fb
         )
         send_notifications(new_request.committee.head)
 
@@ -220,7 +200,6 @@ def delete_notification(user, user_data):
 ##
 ## @return     the notification message to be displayed on the frontend.
 ##
-<<<<<<< HEAD
 def create_message(notificationType, message):
     
     if (notificationType is NotificationType.MadeCommitteeHead):
@@ -233,27 +212,12 @@ def create_message(notificationType, message):
         message = 'A user requests for you to close the charge: ' + message #TODO this needs updating
 
     return str(message)
-=======
-def create_message(type, destination):
-     
-    if (type == 'MadeCommitteeHead'):
-        message = 'You have been made the head of the committee: ' + destination
-    elif (type == 'AssignedToAction'): 
-        message = 'You have been assigned to the task: ' + destination
-    elif (type == 'MentionedInNote'):
-        message = 'You have been mentioned in the note: ' + destination
-    elif (type == 'UserRequest'):
-        message = 'A user requests for you to close the charge: ' + destination #TODO this needs updating
-    
-    return message
->>>>>>> f905311569b758619b533b5da86aa71f7bd700fb
 
 ##
 ## @brief      Creates the redirect string for the notification on the frontend
 ##
 ## @return     the redirect string to be used on the frontend when the user opens the notification
 ##
-<<<<<<< HEAD
 def create_redirect_string(notificationType, destination):
 
     destination = str(destination)
@@ -268,17 +232,3 @@ def create_redirect_string(notificationType, destination):
         redirect = '/committee/' + destination
 
     return str(redirect)
-=======
-def create_redirect_string(type, destination):
-
-    if (type == 'MadeCommitteeHead'):
-        redirect = '/committee/' + destination
-    elif (type == 'AssignedToAction'):
-        redirect = '/charge/' + destination
-    elif (type == 'MentionedInNote'):
-        redirect = '/charge/' + destination
-    elif (type == 'UserRequest'):
-        redirect = '/committee/' + destination
-    
-    return redirect
->>>>>>> f905311569b758619b533b5da86aa71f7bd700fb

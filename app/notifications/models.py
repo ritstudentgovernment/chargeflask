@@ -32,4 +32,8 @@ class Notifications(db.Model):
     destination = db.Column(db.String)
     viewed = db.Column(db.Boolean)
     message = db.Column(db.String)
+<<<<<<< HEAD
     redirect = db.Column(db.String)
+=======
+    redirect = db.Column(db.String)
+>>>>>>> f905311569b758619b533b5da86aa71f7bd700fb

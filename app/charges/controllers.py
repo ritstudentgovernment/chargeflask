@@ -20,18 +20,15 @@ from app.users.models import Users
 ##
 ## @param      broadcast  The broadcast
 ##
-## @return     All charges.
+## @return     All public charges.
 ##
 @socketio.on('get_all_charges')
 def get_all_charges(broadcast = False):
 
-    charges = Charges.query.filter_by().all()
+    charges = Charges.query.filter_by(private = False).all()
     charge_ser = []
 
     for charge in charges:
-        if charge.private:
-            continue;
-
         charge_ser.append({
             "id": charge.id,
             "title": charge.title,
@@ -57,32 +54,31 @@ def get_all_charges(broadcast = False):
 @socketio.on('get_charges')
 @ensure_dict
 @get_user
-def get_charges(user, user_data, broadcast = False):
-    charges = Charges.query.filter_by(committee= user_data.get("committee_id", "")).all()
+def get_charges(user, user_data, broadcast = False):   
     charge_ser = []
+    committee_id = user_data.get("committee_id", "")
+    committee = Committees.query.filter_by(id = committee_id).first()
 
-    if len(charges) == 0:
-        emit("get_charges", charge_ser, broadcast = broadcast)
-        return;
+    if committee is not None:
+        membership = committee.members.filter_by(member= user).first()
+        if (user is not None and user.is_admin) or membership is not None:
+            charges = Charges.query.filter_by(committee= committee_id).all()
+        else:
+            charges = Charges.query.filter_by(committee= committee_id, private = False).all()
 
-    committee = Committees.query.filter_by(id = user_data.get("committee_id", "")).first()
-    membership = committee.members.filter_by(member= user).first()
+        for charge in charges:
+            charge_ser.append({
+                "id": charge.id,
+                "title": charge.title,
+                "description": charge.description,
+                "committee": charge.committee,
+                "priority": charge.priority,
+                "status": charge.status,
+                "paw_links": charge.paw_links,
+                "private": charge.private,
+                "created_at": charge.created_at.isoformat()
+            })
 
-    for charge in charges:
-        if charge.private and membership is None:
-            continue;
-
-        charge_ser.append({
-            "id": charge.id,
-            "title": charge.title,
-            "description": charge.description,
-            "committee": charge.committee,
-            "priority": charge.priority,
-            "status": charge.status,
-            "paw_links": charge.paw_links,
-            "private": charge.private,
-            "created_at": charge.created_at.isoformat()
-        });
     emit("get_charges", charge_ser, broadcast = broadcast)
 
 
@@ -100,19 +96,20 @@ def get_charges(user, user_data, broadcast = False):
 @ensure_dict
 @get_user
 def get_charge(user, user_data, broadcast = False):
-
-    charge = Charges.query.filter_by(id= user_data["charge"]).first()
+    charge_id = user_data.get("charge", -1)
+    charge = Charges.query.filter_by(id= charge_id).first()
 
     if charge is None:
         emit('get_charge', Response.UsrChargeDontExist)
-        return;
+        return
 
     committee = Committees.query.filter_by(id = charge.committee).first()
     membership = committee.members.filter_by(member= user).first()
 
-    if charge.private and (membership is None and not user.is_admin):
-        emit('get_charge', Response.PermError)
-        return;
+    if charge.private:
+        if user is None or (not user.is_admin and membership is None):
+            emit('get_charge', Response.PermError)
+            return
 
     charge_info = {
         "id": charge.id,
@@ -170,31 +167,22 @@ def create_charge(user, user_data):
 
     if committee is None or user is None:
         emit("create_charge", Response.UsrChargeDontExist)
-        return;
+        return
 
-    # Get the members role.
-    membership = committee.members.filter_by(member= user).first()
-
-    if (user.id != committee.head and user.is_admin == False):
+    if (user.id != committee.head and not user.is_admin):
         emit("create_charge", Response.PermError)
-        return;
+        return
 
     if "title" not in user_data:
         emit ("create_charge", Response.InvalidTitle)
-        return;
+        return
 
     if ("priority" not in user_data or
         type(user_data["priority"]) != int or 
         user_data["priority"] < 0 or
         user_data["priority"] > 2):
         emit ("create_charge", Response.InvalidPriority)
-        return;
-
-    # Only admins and committee heads can make charges public.
-    if ('private' in user_data and not user_data['private'] and
-        not user.is_admin and user.id != committee.head):
-        emit("create_charge", Response.PermError)
-        return;
+        return
 
     charge = Charges(title = user_data["title"])
     charge.author = user.id
@@ -266,19 +254,13 @@ def edit_charge(user, user_data):
     committee = Committees.query.filter_by(id = charge.committee).first()
     membership = committee.members.filter_by(member= user).first()
 
-    if (user.id != committee.head and user.is_admin == False and
-        (membership is None or membership.role != Roles.ActiveMember)):
-        emit("edit_charge", Response.PermError)
-        return
-
-    # Only admins and committee heads can make charges public.
-    if ('private' in user_data and not user_data['private'] and
-        not user.is_admin and user.id != committee.head):
+    if (membership is None or membership.role != Roles.CommitteeHead) and not user.is_admin:
         emit("edit_charge", Response.PermError)
         return
     
     # Only admins can move charges to a different committee.
-    if ('committee' in user_data and user.is_admin == False):
+    committee_id = user_data.get("committee", committee.id)
+    if (committee_id != committee.id and not user.is_admin):
         emit("edit_charge", Response.PermError)
         return
 

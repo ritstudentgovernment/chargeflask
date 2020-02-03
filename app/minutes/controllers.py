@@ -44,7 +44,7 @@ def get_minute(user, user_data):
 
     membership = committee.members.filter_by(member = user).first()
 
-    if minute.private and (membership is None and not user.is_admin and committee.head != user.id):
+    if minute.private and (membership is None and not user.is_admin):
         emit('get_minute', Response.PermError)
         return
     
@@ -88,7 +88,7 @@ def get_minutes(user, user_data):
     membership = committee.members.filter_by(member= user).first()
     minutes = None
 
-    if (membership is None and not user.is_admin and committee.head != user.id):
+    if (membership is None and not user.is_admin):
         minutes = committee.minutes.filter_by(private= False).all()
     else:
         minutes = committee.minutes.all()
@@ -146,12 +146,12 @@ def create_minute(user, user_data):
     # Get the members role.
     membership = committee.members.filter_by(member= user).first()
 
-    if (user.id != committee.head and user.is_admin == False and
-        (membership is None or membership.role != Roles.MinuteTaker)):
+    if membership is None and not user.is_admin:
         emit('create_minute', Response.PermError)
         return
     
-    if user.id != committee.head and not user_data["private"]:
+    is_public = not user_data.get("private", False)
+    if is_public and (user.id != committee.head or not user.is_admin):
         emit('create_minute', Response.PermError)
         return
     
@@ -240,15 +240,14 @@ def edit_minute(user, user_data):
 
     membership = committee.members.filter_by(member= user).first()
 
-    if (user.id != committee.head and user.is_admin == False and
-        (membership is None or membership.role != Roles.MinuteTaker)):
+    if membership is None and not user.is_admin:
         emit('edit_minute', Response.PermError)
         return
     
-    if (user.id != committee.head and 
-        "private" in user_data and not user_data["private"]):
-        emit('create_minute', Response.PermError)
-        return
+    if not user_data.get("private", False):
+        if user.id != committee.head and not user.is_admin:
+            emit('create_minute', Response.PermError)
+            return
     
     deleted = []
     new = []

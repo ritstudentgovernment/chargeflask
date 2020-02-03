@@ -202,7 +202,7 @@ class TestNotifications(object):
         assert received[1]["args"][0][0] == expected
 
 
-    # Test when a user is mentioned in a note.
+    # Test when a user is assigned a Task.
     def test_new_note(self):
         user_data = {
             "token": self.user_token,
@@ -219,7 +219,7 @@ class TestNotifications(object):
             'type': 'MentionedInNote',
             'user': 'testuser',
             'viewed': False,
-            'message': 'You have been mentioned in the note: 1,
-            'redirect': '/charge/1'
+            'message': 'You have been assigned the task: Test Action,
+            'redirect': '/minutes/1'
         }
         assert received[0]["args"][0][0] == expected

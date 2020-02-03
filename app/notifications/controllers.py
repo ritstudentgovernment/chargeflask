@@ -61,20 +61,21 @@ def send_notifications(user):
 ##
 @listens_for(Notes, 'after_insert')
 def new_note(mapper, connection, new_note):
+    # Finds usernames when they are indicated with the @ symbol, stores them in 'mentioned'
     user_regex = "(?<=^|(?<=[^a-zA-Z0-9-_\.]))@([A-Za-z]+[A-Za-z0-9-_]+)"
     mentioned = re.findall(user_regex, new_note.description)
-
+    print(mentioned)
     for u in mentioned:
         user = Users.query.filter_by(id= u).first()
-
+        print(user)
         if user is not None:
             connection.execute(notifications_table, 
                 user = u,
                 type = NotificationType.MentionedInNote,
                 destination = new_note.id,
                 viewed = False,
-                message = create_message(NotificationType.MentionedInNote, destination),
-                redirect = create_redirect_string(NotificationType.MentionedInNote, destination)
+                message = create_message(NotificationType.MentionedInNote, new_note.title),
+                redirect = create_redirect_string(NotificationType.MentionedInNote, str(new_note.id))
             )
             send_notifications(u)
 
@@ -91,13 +92,14 @@ def new_note(mapper, connection, new_note):
 ##
 @listens_for(Actions, 'after_insert')
 def new_action(mapper, connection, new_action):
+    print(new_action.charge)
     connection.execute(notifications_table,
         user = new_action.assigned_to,
         type = NotificationType.AssignedToAction,
         destination = new_action.id,
-        viewed = False
-        # message = create_message(NotificationType.AssignedToAction, destination),
-        # redirect = create_redirect_string(NotificationType.AssignedToAction, destination)
+        viewed = False,
+        message = create_message(NotificationType.AssignedToAction, new_action.title),
+        redirect = create_redirect_string(NotificationType.AssignedToAction, str(new_action.charge))
     )
     send_notifications(new_action.assigned_to)
 
@@ -120,8 +122,8 @@ def new_committee(mapper, connection, new_committee):
         type = NotificationType.MadeCommitteeHead,
         destination = new_committee.id,
         viewed = False,
-        message = create_message(NotificationType.UserRequest, new_committee.id),
-        redirect = create_redirect_string(NotificationType.MadeCommitteeHead, new_committee.id)
+        message = create_message(NotificationType.MadeCommitteeHead, new_committee.title),
+        redirect = create_redirect_string(NotificationType.MadeCommitteeHead, str(new_committee.id))
     )
     send_notifications(new_committee.head)
 
@@ -145,7 +147,7 @@ def new_request(mapper, connection, new_request):
             destination = new_request.id,
             viewed = False,
             message = create_message(NotificationType.UserRequest, new_request.id),
-            redirect = create_redirect_string(NotificationType.UserRequest, new_request.id)
+            redirect = create_redirect_string(NotificationType.UserRequest, str(new_request.id))
         )
         send_notifications(new_request.committee.head)
 
@@ -198,20 +200,15 @@ def delete_notification(user, user_data):
 ##
 ## @return     the notification message to be displayed on the frontend.
 ##
-def create_message(type, destination):
-    
-    message = ''
-
-    if (type == 'NotificationType.MadeCommitteeHead'):
-        message = 'You have been made the head of the committee: ' + destination
-    elif (type == 'NotificationType.AssignedToAction'): 
-        message = 'You have been assigned to the task: ' + destination
-    elif (type == 'NotificationType.MentionedInNote'):
-        message = 'You have been mentioned in the note: ' + destination
-    elif (type == 'NotificationType.UserRequest'):
-        message = 'A user requests for you to close the charge: ' + destination #TODO this needs updating
-    else: 
-        message = 'gottem'
+def create_message(notificationType, message):
+    if (notificationType is NotificationType.MadeCommitteeHead):
+        message = 'You have been made the head of the committee: ' + message
+    elif (notificationType is NotificationType.AssignedToAction): 
+        message = 'You have been assigned to the task: ' + message
+    elif (notificationType is NotificationType.MentionedInNote):
+        message = 'You have been mentioned in the minute: ' + message
+    elif (notificationType is NotificationType.UserRequest):
+        message = 'A user requests for you to close the charge: ' + message #TODO this needs updating
 
     return str(message)
 
@@ -220,19 +217,14 @@ def create_message(type, destination):
 ##
 ## @return     the redirect string to be used on the frontend when the user opens the notification
 ##
-def create_redirect_string(type, destination):
-
-    redirect = ''
-
-    if (type == 'NotificationType.MadeCommitteeHead'):
+def create_redirect_string(notificationType, destination):
+    if (notificationType is NotificationType.MadeCommitteeHead):
         redirect = '/committee/' + destination
-    elif (type == 'NotificationType.AssignedToAction'):
+    elif (notificationType is NotificationType.AssignedToAction):
         redirect = '/charge/' + destination
-    elif (type == 'NotificationType.MentionedInNote'):
-        redirect = '/charge/' + destination
-    elif (type == 'NotificationType.UserRequest'):
+    elif (notificationType is NotificationType.MentionedInNote):
+        redirect = '/minute/' + destination
+    elif (notificationType is NotificationType.UserRequest):
         redirect = '/committee/' + destination
-    else:
-        redirect = 'gottem'
 
     return str(redirect)

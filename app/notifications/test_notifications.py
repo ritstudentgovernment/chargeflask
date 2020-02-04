@@ -199,7 +199,7 @@ class TestNotifications(object):
             'message': 'testuser requests to join your committee.',
             'redirect': '/committee/1'
         }
-        assert received[0]["args"][0][0] == expected
+        assert received[2]["args"][0][0] == expected
 
 
     # Test when a user is assigned a Task.

@@ -159,7 +159,7 @@ class TestNotifications(object):
             'message': 'You have been made the head of the committee: testcommittee1',
             'redirect': '/committee/testcommittee1'
         }
-        assert received[2]["args"][0][0] == expected
+        assert received[1]["args" - 1][0][0] == expected
 
     
     # Test when a user is assigned to an action.
@@ -176,7 +176,7 @@ class TestNotifications(object):
             'message': 'You have been assigned to the task: test title',
             'redirect': '/charge/10'
         }
-        assert received[0]["args"][0][0] == expected
+        assert received[0]["args" - 1][0][0] == expected
 
 
     # Test when a user sends a request to join a committee.
@@ -199,7 +199,7 @@ class TestNotifications(object):
             'message': 'testuser requests to join your committee.',
             'redirect': '/committee/1'
         }
-        assert received[2]["args"][0][0] == expected
+        assert received[1]["args"][0][0] == expected
 
 
     # Test when a user is assigned a Task.

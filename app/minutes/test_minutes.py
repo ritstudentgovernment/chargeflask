@@ -158,7 +158,7 @@ class TestMinutes(object):
 
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == Response.UserDoesntExist
+        assert response == []]
     
     def test_get_minutes_no_committee(self):
         self.user_data["committee_id"] = ""
@@ -222,7 +222,7 @@ class TestMinutes(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.MinuteDoesntExist
 
-    def test_get_minute_no_user(self):
+    def test_get_private_minute_no_user(self):
         user_data = {
             "token": '',
             "minute_id": self.minute.id
@@ -230,7 +230,7 @@ class TestMinutes(object):
 
         self.socketio.emit('get_minute', user_data)
         received = self.socketio.get_received()
-        assert received[0]["args"][0] == Response.UserDoesntExist
+        assert received[0]["args"][0] == Response.PermError
 
     def test_get_minute_no_minute(self):
         self.socketio.emit('get_minute', self.user_data)

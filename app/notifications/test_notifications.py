@@ -173,7 +173,7 @@ class TestNotifications(object):
             'id': 1,
             'type': 'AssignedToAction',
             'viewed': False,
-            'message': 'You have been assigned to the task: 1',
+            'message': 'You have been assigned to the task: Test Action',
             'redirect': '/charge/1'
         }
         assert received[0]["args"][0][0] == expected
@@ -220,6 +220,6 @@ class TestNotifications(object):
             'user': 'testuser',
             'viewed': False,
             'message': 'You have been mentioned in a note. In the task: Test Action',
-            'redirect': '/charge/10'
+            'redirect': '/charge/1'
         }
         assert received[0]["args"][0][0] == expected

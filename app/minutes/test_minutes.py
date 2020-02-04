@@ -158,7 +158,7 @@ class TestMinutes(object):
 
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == []]
+        assert response == []
     
     def test_get_minutes_no_committee(self):
         self.user_data["committee_id"] = ""

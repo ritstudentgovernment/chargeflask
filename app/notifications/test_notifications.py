@@ -152,14 +152,14 @@ class TestNotifications(object):
 
         expected = {
             'destination': 'testcommittee1', 
-            'id': 1, 
+            'id': , 
             'type': 'MadeCommitteeHead',
             'user': 'testuser',
             'viewed': False,
             'message': 'You have been made the head of the committee: testcommittee1',
             'redirect': '/committee/testcommittee1'
         }
-        assert received[1]["args" - 1][0][0] == expected
+        assert received[1]["args"][0][0] == expected
 
     
     # Test when a user is assigned to an action.
@@ -176,7 +176,7 @@ class TestNotifications(object):
             'message': 'You have been assigned to the task: test title',
             'redirect': '/charge/10'
         }
-        assert received[0]["args" - 1][0][0] == expected
+        assert received[0]["args"][0][0] == expected
 
 
     # Test when a user sends a request to join a committee.
@@ -187,6 +187,7 @@ class TestNotifications(object):
             'token': self.user_token_two,
         }
         self.socketio.emit('add_member_committee', test_invitation)
+        # 'Request couldn't be sent' here
         self.socketio.emit('get_notifications', {"token": self.user_token})
         received = self.socketio.get_received()
 
@@ -196,9 +197,10 @@ class TestNotifications(object):
             'type': 'UserRequest',
             'user': 'testuser',
             'viewed': False,
-            'message': 'testuser requests to join your committee.',
+            'message': 'testuser2 requests to join your committee.',
             'redirect': '/committee/1'
         }
+        print(received)
         assert received[1]["args"][0][0] == expected
 
 

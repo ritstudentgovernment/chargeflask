@@ -146,11 +146,11 @@ def new_request(mapper, connection, new_request):
             type = NotificationType.UserRequest,
             destination = new_request.id,
             viewed = False,
-            message = create_message(NotificationType.UserRequest, new_request.id),
+            message = create_message(NotificationType.UserRequest, new_request.author),
             redirect = create_redirect_string(NotificationType.UserRequest, new_request.id)
         )
         send_notifications(new_request.committee.head)
-
+        
 ##
 ## @brief      Updates the notification when it has been viewed.
 ##
@@ -209,7 +209,7 @@ def create_message(notificationType, message):
     elif (notificationType is NotificationType.MentionedInNote):
         message = 'You have been mentioned in a note. In the task: ' + message
     elif (notificationType is NotificationType.UserRequest):
-        message = 'A user requests for you to close the charge: ' + message #TODO this needs updating
+        message = message + ' requests to join your committee.'
 
     return str(message)
 

@@ -289,7 +289,7 @@ class TestMinutes(object):
         self.socketio.emit("create_minute", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == Response.PermError
+        assert response == Response.AddMinuteSuccess
     
     def test_create_minute_minute_taker_public(self):
         self.user_data["token"] = self.minute_taker_token
@@ -394,7 +394,8 @@ class TestMinutes(object):
     def test_edit_minute_minute_taker(self):
         user_data = {
             "token": self.minute_taker_token,
-            "minute_id": self.minute.id
+            "minute_id": self.minute.id,
+            "private": True
         }
         self.socketio.emit("edit_minute", user_data)
         received = self.socketio.get_received()

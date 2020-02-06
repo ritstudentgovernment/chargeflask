@@ -464,4 +464,4 @@ class TestCharges(object):
 
         self.socketio.emit('edit_charge', user_data)
         received = self.socketio.get_received()
-        assert received[0]["args"][0] == Response.EditError
+        assert received[0]["args"][0] == Response.PermError

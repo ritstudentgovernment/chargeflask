@@ -149,17 +149,16 @@ class TestNotifications(object):
         self.socketio.emit('create_committee', self.test_committee_dict)
         self.socketio.emit('get_notifications', {"token": self.user_token})
         received = self.socketio.get_received()
-
         expected = {
             'destination': 'testcommittee1', 
-            'id': , 
+            'id': 1, 
             'type': 'MadeCommitteeHead',
             'user': 'testuser',
             'viewed': False,
             'message': 'You have been made the head of the committee: testcommittee1',
             'redirect': '/committee/testcommittee1'
         }
-        assert received[1]["args"][0][0] == expected
+        assert received[2]["args"][0][0] == expected
 
     
     # Test when a user is assigned to an action.
@@ -187,10 +186,9 @@ class TestNotifications(object):
             'token': self.user_token_two,
         }
         self.socketio.emit('add_member_committee', test_invitation)
-        # 'Request couldn't be sent' here
         self.socketio.emit('get_notifications', {"token": self.user_token})
         received = self.socketio.get_received()
-
+        print(received)
         expected = {
             'id': 1,
             'destination': '1',
@@ -200,7 +198,6 @@ class TestNotifications(object):
             'message': 'testuser2 requests to join your committee.',
             'redirect': '/committee/1'
         }
-        print(received)
         assert received[1]["args"][0][0] == expected
 
 

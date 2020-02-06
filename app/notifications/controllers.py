@@ -146,7 +146,7 @@ def new_request(mapper, connection, new_request):
             type = NotificationType.UserRequest,
             destination = new_request.id,
             viewed = False,
-            message = create_message(NotificationType.UserRequest, new_request.author),
+            message = create_message(NotificationType.UserRequest, new_request.user_name),
             redirect = create_redirect_string(NotificationType.UserRequest, new_request.id)
         )
         send_notifications(new_request.committee.head)

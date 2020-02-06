@@ -188,7 +188,6 @@ class TestNotifications(object):
         self.socketio.emit('add_member_committee', test_invitation)
         self.socketio.emit('get_notifications', {"token": self.user_token})
         received = self.socketio.get_received()
-        print(received)
         expected = {
             'id': 1,
             'destination': '1',

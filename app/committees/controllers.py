@@ -122,7 +122,7 @@ def get_committee(committee_id, broadcast = False):
 @ensure_dict
 @get_user
 def create_committee(user, user_data):
-
+    
     if user is not None and user.is_admin:
 
         # Build committee id string.
@@ -153,9 +153,8 @@ def create_committee(user, user_data):
                 if "committee_img" in user_data:
                     com_img = base64.b64decode(user_data["committee_img"])
                     new_committee.committee_img = com_img
-
+                
                 db.session.add(new_committee)
-
                 try:
 
                     db.session.commit()

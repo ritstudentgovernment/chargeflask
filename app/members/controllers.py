@@ -68,7 +68,6 @@ def add_to_committee(user, user_data):
 
     new_user_id = user_data.get("user_id","")
     new_user = Users.query.filter_by(id= new_user_id).first()
-
     # Committee and user are required, if None error out.
     if committee is None or user is None:
         emit("add_member_committee", Response.UserDoesntExist)

@@ -157,11 +157,13 @@ class TestCharges(object):
             "priority": 0,
             "description": "test description",
             "committee": "testcommittee",
-            "private": False
+            "private": False,
+            "status": 1
         }
 
         self.socketio.emit('create_charge', user_data)
         received = self.socketio.get_received()
+        print(received)
         assert received[0]["args"][0] == Response.AddSuccess
 
     def test_head_create_charge(self):
@@ -170,11 +172,13 @@ class TestCharges(object):
             "title": "test charge",
             "priority": 0,
             "description": "test description",
-            "committee": "testcommittee"
+            "committee": "testcommittee",
+            "status": 1
         }
 
         self.socketio.emit('create_charge', user_data)
         received = self.socketio.get_received()
+        print(received)
         assert received[0]["args"][0] == Response.AddSuccess
 
     def test_active_member_create_charge(self):

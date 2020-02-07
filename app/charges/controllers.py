@@ -190,7 +190,7 @@ def create_charge(user, user_data):
     charge.author = user.id
     charge.description = user_data.get("description", "")
     charge.committee = committee.id
-    charge.status = int(user_data.get("status", ""))
+    charge.status = user_data.get("status", "") # TODO problem here
     charge.priority = 0
     charge.objectives = user_data.get("objectives", [])
     charge.schedule = user_data.get("schedules", [])
@@ -206,6 +206,7 @@ def create_charge(user, user_data):
         emit('create_charge', Response.AddSuccess)
         get_charges(user_data, broadcast= True)
     except Exception as e:
+        print(e)
         db.session.rollback()
         db.session.flush()
         emit("create_charge", Response.AddError)

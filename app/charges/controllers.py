@@ -206,7 +206,6 @@ def create_charge(user, user_data):
         emit('create_charge', Response.AddSuccess)
         get_charges(user_data, broadcast= True)
     except Exception as e:
-        print(e)
         db.session.rollback()
         db.session.flush()
         emit("create_charge", Response.AddError)

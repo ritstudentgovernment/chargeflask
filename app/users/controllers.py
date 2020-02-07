@@ -64,7 +64,6 @@ def verify(user, user_data):
 
     emit('verify_auth', {
         'admin': user.is_admin,
-        'super': user.is_super,
         'username': user.id
     })
 
@@ -105,7 +104,6 @@ def login_ldap(credentials):
             emit('auth', {
                 'token': token.decode('ascii'),
                 'admin': admin,
-                'super': user.is_super,
                 'username': username
             })
 
@@ -147,7 +145,7 @@ def login_ldap(credentials):
 @ensure_dict
 @get_user
 def edit_roles(user, user_data):
-    if not user.is_super:
+    if not user.is_admin:
         emit('auth', Response.PermError)
         return;
 
@@ -165,13 +163,10 @@ def edit_roles(user, user_data):
 
     if role == Roles.AdminUser:
         edit_user.is_admin = True
-        edit_user.is_super = True
     elif role == Roles.ManagerUser:
         edit_user.is_admin = True
-        edit_user.is_super = False
     else:
         edit_user.is_admin = False
-        edit_user.is_super = False
 
     try:
         db.session.commit()

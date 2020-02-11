@@ -82,7 +82,6 @@ def send_invite(new_user, committee):
 ## @return     True if email sent, False if not.
 ##
 def send_request(new_user, committee):
-
     invite = and_(
         Invitations.user_name == new_user.id,
         Invitations.committee_id == committee.id,
@@ -100,10 +99,8 @@ def send_request(new_user, committee):
     )
 
     try:
-
         db.session.add(invitation)
         db.session.commit()
-
         email = {}
         email["title"] = "Great news, " + new_user.id + " wants to join!"
         email["sender"] = ("SG TigerTracker", "sgnoreply@rit.edu")
@@ -123,7 +120,6 @@ def send_request(new_user, committee):
 
         return Response.RequestSent
     except Exception as e:
-
         db.session.rollback()
         return Response.RequestError
 

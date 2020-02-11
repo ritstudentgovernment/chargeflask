@@ -17,7 +17,6 @@ class Users(UserMixin, db.Model):
 	last_name = db.Column(db.String(255))
 	email = db.Column(db.String(255))
 	is_admin = db.Column(db.Boolean)
-	is_super = db.Column(db.Boolean)
 	#committees = db.relationship('Members', back_populates= 'member')
 
 

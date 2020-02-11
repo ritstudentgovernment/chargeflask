@@ -173,7 +173,7 @@ class TestMinutes(object):
             'charges': [{'id': 10, 'title': "Test Charge"}]
         }]
 
-        assert response == []
+        assert response == result
     
     def test_get_minutes_no_committee(self):
         self.user_data["committee_id"] = ""

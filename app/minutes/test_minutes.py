@@ -188,7 +188,18 @@ class TestMinutes(object):
         self.socketio.emit("get_minutes", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == []
+
+        result = [{
+            'id': 2,
+            'title': 'Public Test Minute',
+            'body': 'PublicTestBody',
+            'date': 282827,
+            'private': False,
+            'committee_id': 'testcommittee',
+            'charges': [{'id': 10, 'title': "Test Charge"}]
+        }]
+
+        assert response == result
     
     def test_get_minutes_success(self):
         self.socketio.emit("get_minutes", self.user_data)
@@ -201,6 +212,15 @@ class TestMinutes(object):
             'body': 'TestBody',
             'date': 282827,
             'private': True,
+            'committee_id': 'testcommittee',
+            'charges': [{'id': 10, 'title': "Test Charge"}]
+        },
+        {
+            'id': 2,
+            'title': 'Public Test Minute',
+            'body': 'PublicTestBody',
+            'date': 282827,
+            'private': False,
             'committee_id': 'testcommittee',
             'charges': [{'id': 10, 'title': "Test Charge"}]
         }]

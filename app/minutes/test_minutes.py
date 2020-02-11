@@ -143,6 +143,10 @@ class TestMinutes(object):
         self.minute.charges.append(self.charge)
         self.committee.minutes.append(self.minute)
 
+        self.public_minute = Minutes(title="Public Test Minute", body="PublicTestBody", date= 282827, private= False)
+        self.public_minute.charges.append(self.charge)
+        self.committee.minutes.append(self.public_minute)
+
         db.session.commit()
     
     @classmethod
@@ -158,6 +162,17 @@ class TestMinutes(object):
 
         received = self.socketio.get_received()
         response = received[0]["args"][0]
+
+        result = [{
+            'id': 2,
+            'title': 'Public Test Minute',
+            'body': 'PublicTestBody',
+            'date': 282827,
+            'private': False,
+            'committee_id': 'testcommittee',
+            'charges': [{'id': 10, 'title': "Test Charge"}]
+        }]
+
         assert response == []
     
     def test_get_minutes_no_committee(self):

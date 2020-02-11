@@ -223,6 +223,7 @@ class TestCharges(object):
         user_data = {
             "token": self.admin_token,
             "priority": 0,
+            "title": "Gottem!",
             "description": "test description",
             "committee": "testcommittee"
         }
@@ -433,6 +434,7 @@ class TestCharges(object):
         user_data = {
             "token": self.admin_token,
             "charge": 10,
+            "title": "Test Charge",
             "committee": self.committee2.id
         }
 
@@ -446,6 +448,7 @@ class TestCharges(object):
         user_data = {
             "token": self.user_token,
             "charge": 10,
+            "title": "this is the new title",
             "committee": self.committee.id
         }
         self.socketio.emit('edit_charge', user_data)

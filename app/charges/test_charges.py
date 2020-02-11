@@ -157,7 +157,8 @@ class TestCharges(object):
             "priority": 0,
             "description": "test description",
             "committee": "testcommittee",
-            "private": False
+            "private": False,
+            "status": 1
         }
 
         self.socketio.emit('create_charge', user_data)
@@ -170,7 +171,8 @@ class TestCharges(object):
             "title": "test charge",
             "priority": 0,
             "description": "test description",
-            "committee": "testcommittee"
+            "committee": "testcommittee",
+            "status": 1
         }
 
         self.socketio.emit('create_charge', user_data)

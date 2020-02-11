@@ -143,19 +143,20 @@ class TestNotifications(object):
         db.session.close()
         db.drop_all()
 
-
     # Test when a user is made committee head on create.
     def test_new_committee(self):
         self.test_committee_dict["token"] = self.admin_token
         self.socketio.emit('create_committee', self.test_committee_dict)
         self.socketio.emit('get_notifications', {"token": self.user_token})
         received = self.socketio.get_received()
-
         expected = {
             'destination': 'testcommittee1', 
             'id': 1, 
             'type': 'MadeCommitteeHead',
-            'user': 'testuser'
+            'user': 'testuser',
+            'viewed': False,
+            'message': 'You have been made the head of the committee: testcommittee1',
+            'redirect': '/committee/testcommittee1'
         }
         assert received[2]["args"][0][0] == expected
 
@@ -169,7 +170,10 @@ class TestNotifications(object):
             'destination': '1',
             'user': 'testuser',
             'id': 1,
-            'type': 'AssignedToAction'
+            'type': 'AssignedToAction',
+            'viewed': False,
+            'message': 'You have been assigned to the task: test title',
+            'redirect': '/charge/10'
         }
         assert received[0]["args"][0][0] == expected
 
@@ -179,22 +183,24 @@ class TestNotifications(object):
         test_invitation = {
             'committee_id': 'testcommittee',
             'user_id': 'testuser2',
-            'token': self.user_token_two
+            'token': self.user_token_two,
         }
         self.socketio.emit('add_member_committee', test_invitation)
         self.socketio.emit('get_notifications', {"token": self.user_token})
         received = self.socketio.get_received()
-
         expected = {
             'id': 1,
             'destination': '1',
             'type': 'UserRequest',
-            'user': 'testuser'
+            'user': 'testuser',
+            'viewed': False,
+            'message': 'testuser2 requests to join your committee.',
+            'redirect': '/committee/1'
         }
         assert received[1]["args"][0][0] == expected
 
 
-    # Test when a user is mentioned in a note.
+    # Test when a user is assigned a Task.
     def test_new_note(self):
         user_data = {
             "token": self.user_token,
@@ -209,6 +215,9 @@ class TestNotifications(object):
             'destination': '1',
             'id': 1,
             'type': 'MentionedInNote',
-            'user': 'testuser'
+            'user': 'testuser',
+            'viewed': False,
+            'message': 'You have been mentioned in a note. In the task: Test Action',
+            'redirect': '/charge/10'
         }
         assert received[0]["args"][0][0] == expected

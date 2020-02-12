@@ -143,6 +143,10 @@ class TestMinutes(object):
         self.minute.charges.append(self.charge)
         self.committee.minutes.append(self.minute)
 
+        self.public_minute = Minutes(title="Public Test Minute", body="PublicTestBody", date= 282827, private= False)
+        self.public_minute.charges.append(self.charge)
+        self.committee.minutes.append(self.public_minute)
+
         db.session.commit()
     
     @classmethod
@@ -158,7 +162,18 @@ class TestMinutes(object):
 
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == Response.UserDoesntExist
+
+        result = [{
+            'id': 2,
+            'title': 'Public Test Minute',
+            'body': 'PublicTestBody',
+            'date': 282827,
+            'private': False,
+            'committee_id': 'testcommittee',
+            'charges': [{'id': 10, 'title': "Test Charge"}]
+        }]
+
+        assert response == result
     
     def test_get_minutes_no_committee(self):
         self.user_data["committee_id"] = ""
@@ -173,7 +188,18 @@ class TestMinutes(object):
         self.socketio.emit("get_minutes", self.user_data)
         received = self.socketio.get_received()
         response = received[0]["args"][0]
-        assert response == []
+
+        result = [{
+            'id': 2,
+            'title': 'Public Test Minute',
+            'body': 'PublicTestBody',
+            'date': 282827,
+            'private': False,
+            'committee_id': 'testcommittee',
+            'charges': [{'id': 10, 'title': "Test Charge"}]
+        }]
+
+        assert response == result
     
     def test_get_minutes_success(self):
         self.socketio.emit("get_minutes", self.user_data)
@@ -186,6 +212,15 @@ class TestMinutes(object):
             'body': 'TestBody',
             'date': 282827,
             'private': True,
+            'committee_id': 'testcommittee',
+            'charges': [{'id': 10, 'title': "Test Charge"}]
+        },
+        {
+            'id': 2,
+            'title': 'Public Test Minute',
+            'body': 'PublicTestBody',
+            'date': 282827,
+            'private': False,
             'committee_id': 'testcommittee',
             'charges': [{'id': 10, 'title': "Test Charge"}]
         }]
@@ -222,7 +257,7 @@ class TestMinutes(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.MinuteDoesntExist
 
-    def test_get_minute_no_user(self):
+    def test_get_private_minute_no_user(self):
         user_data = {
             "token": '',
             "minute_id": self.minute.id
@@ -230,7 +265,7 @@ class TestMinutes(object):
 
         self.socketio.emit('get_minute', user_data)
         received = self.socketio.get_received()
-        assert received[0]["args"][0] == Response.UserDoesntExist
+        assert received[0]["args"][0] == Response.PermError
 
     def test_get_minute_no_minute(self):
         self.socketio.emit('get_minute', self.user_data)

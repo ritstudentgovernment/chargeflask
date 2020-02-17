@@ -221,3 +221,8 @@ class TestNotifications(object):
             'redirect': '/charge/10'
         }
         assert received[0]["args"][0][0] == expected
+
+    def test_no_user_get_notifications(self):
+        self.socketio.emit('get_notifications')
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == []

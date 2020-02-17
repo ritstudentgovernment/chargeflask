@@ -223,6 +223,10 @@ class TestNotifications(object):
         assert received[0]["args"][0][0] == expected
 
     def test_no_user_get_notifications(self):
-        self.socketio.emit('get_notifications')
+        user_data = {
+            'token': None
+        }
+
+        self.socketio.emit('get_notifications', user_data)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == []

@@ -149,27 +149,6 @@ def new_request(mapper, connection, new_request):
         )
         send_notifications(new_request.committee.head)
         
-##
-## @brief      Updates the notification when it has been viewed.
-##
-## @param      user       The user object.
-## @param      user_data  The user's token.
-##
-## @return     An array of notifications for the user.
-##
-@socketio.on('update_notification')
-@ensure_dict
-@get_user
-def update_notification(user, user_data):
-    notification = Notifications.query.filter_by(id = user_data["notificationId"]).first()
-    notification.viewed = True 
-    try:
-        db.session.commit()
-        emit('update_notification', {"success": "Notification set to viewed."})
-    except Exception as e:
-        db.session.rollback()
-        emit('update_notification', {"error": "Notification not updated correctly."})
-    return;
 
 ##
 ## @brief      Deletes the notification from the DB

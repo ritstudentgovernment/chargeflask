@@ -35,7 +35,7 @@ def get_notifications(user, user_data):
 
     if user is not None:
         notifications = Notifications.query.filter_by(user = user.id).all()
-        noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed, "message": c.message, "redirect": c.redirect} for c in notifications]
+        noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "message": c.message, "redirect": c.redirect} for c in notifications]
     emit('get_notifications', noti_ser)
 
 
@@ -48,7 +48,7 @@ def get_notifications(user, user_data):
 ##
 def send_notifications(user):
     notifications = Notifications.query.filter_by(user = user).all()
-    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed, "message": c.message, "redirect": c.redirect} for c in notifications]
+    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "message": c.message, "redirect": c.redirect} for c in notifications]
     emit('get_notifications', noti_ser, room= user)
 
 
@@ -76,7 +76,6 @@ def new_note(mapper, connection, new_note):
                 user = u,
                 type = NotificationType.MentionedInNote,
                 destination = new_note.id,
-                viewed = False,
                 message = create_message(NotificationType.MentionedInNote, action.title),
                 redirect = create_redirect_string(NotificationType.MentionedInNote, action.charge)
             )
@@ -99,7 +98,6 @@ def new_action(mapper, connection, new_action):
         user = new_action.assigned_to,
         type = NotificationType.AssignedToAction,
         destination = new_action.id,
-        viewed = False,
         message = create_message(NotificationType.AssignedToAction, new_action.title),
         redirect = create_redirect_string(NotificationType.AssignedToAction, new_action.charge)
     )
@@ -123,7 +121,6 @@ def new_committee(mapper, connection, new_committee):
         user = new_committee.head,
         type = NotificationType.MadeCommitteeHead,
         destination = new_committee.id,
-        viewed = False,
         message = create_message(NotificationType.MadeCommitteeHead, new_committee.title),
         redirect = create_redirect_string(NotificationType.MadeCommitteeHead, new_committee.id)
     )
@@ -147,7 +144,6 @@ def new_request(mapper, connection, new_request):
             user = new_request.committee.head,
             type = NotificationType.UserRequest,
             destination = new_request.id,
-            viewed = False,
             message = create_message(NotificationType.UserRequest, new_request.user_name),
             redirect = create_redirect_string(NotificationType.UserRequest, new_request.id)
         )

@@ -95,7 +95,6 @@ def new_note(mapper, connection, new_note):
 ##
 @listens_for(Actions, 'after_insert')
 def new_action(mapper, connection, new_action):
-    print(new_action.charge)
     connection.execute(notifications_table,
         user = new_action.assigned_to,
         type = NotificationType.AssignedToAction,

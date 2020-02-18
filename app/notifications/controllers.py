@@ -31,8 +31,11 @@ notifications_table = Notifications.__table__.insert()
 @ensure_dict
 @get_user
 def get_notifications(user, user_data):
-    notifications = Notifications.query.filter_by(user = user.id).all()
-    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed, "message": c.message, "redirect": c.redirect} for c in notifications]
+    noti_ser = []
+
+    if user is not None:
+        notifications = Notifications.query.filter_by(user = user.id).all()
+        noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed, "message": c.message, "redirect": c.redirect} for c in notifications]
     emit('get_notifications', noti_ser)
 
 
@@ -92,7 +95,6 @@ def new_note(mapper, connection, new_note):
 ##
 @listens_for(Actions, 'after_insert')
 def new_action(mapper, connection, new_action):
-    print(new_action.charge)
     connection.execute(notifications_table,
         user = new_action.assigned_to,
         type = NotificationType.AssignedToAction,

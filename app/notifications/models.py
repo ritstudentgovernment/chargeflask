@@ -30,6 +30,5 @@ class Notifications(db.Model):
     user = db.Column(db.ForeignKey('users.id'))
     type = db.Column(ChoiceType(NotificationType, impl = db.String()))
     destination = db.Column(db.String)
-    viewed = db.Column(db.Boolean)
     message = db.Column(db.String)
     redirect = db.Column(db.String)

@@ -213,7 +213,7 @@ class TestCommittees(object):
         assert received[0]["args"][0]["meeting_time"] == edit_fields["meeting_time"]
 
     # Test admin editing a committee location.
-    def test_admin_edit_committee_meeting_time(self):
+    def test_admin_edit_committee_location(self):
         db.session.add(self.test_committee)
         db.session.commit()
 

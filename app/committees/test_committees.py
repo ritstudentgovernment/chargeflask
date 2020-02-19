@@ -163,8 +163,8 @@ class TestCommittees(object):
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.ComDoesntExist
 
-    # Test admin editing a committee.
-    def test_admin_edit_committee(self):
+    # Test admin editing a committee description.
+    def test_admin_edit_committee_description(self):
         db.session.add(self.test_committee)
         db.session.commit()
 
@@ -175,6 +175,58 @@ class TestCommittees(object):
         self.socketio.emit('edit_committee', edit_fields)
         received = self.socketio.get_received()
         assert received[0]["args"][0] == Response.EditSuccess
+        self.socketio.emit('get_committee', self.test_committee_dict["id"])
+        received = self.socketio.get_received()
+        assert received[0]["args"][0]["description"] == edit_fields["description"]
+
+    # Test admin editing a committee meeting day.
+    def test_admin_edit_committee_meeting_day(self):
+        db.session.add(self.test_committee)
+        db.session.commit()
+
+        edit_fields = {"token": self.admin_token,
+                       "id": self.test_committee.id,
+                       "meeting_day": 3}
+
+        self.socketio.emit('edit_committee', edit_fields)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.EditSuccess
+        self.socketio.emit('get_committee', self.test_committee_dict["id"])
+        received = self.socketio.get_received()
+        assert received[0]["args"][0]["meeting_day"] == edit_fields["meeting_day"]
+
+    
+    # Test admin editing a committee meeting time.
+    def test_admin_edit_committee_meeting_time(self):
+        db.session.add(self.test_committee)
+        db.session.commit()
+
+        edit_fields = {"token": self.admin_token,
+                       "id": self.test_committee.id,
+                       "meeting_time": "1500"}
+
+        self.socketio.emit('edit_committee', edit_fields)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.EditSuccess
+        self.socketio.emit('get_committee', self.test_committee_dict["id"])
+        received = self.socketio.get_received()
+        assert received[0]["args"][0]["meeting_time"] == edit_fields["meeting_time"]
+
+    # Test admin editing a committee location.
+    def test_admin_edit_committee_meeting_time(self):
+        db.session.add(self.test_committee)
+        db.session.commit()
+
+        edit_fields = {"token": self.admin_token,
+                       "id": self.test_committee.id,
+                       "location": "outside"}
+
+        self.socketio.emit('edit_committee', edit_fields)
+        received = self.socketio.get_received()
+        assert received[0]["args"][0] == Response.EditSuccess
+        self.socketio.emit('get_committee', self.test_committee_dict["id"])
+        received = self.socketio.get_received()
+        assert received[0]["args"][0]["location"] == edit_fields["location"]
     
     # Test admin editing a committee_head.
     def test_admin_edit_committee_head(self):

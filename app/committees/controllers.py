@@ -207,8 +207,8 @@ def edit_committee(user, user_data):
     
     for key in user_data:
 
-        if (key == "description" or key == "location" or
-            key == "meeting_time" or key == "enabled" or key == "committee_img"):
+        if (key == "description" or key == "location" or key == "meeting_day"
+            or key == "meeting_time" or key == "enabled" or key == "committee_img"):
             
             if key == "committee_img":
 

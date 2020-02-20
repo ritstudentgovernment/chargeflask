@@ -92,7 +92,7 @@ def new_note(mapper, connection, new_note):
 ##
 @listens_for(Actions, 'after_insert')
 def new_action(mapper, connection, new_action):
-    print(new_action.charge)
+    
     connection.execute(notifications_table,
         user = new_action.assigned_to,
         type = NotificationType.AssignedToAction,
@@ -127,6 +127,27 @@ def new_committee(mapper, connection, new_committee):
     )
     send_notifications(new_committee.head)
 
+##
+## @brief      Notifies a committee head when
+##             someone wants close a charge.
+##
+## @param      mapper       The database mapper
+## @param      connection   The connection to the database
+## @param      new_request  The new request to close
+##
+## @return     void
+##
+@listens_for(Invitations, 'after_insert')
+def close_charge(mapper, connection, new_request):
+    connection.execute(notifications_table,
+        user = new_request.committee.head,
+        type = NotificationType.CloseChargeRequest,
+        destination = new_request.charge_id,
+        viewed = False,
+        message = create_message(NotificationType.CloseChargeRequest, new_request.user_name),
+        redirect = create_redirect_string(NotificationType.CloseChargeRequest, new_request.charge_id)
+    )
+    send_notifications(new_request.committee.head)
 
 ##
 ## @brief      Notifies a committee head when
@@ -210,6 +231,8 @@ def create_message(notificationType, message):
         message = 'You have been mentioned in a note. In the task: ' + message
     elif (notificationType is NotificationType.UserRequest):
         message = message + ' requests to join your committee.'
+    elif (notificationType is NotificationType.CloseChargeRequest):
+        message = message + ' has requested for you to close a charge.'
 
     return str(message)
 
@@ -230,5 +253,7 @@ def create_redirect_string(notificationType, destination):
         redirect = '/charge/' + destination
     elif (notificationType is NotificationType.UserRequest):
         redirect = '/committee/' + destination
+    elif (notificationType is NotificationType.CloseChargeRequest):
+        redirect = '/charge/' + destination
 
     return str(redirect)

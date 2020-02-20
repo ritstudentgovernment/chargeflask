@@ -7,6 +7,7 @@ created on: 10/19/17
 
 from app import db
 from app.committees.models import Committees
+from app.charges.models import Charges
 
 class Invitations(db.Model):
 	__tablename__ = 'invitations'
@@ -14,4 +15,5 @@ class Invitations(db.Model):
 	user_name = db.Column(db.String(255))
 	committee_id = db.Column(db.ForeignKey('committees.id'))
 	committee = db.relationship(Committees)
+	charge_id = db.Column(db.String(255))
 	isInvite = db.Column(db.Boolean)

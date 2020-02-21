@@ -139,15 +139,16 @@ def new_committee(mapper, connection, new_committee):
 ##
 @listens_for(Invitations, 'after_insert')
 def close_charge(mapper, connection, new_request):
-    connection.execute(notifications_table,
-        user = new_request.committee.head,
-        type = NotificationType.CloseChargeRequest,
-        destination = new_request.charge_id,
-        viewed = False,
-        message = create_message(NotificationType.CloseChargeRequest, new_request.user_name),
-        redirect = create_redirect_string(NotificationType.CloseChargeRequest, new_request.charge_id)
-    )
-    send_notifications(new_request.committee.head)
+    if new_request.charge_id:
+        connection.execute(notifications_table,
+            user = new_request.committee.head,
+            type = NotificationType.CloseChargeRequest,
+            destination = new_request.charge_id,
+            viewed = False,
+            message = create_message(NotificationType.CloseChargeRequest, new_request.user_name),
+            redirect = create_redirect_string(NotificationType.CloseChargeRequest, new_request.charge_id)
+        )
+        send_notifications(new_request.committee.head)
 
 ##
 ## @brief      Notifies a committee head when

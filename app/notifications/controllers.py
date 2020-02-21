@@ -161,7 +161,7 @@ def close_charge(mapper, connection, new_request):
 ##
 @listens_for(Invitations, 'after_insert')
 def new_request(mapper, connection, new_request):
-    if not new_request.isInvite:
+    if not new_request.isInvite and not new_request.charge_id:
         connection.execute(notifications_table,
             user = new_request.committee.head,
             type = NotificationType.UserRequest,

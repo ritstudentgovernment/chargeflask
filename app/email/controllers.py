@@ -29,7 +29,7 @@ import config
 ## @return     None
 ##
 
-# @huey.task(retries= 5, retries_as_argument=True)
+@huey.task(retries= 5, retries_as_argument=True)
 def send_email(msg, retries):
 	mime = MIMEMultipart(msg["subtype"])
 	mime['Subject'] = msg["title"]
@@ -40,7 +40,7 @@ def send_email(msg, retries):
 	msgHtml = MIMEText(msg["html"], 'html')
 	mime.attach(msgHtml)
 
-	# Attach images
+	# # Attach images
 	with app.open_resource("static/sg-logo.png") as fp:
 		sg_logo = MIMEImage(fp.read())
 		sg_logo.add_header('Content-ID', '<sg-logo>')
@@ -58,10 +58,8 @@ def send_email(msg, retries):
 		server.starttls()
 		server.login(config.MAIL_USERNAME, config.MAIL_PASSWORD)
 		server.sendmail(msg["sender"][1], msg["recipients"], mime.as_string())
-		print("Email on the way...")
+		
 	except Exception as e:
-		print(e)
 		if retries != 0: raise
-		print("ERROR: Email failed after three retries")
 
 	server.quit()

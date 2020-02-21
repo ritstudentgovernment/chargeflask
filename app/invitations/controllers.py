@@ -41,7 +41,7 @@ def send_invite(new_user, committee):
         user_name= new_user,
         committee= committee,
         committee_id = committee.id,
-        charge_id = 'None',
+        charge_id = None,
         isInvite= True
     )
 
@@ -96,7 +96,7 @@ def send_request(new_user, committee):
         user_name= new_user.id,
         committee= committee,
         committee_id = committee.id,
-        charge_id = 'None',
+        charge_id = None,
         isInvite= False
     )
 
@@ -135,14 +135,15 @@ def send_request(new_user, committee):
 ## @return     True if email sent, False if not.
 ##
 def send_close_request(user, committee, chargeID):
-    # invite = and_(
-    #     Invitations.user_name == committee.head,
-    #     Invitations.committee_id == committee.id,
-    #     Invitations.isInvite == True
-    # )
+    invite = and_(
+        Invitations.user_name == committee.head,
+        Invitations.committee_id == committee.id,
+        Invitations.isInvite == False
+    )
 
-    # if Invitations.query.filter(invite).first() is not None:
-    #     return Response.InviteExists
+    if Invitations.query.filter(invite).first() is not None:
+        return Response.InviteExists
+
     invitation = Invitations (
         user_name= user.id,
         committee= committee,
@@ -154,22 +155,21 @@ def send_close_request(user, committee, chargeID):
     try:
         db.session.add(invitation)
         db.session.commit()
-        #TODO make sure the email works with yours first
         email = {}
         email["title"] = "Close Charge Request"
         email["sender"]=("SG TigerTracker", "sgnoreply@rit.edu")
-        email["recipients"] = ["elijah.parrish321@gmail.com"] #TODO testing here
+        email["recipients"] = [committee.head + "@rit.edu"]
         email["subtype"] = "related"
         email["html"] = render_template(
-            'committee_invitation.html',
+            'close_charge_request.html',
             user_name= committee.head,
-            committee_name= committee.title,
             committee_head= committee.head,
+            charge_name= chargeID,
             time_stamp= time.time(),
             app_url= app.config['CLIENT_URL'] + str(invitation.id)
         )
         if not app.config['TESTING']:
-            send_email(email, 5)
+            send_email(email)
         
         return Response.RequestSent
     except Exception as e:

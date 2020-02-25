@@ -15,5 +15,5 @@ class Invitations(db.Model):
 	user_name = db.Column(db.String(255))
 	committee_id = db.Column(db.ForeignKey('committees.id'))
 	committee = db.relationship(Committees)
-	charge_id = db.Column(db.String(255))
+	charge_id = db.Column(db.Integer)
 	isInvite = db.Column(db.Boolean)

@@ -307,8 +307,14 @@ def close_charge(user, user_data):
     committee = Committees.query.filter_by(id = user_data.get("committee_id",-1)).first()
     membership = committee.members.filter_by(member= user).first()
 
-    # User is NOT admin
+    # User is NOT admin or Committee-head
     if (membership is None or membership.role != Roles.CommitteeHead) and not user.is_admin:
+        send_close_request(user, committee, charge.id)
+        emit("close_charge", Response.PermError)
+        return
+
+    # User is Committee-head
+    if (membership.role == Roles.CommitteeHead) and not user.is_admin:
         send_close_request(user, committee, charge.id)
         emit("close_charge", Response.CloseRequestSuccess)
         return

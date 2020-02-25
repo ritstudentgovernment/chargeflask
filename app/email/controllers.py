@@ -40,7 +40,7 @@ def send_email(msg, retries):
 	msgHtml = MIMEText(msg["html"], 'html')
 	mime.attach(msgHtml)
 
-	# # Attach images
+	# Attach images
 	with app.open_resource("static/sg-logo.png") as fp:
 		sg_logo = MIMEImage(fp.read())
 		sg_logo.add_header('Content-ID', '<sg-logo>')

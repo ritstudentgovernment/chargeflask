@@ -27,7 +27,6 @@ import time
 ## @return     True if email sent, False if not.
 ##
 def send_invite(new_user, committee):
-
     invite = and_(
         Invitations.user_name == new_user,
         Invitations.committee_id == committee.id,
@@ -44,7 +43,7 @@ def send_invite(new_user, committee):
         charge_id = None,
         isInvite= True
     )
-
+   
     try:
 
         db.session.add(invitation)
@@ -140,10 +139,7 @@ def send_close_request(user, committee, chargeID):
         Invitations.committee_id == committee.id,
         Invitations.isInvite == False
     )
-
-    if Invitations.query.filter(invite).first() is not None:
-        return Response.InviteExists
-
+    
     invitation = Invitations (
         user_name= user.id,
         committee= committee,
@@ -152,13 +148,20 @@ def send_close_request(user, committee, chargeID):
         isInvite=False
     )
 
+    admins = []
+    admins = db.session.query(Users).filter(Users.is_admin == True)
+
+    admin_emails = []
+    for user in admins:
+        admin_emails.append(user.id + "@rit.edu")
+    
     try:
         db.session.add(invitation)
         db.session.commit()
         email = {}
         email["title"] = "Close Charge Request"
         email["sender"]=("SG TigerTracker", "sgnoreply@rit.edu")
-        email["recipients"] = [committee.head + "@rit.edu"]
+        email["recipients"] = admin_emails
         email["subtype"] = "related"
         email["html"] = render_template(
             'close_charge_request.html',

@@ -15,5 +15,5 @@ class Response():
 	EditSuccess = {'success': 'Charge successfully edited.'}
 	CloseSuccess = {'success': 'Charge successfully closed.'}
 	CloseError = {'error': 'Charge could not be closed.'}
-	CloseRequestSuccess = {'success': 'Your request has been sent to the committee-head.'}
+	CloseRequestSuccess = {'success': 'Your request has been sent to the Admin.'}
 	PermError = {'error': 'Insufficient permissions to perform this action.'}

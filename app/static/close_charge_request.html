@@ -1,0 +1,73 @@
+<!--- ========================
+    filename: comrequest.html
+    description: Non-inlined email for committe requests.
+    created by: Elijah Parrish (ep57565@rit.edu)
+    created on: 02/21/2020
+
+    TO UPDATE TEMPLATES, MODIFY THIS FILE AND STYLES.CSS,
+    INLINE WITH YOUR FAVORITE INLINER AND MODIFY
+    CLOSE_CHARGE_REQUEST.HTML
+============================ -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!--[if !mso]><!-->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--<![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <!--[if (gte mso 9)|(IE)]>
+    <style type="text/css">
+        table {border-collapse: collapse;}
+    </style>
+    <![endif]-->
+</head>
+<body>
+    <center class="wrapper">
+        <div class="webkit">
+            <!--[if (gte mso 9)|(IE)]>
+            <table width="600" align="center">
+            <tr>
+            <td>
+            <![endif]-->
+            <table class="outer" align="center">
+                <tr>
+                    <tr>
+                        <td class="full-width-image">
+                            <div class="header" style=""><img src="cid:sg-logo" alt="" /></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="one-column">
+                            <table width="100%">
+                                <tr>
+                                    <td class="inner contents">
+                                        <p>Hello <b>{{committee_head}}!</b></p>
+                                        <p>The user <b>{{user_name}}</b> has requested that you close the charge <b>{{charge_name}}</b> in TigerTracker.</p>
+                                        <p>Please click the link below to take action.</p>
+                                        <div class="join-link">
+                                            <a href="{{request_url}}">Review Request.</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tr>
+            </table>
+            <!--[if (gte mso 9)|(IE)]>
+            </td>
+            </tr>
+            </table>
+            <![endif]-->
+            <div style="padding-top: 20px;">
+                <img src="cid:sg-paw" style="width: 25px; padding: 10px;">
+                <p style="color: #A4A5A6; font-size: 15px;">Brought to you by the Services Team.</p>
+                <p style="color: #efefef;">{{time_stamp}} Peek a boo! Have a nice day.</p>
+            </div>
+        </div>
+    </center>
+</body>

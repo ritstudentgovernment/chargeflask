@@ -29,3 +29,4 @@ class Charges(db.Model):
     priority = db.Column(db.Integer)
     status = db.Column(db.Integer)
     private = db.Column(db.Boolean)
+    progress_notes = db.Column(ARRAY(db.String))

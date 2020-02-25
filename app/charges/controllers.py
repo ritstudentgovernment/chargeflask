@@ -188,7 +188,7 @@ def create_charge(user, user_data):
     charge.author = user.id
     charge.description = user_data.get("description", "")
     charge.committee = committee.id
-    charge.status = user_data.get("status", "") # TODO problem here
+    charge.status = user_data.get("status", "")
     charge.priority = 0
     charge.objectives = user_data.get("objectives", [])
     charge.schedule = user_data.get("schedules", [])
@@ -196,6 +196,7 @@ def create_charge(user, user_data):
     charge.stakeholders = user_data.get("stakeholders", [])
     charge.paw_links = user_data.get("paw_links", "")
     charge.private = user_data.get("private", True)
+    charge.progress_notes = None
 
     db.session.add(charge)
 
@@ -204,6 +205,7 @@ def create_charge(user, user_data):
         emit('create_charge', Response.AddSuccess)
         get_charges(user_data, broadcast= True)
     except Exception as e:
+        print(e)
         db.session.rollback()
         db.session.flush()
         emit("create_charge", Response.AddError)
@@ -279,3 +281,44 @@ def edit_charge(user, user_data):
     except Exception as e:
         db.session.rollback()
         emit("edit_charge", Response.EditError)
+
+## TODO
+## TODO WORKING HERE
+## @brief       Adds a progress note
+##
+## @param      user_data  The user data to create a
+##             progress note for a charge:
+##
+##             - token (required): Token of creator.
+##             - charge (requred): charge to add note to
+##             - note : a string containing the progress note
+##             - date : a string containing the date the note was made
+##             - id: an id used to index the progress note
+##
+## @return     { description_of_the_return_value }
+##
+@socketio.on('add_progress_note')
+@ensure_dict
+@get_user
+def edit_charge(user, user_data):
+
+    charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
+
+    if charge is None or user is None:
+        emit('add_progress_note', Response.UsrChargeDontExist)
+        return
+
+    #TODO this will overwrite, i need it to append
+    setattr(charge, "progress_notes", user_data)
+
+    try:
+        db.session.commit()
+        # Send successful edit notification to user
+        # and broadcast charge changes.
+        emit("edit_charge", Response.EditSuccess)
+        get_charge(user_data, broadcast= True)
+        get_charges(user_data, broadcast= True)
+    except Exception as e:
+        db.session.rollback()
+        emit("edit_charge", Response.EditError)
+

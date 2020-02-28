@@ -134,6 +134,13 @@ def send_request(new_user, committee):
 ## @return     True if email sent, False if not.
 ##
 def send_close_request(user, committee, chargeID):
+    
+    admins = db.session.query(Users).filter(Users.is_admin == True).all()
+
+    admin_emails = []
+    for user in admins:
+        admin_emails.append(user.id + "@rit.edu")
+
     invite = and_(
         Invitations.user_name == committee.head,
         Invitations.committee_id == committee.id,
@@ -147,13 +154,6 @@ def send_close_request(user, committee, chargeID):
         charge_id = chargeID,
         isInvite=False
     )
-
-    admins = []
-    admins = db.session.query(Users).filter(Users.is_admin == True)
-
-    admin_emails = []
-    for user in admins:
-        admin_emails.append(user.id + "@rit.edu")
     
     try:
         db.session.add(invitation)

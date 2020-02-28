@@ -127,7 +127,7 @@ def new_committee(mapper, connection, new_committee):
     send_notifications(new_committee.head)
 
 ##
-## @brief      Notifies a committee head when
+## @brief      Notifies an admin when
 ##             someone wants close a charge.
 ##
 ## @param      mapper       The database mapper
@@ -138,16 +138,20 @@ def new_committee(mapper, connection, new_committee):
 ##
 @listens_for(Invitations, 'after_insert')
 def close_charge(mapper, connection, new_request):
-    if new_request.charge_id:
-        connection.execute(notifications_table,
-            user = new_request.committee.head,
-            type = NotificationType.CloseChargeRequest,
-            destination = new_request.charge_id,
-            viewed = False,
-            message = create_message(NotificationType.CloseChargeRequest, new_request.user_name),
-            redirect = create_redirect_string(NotificationType.CloseChargeRequest, new_request.charge_id)
-        )
-        send_notifications(new_request.committee.head)
+
+    admins = db.session.query(Users).filter(Users.is_admin == True).all()
+    
+    for admin in admins:
+        if new_request.charge_id:
+            connection.execute(notifications_table,
+                user = admin.id,
+                type = NotificationType.CloseChargeRequest,
+                destination = new_request.charge_id,
+                viewed = False,
+                message = create_message(NotificationType.CloseChargeRequest, new_request.user_name),
+                redirect = create_redirect_string(NotificationType.CloseChargeRequest, new_request.charge_id)
+            )
+            send_notifications(admin.id)
 
 ##
 ## @brief      Notifies a committee head when

@@ -12,6 +12,27 @@ from sqlalchemy_utils import ChoiceType
 ##
 ## @brief      Charges Model.
 ##
+
+from sqlalchemy.ext.mutable import Mutable
+
+## 
+## Class to create a mutable list in postgreSQL.
+## This is used for the progress_notes column
+##
+class MutableList(Mutable, list):
+    def append(self, value):
+        list.append(self, value)
+        self.changed()
+
+    @classmethod
+    def coerce(cls, key, value):
+        if not isinstance(value, MutableList):
+            if isinstance(value, list):
+                return MutableList(value)
+            return Mutable.coerce(key, value)
+        else:
+            return value
+        
 class Charges(db.Model):
     __tablename__ = 'charges'
     id = db.Column(db.Integer, primary_key=True, unique=True)
@@ -29,4 +50,4 @@ class Charges(db.Model):
     priority = db.Column(db.Integer)
     status = db.Column(db.Integer)
     private = db.Column(db.Boolean)
-    progress_notes = db.Column(ARRAY(db.String))
+    progress_notes = db.Column(MutableList.as_mutable(ARRAY(db.String)))

@@ -166,7 +166,6 @@ def send_close_request(user, committee, chargeID):
         email["html"] = render_template(
             'close_charge_request.html',
             user_name= committee.head,
-            admin= admins[0],
             charge_name= chargeID,
             time_stamp= time.time(),
             request_url= app.config['CLIENT_URL'] + str(invitation.id)

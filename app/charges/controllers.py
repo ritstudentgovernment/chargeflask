@@ -309,7 +309,6 @@ def close_charge(user, user_data):
 
     # User is NOT admin or Committee-head
     if (membership is None or membership.role != Roles.CommitteeHead) and not user.is_admin:
-        send_close_request(user, committee, charge.id)
         emit("close_charge", Response.PermError)
         return
 
@@ -328,9 +327,9 @@ def close_charge(user, user_data):
 
         try:
             db.session.commit()
-            emit("edit_charge", Response.CloseSuccess)
+            emit("close_charge", Response.CloseSuccess)
             get_charge(user_data, broadcast= True)
             get_charges(user_data, broadcast= True)
         except Exception as e:
             db.session.rollback()
-            emit("edit_charge", Response.CloseError)
+            emit("close_charge", Response.CloseError)

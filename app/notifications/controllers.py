@@ -35,7 +35,7 @@ def get_notifications(user, user_data):
 
     if user is not None:
         notifications = Notifications.query.filter_by(user = user.id).all()
-        noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed, "message": c.message, "redirect": c.redirect} for c in notifications]
+        noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "message": c.message, "redirect": c.redirect} for c in notifications]
     emit('get_notifications', noti_ser)
 
 
@@ -48,7 +48,7 @@ def get_notifications(user, user_data):
 ##
 def send_notifications(user):
     notifications = Notifications.query.filter_by(user = user).all()
-    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "viewed": c.viewed, "message": c.message, "redirect": c.redirect} for c in notifications]
+    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "message": c.message, "redirect": c.redirect} for c in notifications]
     emit('get_notifications', noti_ser, room= user)
 
 
@@ -76,7 +76,6 @@ def new_note(mapper, connection, new_note):
                 user = u,
                 type = NotificationType.MentionedInNote,
                 destination = new_note.id,
-                viewed = False,
                 message = create_message(NotificationType.MentionedInNote, action.title),
                 redirect = create_redirect_string(NotificationType.MentionedInNote, action.charge)
             )
@@ -99,7 +98,6 @@ def new_action(mapper, connection, new_action):
         user = new_action.assigned_to,
         type = NotificationType.AssignedToAction,
         destination = new_action.id,
-        viewed = False,
         message = create_message(NotificationType.AssignedToAction, new_action.title),
         redirect = create_redirect_string(NotificationType.AssignedToAction, new_action.charge)
     )
@@ -123,7 +121,6 @@ def new_committee(mapper, connection, new_committee):
         user = new_committee.head,
         type = NotificationType.MadeCommitteeHead,
         destination = new_committee.id,
-        viewed = False,
         message = create_message(NotificationType.MadeCommitteeHead, new_committee.title),
         redirect = create_redirect_string(NotificationType.MadeCommitteeHead, new_committee.id)
     )
@@ -147,33 +144,11 @@ def new_request(mapper, connection, new_request):
             user = new_request.committee.head,
             type = NotificationType.UserRequest,
             destination = new_request.id,
-            viewed = False,
             message = create_message(NotificationType.UserRequest, new_request.user_name),
             redirect = create_redirect_string(NotificationType.UserRequest, new_request.id)
         )
         send_notifications(new_request.committee.head)
         
-##
-## @brief      Updates the notification when it has been viewed.
-##
-## @param      user       The user object.
-## @param      user_data  The user's token.
-##
-## @return     An array of notifications for the user.
-##
-@socketio.on('update_notification')
-@ensure_dict
-@get_user
-def update_notification(user, user_data):
-    notification = Notifications.query.filter_by(id = user_data["notificationId"]).first()
-    notification.viewed = True 
-    try:
-        db.session.commit()
-        emit('update_notification', {"success": "Notification set to viewed."})
-    except Exception as e:
-        db.session.rollback()
-        emit('update_notification', {"error": "Notification not updated correctly."})
-    return;
 
 ##
 ## @brief      Deletes the notification from the DB

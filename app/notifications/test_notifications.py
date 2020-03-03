@@ -154,7 +154,6 @@ class TestNotifications(object):
             'id': 1, 
             'type': 'MadeCommitteeHead',
             'user': 'testuser',
-            'viewed': False,
             'message': 'You have been made the head of the committee: testcommittee1',
             'redirect': '/committee/testcommittee1'
         }
@@ -171,7 +170,6 @@ class TestNotifications(object):
             'user': 'testuser',
             'id': 1,
             'type': 'AssignedToAction',
-            'viewed': False,
             'message': 'You have been assigned to the task: test title',
             'redirect': '/charge/10'
         }
@@ -193,7 +191,6 @@ class TestNotifications(object):
             'destination': '1',
             'type': 'UserRequest',
             'user': 'testuser',
-            'viewed': False,
             'message': 'testuser2 requests to join your committee.',
             'redirect': '/committee/1'
         }
@@ -216,7 +213,6 @@ class TestNotifications(object):
             'id': 1,
             'type': 'MentionedInNote',
             'user': 'testuser',
-            'viewed': False,
             'message': 'You have been mentioned in a note. In the task: Test Action',
             'redirect': '/charge/10'
         }

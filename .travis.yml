@@ -28,3 +28,13 @@ script:
 
 after_script:
 - codecov
+
+after_success:
+  - |
+    if [ $TRAVIS_BRANCH == "master" ]; then
+      curl http://tigertracker.rit.edu:9988/deploy/TAK9Nu7g4GXIS8jfwzn8
+    fi
+  - |
+    if [ $TRAVIS_BRANCH == "develop" ]; then
+      curl http://tigertrackerstage.rit.edu:9988/deploy/JjttpRkSfMkX5ma3l7jL
+    fi

@@ -238,6 +238,5 @@ def edit_committee(user, user_data):
         get_committee(committee.id, broadcast= True)
         get_committees(broadcast= True)
     except Exception as e:
-        print(e)
         db.session.rollback()
         emit("edit_committee", Response.EditError)

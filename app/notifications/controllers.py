@@ -126,6 +126,32 @@ def new_committee(mapper, connection, new_committee):
     )
     send_notifications(new_committee.head)
 
+##
+## @brief      Notifies an admin when
+##             someone wants close a charge.
+##
+## @param      mapper       The database mapper
+## @param      connection   The connection to the database
+## @param      new_request  The new request to close
+##
+## @return     void
+##
+@listens_for(Invitations, 'after_insert')
+def close_charge(mapper, connection, new_request):
+
+    admins = db.session.query(Users).filter(Users.is_admin == True).all()
+    
+    for admin in admins:
+        if new_request.charge_id:
+            connection.execute(notifications_table,
+                user = admin.id,
+                type = NotificationType.CloseChargeRequest,
+                destination = new_request.charge_id,
+                viewed = False,
+                message = create_message(NotificationType.CloseChargeRequest, new_request.user_name),
+                redirect = create_redirect_string(NotificationType.CloseChargeRequest, new_request.charge_id)
+            )
+            send_notifications(admin.id)
 
 ##
 ## @brief      Notifies a committee head when
@@ -139,7 +165,7 @@ def new_committee(mapper, connection, new_committee):
 ##
 @listens_for(Invitations, 'after_insert')
 def new_request(mapper, connection, new_request):
-    if not new_request.isInvite:
+    if not new_request.isInvite and not new_request.charge_id:
         connection.execute(notifications_table,
             user = new_request.committee.head,
             type = NotificationType.UserRequest,
@@ -187,6 +213,8 @@ def create_message(notificationType, message):
         message = 'You have been mentioned in a note. In the task: ' + message
     elif (notificationType is NotificationType.UserRequest):
         message = message + ' requests to join your committee.'
+    elif (notificationType is NotificationType.CloseChargeRequest):
+        message = message + ' has requested for you to close a charge.'
 
     return str(message)
 
@@ -207,5 +235,7 @@ def create_redirect_string(notificationType, destination):
         redirect = '/charge/' + destination
     elif (notificationType is NotificationType.UserRequest):
         redirect = '/committee/' + destination
+    elif (notificationType is NotificationType.CloseChargeRequest):
+        redirect = '/charge/' + destination
 
     return str(redirect)

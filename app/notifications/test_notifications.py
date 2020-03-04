@@ -182,6 +182,7 @@ class TestNotifications(object):
             'committee_id': 'testcommittee',
             'user_id': 'testuser2',
             'token': self.user_token_two,
+            'charge_id': None
         }
         self.socketio.emit('add_member_committee', test_invitation)
         self.socketio.emit('get_notifications', {"token": self.user_token})

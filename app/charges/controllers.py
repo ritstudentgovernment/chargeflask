@@ -120,7 +120,8 @@ def get_charge(user, user_data, broadcast = False):
         "status": charge.status,
         "paw_links": charge.paw_links,
         "private": charge.private,
-        "created_at": charge.created_at.isoformat()
+        "created_at": charge.created_at.isoformat(),
+        "progress_notes": charge.progress_notes
     }
     emit('get_charge', charge_info, broadcast= broadcast)
 

@@ -199,7 +199,7 @@ def create_charge(user, user_data):
     charge.stakeholders = user_data.get("stakeholders", [])
     charge.paw_links = user_data.get("paw_links", "")
     charge.private = user_data.get("private", True)
-    charge.progress_notes = None # Charges have no progress notes initially
+    charge.progress_notes = None
 
     db.session.add(charge)
 

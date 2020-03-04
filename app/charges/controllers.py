@@ -298,56 +298,29 @@ def edit_charge(user, user_data):
             current_notes.pop(note_id)
             setattr(charge, "progress_notes", current_notes)
 
-    try:
-        db.session.commit()
-        # Send successful edit notification to user
-        # and broadcast charge changes.
-        emit("edit_charge", Response.EditSuccess)
-        get_charge(user_data, broadcast= True)
-        get_charges(user_data, broadcast= True)
-    except Exception as e:
-        db.session.rollback()
-        emit("edit_charge", Response.EditError)
+        # Create a new progess_note
+        if (key == 'add_note'):
+            # Get the current list of notes
+            current_notes = getattr(charge, "progress_notes")
+            if (current_notes == None):
+                current_notes = []
 
-##
-## @brief       Adds a progress note
-##
-## @param      user_data  The user data to create a
-##             progress note for a charge:
-##
-##             - token (required): Token of creator.
-##             - charge (requred): charge to add note to
-##             - note : a string containing the progress note
-##             - date : a string containing the date the note was made
-##
-## @return     { description_of_the_return_value }
-##
-@socketio.on('add_progress_note')
-@ensure_dict
-@get_user
-def edit_charge(user, user_data):
-    charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
+            # Get the progress note info from user_data
+            note_id = str(user_data["add_note"]["id"])
+            note = str(user_data["add_note"]["note"])
+            date = str(user_data["add_note"]["date"])
 
-    if charge is None or user is None:
-        emit('add_progress_note', Response.UsrChargeDontExist)
-        return
+            # Create the new one from the user data
+            new_note = []
+            new_note.append(note)
+            new_note.append(date)
+            new_note.append(note_id)
 
-    # Get the current list of notes
-    current_notes = getattr(charge, "progress_notes")
-    if (current_notes == None):
-        current_notes = []
-
-    # Create the new one from the user data
-    new_note = []
-    new_note.append(user_data.get("note"))
-    new_note.append(user_data.get("date"))
-    new_note.append(user_data.get("id"))
-
-    # Add the new note to the current list of notes
-    current_notes.append(new_note)
-    
-    # Overwrite the old list with the new one
-    setattr(charge, "progress_notes", current_notes)
+            # Add the new note to the current list of notes
+            current_notes.append(new_note)
+            
+            # Overwrite the old list with the new one
+            setattr(charge, "progress_notes", current_notes)
 
     try:
         db.session.commit()
@@ -357,58 +330,6 @@ def edit_charge(user, user_data):
         get_charge(user_data, broadcast= True)
         get_charges(user_data, broadcast= True)
     except Exception as e:
+        print(e)
         db.session.rollback()
         emit("edit_charge", Response.EditError)
-
-
-##
-## @brief       Delete a progress note
-##
-## @param      user_data  The user data to create a
-##             progress note for a charge:
-##
-##             - token (required): Token of creator.
-##             - charge (requred): charge to add note to
-##             - id: an id used to index the progress note
-##
-## @return     { description_of_the_return_value }
-##
-@socketio.on('delete_progress_note')
-@ensure_dict
-@get_user
-def edit_charge(user, user_data):
-    print(user_data)
-    charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
-
-    if charge is None or user is None:
-        emit('add_progress_note', Response.UsrChargeDontExist)
-        return
-
-    # Get the current list of notes
-    current_notes = getattr(charge, "progress_notes")
-    if (current_notes == None):
-        current_notes = []
-
-    # Create the new one from the user data
-    new_note = []
-    new_note.append(user_data.get("note"))
-    new_note.append(user_data.get("date"))
-    new_note.append(user_data.get("id"))
-
-    # Add the new note to the current list of notes
-    current_notes.append(new_note)
-    
-    # Overwrite the old list with the new one
-    setattr(charge, "progress_notes", current_notes)
-
-    try:
-        db.session.commit()
-        # Send successful edit notification to user
-        # and broadcast charge changes.
-        emit("edit_charge", Response.EditSuccess)
-        get_charge(user_data, broadcast= True)
-        get_charges(user_data, broadcast= True)
-    except Exception as e:
-        db.session.rollback()
-        emit("edit_charge", Response.EditError)
-

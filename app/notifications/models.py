@@ -19,6 +19,7 @@ class NotificationType(Enum):
     AssignedToAction = "AssignedToAction"
     MadeCommitteeHead = "MadeCommitteeHead"
     UserRequest = "UserRequest"
+    CloseChargeRequest = "CloseChargeRequest"
 
 
 ##

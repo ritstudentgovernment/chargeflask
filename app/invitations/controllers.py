@@ -27,7 +27,6 @@ import time
 ## @return     True if email sent, False if not.
 ##
 def send_invite(new_user, committee):
-
     invite = and_(
         Invitations.user_name == new_user,
         Invitations.committee_id == committee.id,
@@ -41,9 +40,10 @@ def send_invite(new_user, committee):
         user_name= new_user,
         committee= committee,
         committee_id = committee.id,
+        charge_id = None,
         isInvite= True
     )
-
+   
     try:
 
         db.session.add(invitation)
@@ -95,6 +95,7 @@ def send_request(new_user, committee):
         user_name= new_user.id,
         committee= committee,
         committee_id = committee.id,
+        charge_id = None,
         isInvite= False
     )
 
@@ -123,6 +124,59 @@ def send_request(new_user, committee):
         db.session.rollback()
         return Response.RequestError
 
+##
+## @brief      Sends an invitation to a committee-head to close
+##             a charge.
+##
+## @param      committee       The committee to join.
+## @param      new_user        The user to be invited.
+##
+## @return     True if email sent, False if not.
+##
+def send_close_request(user, committee, chargeID):
+    
+    admins = db.session.query(Users).filter(Users.is_admin == True).all()
+
+    admin_emails = []
+    for user in admins:
+        admin_emails.append(user.id + "@rit.edu")
+
+    invite = and_(
+        Invitations.user_name == committee.head,
+        Invitations.committee_id == committee.id,
+        Invitations.isInvite == False
+    )
+    
+    invitation = Invitations (
+        user_name= user.id,
+        committee= committee,
+        committee_id = committee.id,
+        charge_id = chargeID,
+        isInvite=False
+    )
+    
+    try:
+        db.session.add(invitation)
+        db.session.commit()
+        email = {}
+        email["title"] = "Close Charge Request"
+        email["sender"]=("SG TigerTracker", "sgnoreply@rit.edu")
+        email["recipients"] = admin_emails
+        email["subtype"] = "related"
+        email["html"] = render_template(
+            'close_charge_request.html',
+            user_name= committee.head,
+            charge_name= chargeID,
+            time_stamp= time.time(),
+            request_url= app.config['CLIENT_URL'] + str(invitation.id)
+        )
+        if not app.config['TESTING']:
+            send_email(email)
+        
+        return Response.RequestSent
+    except Exception as e:
+        db.session.rollback()
+        return Response.RequestError
 
 ##
 ## @brief      Gets the data for a specific invitation/request.

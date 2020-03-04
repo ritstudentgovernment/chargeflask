@@ -14,6 +14,8 @@ from app import app
 import smtplib
 import config
 
+
+
 ##
 ## @brief      Sends an email.
 ##
@@ -26,6 +28,7 @@ import config
 ##
 ## @return     None
 ##
+
 @huey.task(retries= 5, retries_as_argument=True)
 def send_email(msg, retries):
 	mime = MIMEMultipart(msg["subtype"])
@@ -55,9 +58,8 @@ def send_email(msg, retries):
 		server.starttls()
 		server.login(config.MAIL_USERNAME, config.MAIL_PASSWORD)
 		server.sendmail(msg["sender"][1], msg["recipients"], mime.as_string())
-	except:
-
+		
+	except Exception as e:
 		if retries != 0: raise
-		print("ERROR: Email failed after three retries")
 
 	server.quit()

@@ -28,6 +28,10 @@ class MutableList(Mutable, list):
         list.pop(self, index)
         list.insert(self, index, value)
         self.changed()
+    
+    def pop(self, index):
+        list.pop(self, index)
+        self.changed()
 
     @classmethod
     def coerce(cls, key, value):

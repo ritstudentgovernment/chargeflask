@@ -220,6 +220,8 @@ def create_charge(user, user_data):
 ## status for the charge will be Unapproved, which
 ## means that the charge is a Charge Initiative.
 ##
+## This function contains the behavior to edit and delete progress_notes within a charge
+##
 ## @param      user_data  The user data to create a
 ##             charge for a committee. This can include:
 ##
@@ -273,15 +275,28 @@ def edit_charge(user, user_data):
         if (key == "description" or key == "title" or key == "priority" or
             key == "status" or key == "paw_links" or key == "private" or key == "committee"):
             setattr(charge, key, user_data[key])
+
+        # Edit progress notes
         if (key == "progress_notes"): 
             current_notes = getattr(charge, "progress_notes") 
 
+            # Get the progress note info from user_data
             note_id = int(user_data["progress_notes"]["id"])
-            note = user_data["progress_notes"]["note"]
-            date = user_data["progress_notes"]["date"]
+            note = str(user_data["progress_notes"]["note"])
+            date = str(user_data["progress_notes"]["date"])
 
+            # Edit the notes, and update the DB
             current_notes.edit(note_id, [note, date, str(note_id)])
             setattr(charge, "progress_notes", current_notes) 
+
+        #Delete progress_notes
+        if (key == "delete_note"): 
+            current_notes = getattr(charge, "progress_notes") 
+
+            note_id = int(user_data["delete_note"]["id"])
+
+            current_notes.pop(note_id)
+            setattr(charge, "progress_notes", current_notes)
 
     try:
         db.session.commit()

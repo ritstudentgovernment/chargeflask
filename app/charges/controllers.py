@@ -385,4 +385,5 @@ def close_charge(user, user_data):
             get_charges(user_data, broadcast= True)
         except Exception as e:
             db.session.rollback()
+
             emit("close_charge", Response.CloseError)

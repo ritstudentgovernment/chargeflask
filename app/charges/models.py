@@ -24,6 +24,11 @@ class MutableList(Mutable, list):
         list.append(self, value)
         self.changed()
 
+    def edit(self, index, value):
+        list.pop(self, index)
+        list.insert(self, index, value)
+        self.changed()
+
     @classmethod
     def coerce(cls, key, value):
         if not isinstance(value, MutableList):

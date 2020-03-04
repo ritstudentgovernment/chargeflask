@@ -37,7 +37,8 @@ def get_all_charges(broadcast = False):
             "priority": charge.priority,
             "status": charge.status,
             "paw_links": charge.paw_links,
-            "created_at": charge.created_at.isoformat()
+            "created_at": charge.created_at.isoformat(),
+            "progress_notes": charge.progress_notes
         });
     emit("get_all_charges", charge_ser, broadcast = broadcast)
 
@@ -76,7 +77,8 @@ def get_charges(user, user_data, broadcast = False):
                 "status": charge.status,
                 "paw_links": charge.paw_links,
                 "private": charge.private,
-                "created_at": charge.created_at.isoformat()
+                "created_at": charge.created_at.isoformat(),
+                "progress_notes": charge.progress_notes
             })
 
     emit("get_charges", charge_ser, broadcast = broadcast)
@@ -197,7 +199,7 @@ def create_charge(user, user_data):
     charge.stakeholders = user_data.get("stakeholders", [])
     charge.paw_links = user_data.get("paw_links", "")
     charge.private = user_data.get("private", True)
-    charge.progress_notes = None
+    charge.progress_notes = None # Charges have no progress notes initially
 
     db.session.add(charge)
 
@@ -271,6 +273,15 @@ def edit_charge(user, user_data):
         if (key == "description" or key == "title" or key == "priority" or
             key == "status" or key == "paw_links" or key == "private" or key == "committee"):
             setattr(charge, key, user_data[key])
+        if (key == "progress_notes"): 
+            current_notes = getattr(charge, "progress_notes") 
+
+            note_id = int(user_data["progress_notes"]["id"])
+            note = user_data["progress_notes"]["note"]
+            date = user_data["progress_notes"]["date"]
+
+            current_notes.edit(note_id, [note, date, str(note_id)])
+            setattr(charge, "progress_notes", current_notes) 
 
     try:
         db.session.commit()
@@ -300,7 +311,6 @@ def edit_charge(user, user_data):
 @ensure_dict
 @get_user
 def edit_charge(user, user_data):
-    print(user_data)
     charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
 
     if charge is None or user is None:

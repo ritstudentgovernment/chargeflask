@@ -13,7 +13,7 @@ from app.committees.models import Committees
 from app.members.models import Roles
 from app.charges.charges_response import Response
 from app.users.models import Users
-
+from app.invitations.controllers import send_close_request
 
 ##
 ## @brief      Gets all public charges.

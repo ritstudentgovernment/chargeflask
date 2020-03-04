@@ -208,7 +208,6 @@ def create_charge(user, user_data):
         emit('create_charge', Response.AddSuccess)
         get_charges(user_data, broadcast= True)
     except Exception as e:
-        print(e)
         db.session.rollback()
         db.session.flush()
         emit("create_charge", Response.AddError)
@@ -333,3 +332,57 @@ def edit_charge(user, user_data):
         print(e)
         db.session.rollback()
         emit("edit_charge", Response.EditError)
+
+##
+## @brief       closes a charge
+##
+## A charge can only be closed by an Admin user, if another user tries to close the 
+## charge, then this controller will send an email and an in app notification to the 
+## committee-head requesting for them to close the charge.
+##
+## @param      user_data  The user data to request a charge closing
+##
+##             - token (required): Token of user.
+##             - charge (requred): charge to close
+##
+## @return     { description_of_the_return_value }
+##
+@socketio.on('close_charge')
+@ensure_dict
+@get_user
+def close_charge(user, user_data):
+    charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
+
+    if charge is None or user is None:
+        emit("close_charge", Response.UsrChargeDontExist)
+        return
+
+    committee = Committees.query.filter_by(id = user_data.get("committee_id",-1)).first()
+    membership = committee.members.filter_by(member= user).first()
+
+    # User is NOT admin or Committee-head
+    if (membership is None or membership.role != Roles.CommitteeHead) and not user.is_admin:
+        emit("close_charge", Response.PermError)
+        return
+
+    # User is Committee-head
+    if (membership.role == Roles.CommitteeHead) and not user.is_admin:
+        send_close_request(user, committee, charge.id)
+        emit("close_charge", Response.CloseRequestSuccess)
+        return
+    
+    # User IS admin
+    else:
+
+        for key in user_data:
+            if (key == "status"):
+                setattr(charge, key, user_data[key])
+
+        try:
+            db.session.commit()
+            emit("close_charge", Response.CloseSuccess)
+            get_charge(user_data, broadcast= True)
+            get_charges(user_data, broadcast= True)
+        except Exception as e:
+            db.session.rollback()
+            emit("close_charge", Response.CloseError)

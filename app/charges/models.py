@@ -20,16 +20,27 @@ from sqlalchemy.ext.mutable import Mutable
 ## This is used for the progress_notes column
 ##
 class MutableList(Mutable, list):
+    def findIndex(self, id):
+        index = 0
+        correctIndex = 0
+        for note in self: # find the index of the given note_id
+            if int(note[2]) == id:
+                correctIndex = index
+            else: index += 1
+        return correctIndex
+
     def append(self, value):
         list.append(self, value)
         self.changed()
 
-    def edit(self, index, value):
+    def edit(self, id, value):
+        index = self.findIndex(id)
         list.pop(self, index)
         list.insert(self, index, value)
         self.changed()
     
-    def pop(self, index):
+    def pop(self, id):
+        index = self.findIndex(id)
         list.pop(self, index)
         self.changed()
 

@@ -276,13 +276,13 @@ def edit_charge(user, user_data):
             setattr(charge, key, user_data[key])
 
         # Edit progress notes
-        if (key == "progress_notes"): 
+        if (key == "edit_note"): 
             current_notes = getattr(charge, "progress_notes") 
 
             # Get the progress note info from user_data
-            note_id = int(user_data["progress_notes"]["id"])
-            note = str(user_data["progress_notes"]["note"])
-            date = str(user_data["progress_notes"]["date"])
+            note_id = int(user_data["edit_note"]["id"])
+            note = str(user_data["edit_note"]["note"])
+            date = str(user_data["edit_note"]["date"])
 
             # Edit the notes, and update the DB
             current_notes.edit(note_id, [note, date, str(note_id)])
@@ -291,21 +291,26 @@ def edit_charge(user, user_data):
         #Delete progress_notes
         if (key == "delete_note"): 
             current_notes = getattr(charge, "progress_notes") 
-
             note_id = int(user_data["delete_note"]["id"])
-
             current_notes.pop(note_id)
             setattr(charge, "progress_notes", current_notes)
 
         # Create a new progess_note
         if (key == 'add_note'):
-            # Get the current list of notes
             current_notes = getattr(charge, "progress_notes")
+
+            # This logic generates the new note_id attribute
             if (current_notes == None):
                 current_notes = []
+                note_id = 0
+            else:
+                new_id = 0
+                for note in current_notes:
+                    if int(note[2]) > new_id: # the note_id will always be the third element
+                        new_id = int(note[2]) # Set to the largest current id
+                note_id = new_id + 1 # The new id will be the new largest and unique
 
             # Get the progress note info from user_data
-            note_id = str(user_data["add_note"]["id"])
             note = str(user_data["add_note"]["note"])
             date = str(user_data["add_note"]["date"])
 
@@ -313,7 +318,7 @@ def edit_charge(user, user_data):
             new_note = []
             new_note.append(note)
             new_note.append(date)
-            new_note.append(note_id)
+            new_note.append(str(note_id))
 
             # Add the new note to the current list of notes
             current_notes.append(new_note)
@@ -329,7 +334,6 @@ def edit_charge(user, user_data):
         get_charge(user_data, broadcast= True)
         get_charges(user_data, broadcast= True)
     except Exception as e:
-        print(e)
         db.session.rollback()
         emit("edit_charge", Response.EditError)
 

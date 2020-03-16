@@ -259,7 +259,6 @@ def edit_charge(user, user_data):
 
     committee = Committees.query.filter_by(id = charge.committee).first()
     membership = committee.members.filter_by(member= user).first()
-
     if (membership is None or membership.role != Roles.CommitteeHead) and not user.is_admin:
         emit("edit_charge", Response.PermError)
         return

@@ -21,13 +21,19 @@ from sqlalchemy.ext.mutable import Mutable
 ##
 class MutableList(Mutable, list):
     def findIndex(self, id):
+        indexFound = False
         index = 0
         correctIndex = 0
         for note in self: # find the index of the given note_id
             if int(note[2]) == id:
                 correctIndex = index
+                indexFound = True
             else: index += 1
-        return correctIndex
+        
+        if not indexFound:
+            return -1 # Error
+        else:
+            return correctIndex
 
     def append(self, value):
         list.append(self, value)
@@ -35,14 +41,20 @@ class MutableList(Mutable, list):
 
     def edit(self, id, value):
         index = self.findIndex(id)
-        list.pop(self, index)
-        list.insert(self, index, value)
-        self.changed()
+        if index == -1:
+            return
+        else:
+            list.pop(self, index)
+            list.insert(self, index, value)
+            self.changed()
     
     def pop(self, id):
         index = self.findIndex(id)
-        list.pop(self, index)
-        self.changed()
+        if index == -1:
+            return
+        else:
+            list.pop(self, index)
+            self.changed()
 
     @classmethod
     def coerce(cls, key, value):

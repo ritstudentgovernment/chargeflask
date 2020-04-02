@@ -22,6 +22,28 @@ def get_all_users():
     emit('get_all_users', users_ser)
     return;
 
+@socketio.on('add_user')
+@get_user
+def add_user(user, user_data):
+    print(user_data)
+    newUser = Users(id = "JarJarBinks")
+    newUser.first_name = "Jordyn" # user_data.get("firstName", "")
+    newUser.last_name = "Bartlett" # user_data.get("lastName", "")
+    newUser.email = "somedumbemail@yahoo.com" # user_data.get("email", "")
+    newUser.is_admin = False # user_data("is_admin", "")
+    print(newUser)
+    db.session.add(newUser)
+
+    try:
+        db.session.commit()
+        emit('add_user', Response.AddSuccess)
+        add_user(user_data, broadcast= True)
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        db.session.flush()
+        emit('add_user', Response.DBError)
+
 
 # setup acs response handler
 @saml_manager.login_from_acs

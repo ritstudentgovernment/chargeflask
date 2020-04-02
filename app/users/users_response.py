@@ -6,6 +6,7 @@ created on: 10/12/18
 """
 
 class Response():
+    AddSuccess = {'success': 'User was added to the database'}
     AuthError = {'error': 'Authentication error.'}
     PermError = {'error': 'Insufficient permissions to perform this action.'}
     DBError = {'error': 'Could not complete action.'}

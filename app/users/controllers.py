@@ -26,18 +26,17 @@ def get_all_users():
 @get_user
 def add_user(user, user_data):
     print(user_data)
-    newUser = Users(id = "JarJarBinks")
-    newUser.first_name = "Jordyn" # user_data.get("firstName", "")
-    newUser.last_name = "Bartlett" # user_data.get("lastName", "")
-    newUser.email = "somedumbemail@yahoo.com" # user_data.get("email", "")
-    newUser.is_admin = False # user_data("is_admin", "")
+    newUser = Users(id = user_data["id"])
+    newUser.first_name = user_data.get("first_name", "")
+    newUser.last_name = user_data.get("last_name", "")
+    newUser.email = user_data.get("email", "")
+    newUser.is_admin = user_data.get("is_admin", "")
     print(newUser)
     db.session.add(newUser)
 
     try:
         db.session.commit()
         emit('add_user', Response.AddSuccess)
-        add_user(user_data, broadcast= True)
     except Exception as e:
         print(e)
         db.session.rollback()

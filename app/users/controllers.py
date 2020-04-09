@@ -41,8 +41,6 @@ def add_user(user, user_data):
             emit('add_user', Response.UserAlreadyExistsError)
             return;
 
-    # TODO add "user updated to admin success message"
-
     newUser = Users(id = user_data["id"])
     newUser.first_name = user_data.get("first_name", "")
     newUser.last_name = user_data.get("last_name", "")

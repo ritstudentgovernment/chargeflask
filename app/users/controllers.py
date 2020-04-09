@@ -25,20 +25,35 @@ def get_all_users():
 @socketio.on('add_user')
 @get_user
 def add_user(user, user_data):
-    print(user_data)
+
+    # Only admins can manually add other admins
+    if user.is_admin == False:
+        emit('add_user', Response.PermError)
+
+    # Input validation for email
+    if "@rit.edu" not in user_data["email"] and "@g.rit.edu" not in user_data["email"]:
+        emit('add_user', Response.AddAdminEmailError)
+        return;
+
+    users = Users.query.filter_by().all()
+    for user in users:
+        if (user.id == user_data["id"]):
+            emit('add_user', Response.UserAlreadyExistsError)
+            return;
+
+    # TODO add "user updated to admin success message"
+
     newUser = Users(id = user_data["id"])
     newUser.first_name = user_data.get("first_name", "")
     newUser.last_name = user_data.get("last_name", "")
     newUser.email = user_data.get("email", "")
     newUser.is_admin = user_data.get("is_admin", "")
-    print(newUser)
     db.session.add(newUser)
 
     try:
         db.session.commit()
         emit('add_user', Response.AddSuccess)
     except Exception as e:
-        print(e)
         db.session.rollback()
         db.session.flush()
         emit('add_user', Response.DBError)

@@ -13,7 +13,7 @@ from app.committees.models import Committees
 from app.members.models import Roles
 from app.charges.charges_response import Response
 from app.users.models import Users
-
+from app.invitations.controllers import send_close_request
 
 ##
 ## @brief      Gets all public charges.
@@ -152,8 +152,18 @@ def get_charge(user, user_data, broadcast = False):
 @socketio.on('create_charge')
 @ensure_dict
 @get_user
-def create_charge(user, user_data):
+def create_charge(user, user_data):    
     committee = Committees.query.filter_by(id = user_data.get("committee","")).first()
+    
+    # The charge title must be at least 2 characters long and cannot contain special characters
+    invalid_chars = r'/^()#@![]{}`~\?%*:|"<>.'
+    titleNoneType = not user_data['title']
+    titleTooShort = (len(user_data['title']) <= 1)
+    titleInvalidChars = any(char in user_data['title'] for char in invalid_chars)
+
+    if titleNoneType or titleTooShort or titleInvalidChars:
+        emit('create_charge', Response.InvalidTitle)
+        return
 
     if committee is None or user is None:
         emit("create_charge", Response.UsrChargeDontExist)
@@ -178,7 +188,7 @@ def create_charge(user, user_data):
     charge.author = user.id
     charge.description = user_data.get("description", "")
     charge.committee = committee.id
-    charge.status = 0
+    charge.status = user_data.get("status", "") # TODO problem here
     charge.priority = 0
     charge.objectives = user_data.get("objectives", [])
     charge.schedule = user_data.get("schedules", [])
@@ -227,6 +237,16 @@ def create_charge(user, user_data):
 def edit_charge(user, user_data):
     charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
 
+    # The charge title must be at least 2 characters long and cannot contain special characters
+    invalid_chars = r'/^()#@![]{}`~\?%*:|"<>.'
+    titleNoneType = not user_data['title']
+    titleTooShort = len(user_data['title']) <= 1
+    titleInvalidChars = any(char in user_data['title'] for char in invalid_chars)
+
+    if titleNoneType or titleTooShort or titleInvalidChars:
+        emit('edit_charge', Response.InvalidTitle)
+        return
+
     if charge is None or user is None:
         emit('edit_charge', Response.UsrChargeDontExist)
         return
@@ -259,3 +279,57 @@ def edit_charge(user, user_data):
     except Exception as e:
         db.session.rollback()
         emit("edit_charge", Response.EditError)
+
+##
+## @brief       closes a charge
+##
+## A charge can only be closed by an Admin user, if another user tries to close the 
+## charge, then this controller will send an email and an in app notification to the 
+## committee-head requesting for them to close the charge.
+##
+## @param      user_data  The user data to request a charge closing
+##
+##             - token (required): Token of user.
+##             - charge (requred): charge to close
+##
+## @return     { description_of_the_return_value }
+##
+@socketio.on('close_charge')
+@ensure_dict
+@get_user
+def close_charge(user, user_data):
+    charge = Charges.query.filter_by(id = user_data.get("charge",-1)).first()
+
+    if charge is None or user is None:
+        emit("close_charge", Response.UsrChargeDontExist)
+        return
+
+    committee = Committees.query.filter_by(id = user_data.get("committee_id",-1)).first()
+    membership = committee.members.filter_by(member= user).first()
+
+    # User is NOT admin or Committee-head
+    if (membership is None or membership.role != Roles.CommitteeHead) and not user.is_admin:
+        emit("close_charge", Response.PermError)
+        return
+
+    # User is Committee-head
+    if (membership.role == Roles.CommitteeHead) and not user.is_admin:
+        send_close_request(user, committee, charge.id)
+        emit("close_charge", Response.CloseRequestSuccess)
+        return
+    
+    # User IS admin
+    else:
+
+        for key in user_data:
+            if (key == "status"):
+                setattr(charge, key, user_data[key])
+
+        try:
+            db.session.commit()
+            emit("close_charge", Response.CloseSuccess)
+            get_charge(user_data, broadcast= True)
+            get_charges(user_data, broadcast= True)
+        except Exception as e:
+            db.session.rollback()
+            emit("close_charge", Response.CloseError)

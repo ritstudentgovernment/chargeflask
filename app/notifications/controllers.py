@@ -31,8 +31,11 @@ notifications_table = Notifications.__table__.insert()
 @ensure_dict
 @get_user
 def get_notifications(user, user_data):
-    notifications = Notifications.query.filter_by(user = user.id).all()
-    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination} for c in notifications]
+    noti_ser = []
+
+    if user is not None:
+        notifications = Notifications.query.filter_by(user = user.id).all()
+        noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "message": c.message, "redirect": c.redirect} for c in notifications]
     emit('get_notifications', noti_ser)
 
 
@@ -45,7 +48,7 @@ def get_notifications(user, user_data):
 ##
 def send_notifications(user):
     notifications = Notifications.query.filter_by(user = user).all()
-    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination} for c in notifications]
+    noti_ser = [{"id": c.id, "user": c.user, "type": c.type.value, "destination": c.destination, "message": c.message, "redirect": c.redirect} for c in notifications]
     emit('get_notifications', noti_ser, room= user)
 
 
@@ -61,17 +64,20 @@ def send_notifications(user):
 ##
 @listens_for(Notes, 'after_insert')
 def new_note(mapper, connection, new_note):
+    # Finds usernames when they are indicated with the @ symbol, stores them in 'mentioned'
     user_regex = "(?<=^|(?<=[^a-zA-Z0-9-_\.]))@([A-Za-z]+[A-Za-z0-9-_]+)"
     mentioned = re.findall(user_regex, new_note.description)
+    action = Actions.query.filter_by(id= int(new_note.action)).first()
 
     for u in mentioned:
         user = Users.query.filter_by(id= u).first()
-
         if user is not None:
             connection.execute(notifications_table, 
                 user = u,
                 type = NotificationType.MentionedInNote,
-                destination = new_note.id
+                destination = new_note.id,
+                message = create_message(NotificationType.MentionedInNote, action.title),
+                redirect = create_redirect_string(NotificationType.MentionedInNote, action.charge)
             )
             send_notifications(u)
 
@@ -91,7 +97,9 @@ def new_action(mapper, connection, new_action):
     connection.execute(notifications_table,
         user = new_action.assigned_to,
         type = NotificationType.AssignedToAction,
-        destination = new_action.id
+        destination = new_action.id,
+        message = create_message(NotificationType.AssignedToAction, new_action.title),
+        redirect = create_redirect_string(NotificationType.AssignedToAction, new_action.charge)
     )
     send_notifications(new_action.assigned_to)
 
@@ -108,13 +116,42 @@ def new_action(mapper, connection, new_action):
 ##
 @listens_for(Committees, 'after_insert')
 def new_committee(mapper, connection, new_committee):
+
     connection.execute(notifications_table,
         user = new_committee.head,
         type = NotificationType.MadeCommitteeHead,
-        destination = new_committee.id
+        destination = new_committee.id,
+        message = create_message(NotificationType.MadeCommitteeHead, new_committee.title),
+        redirect = create_redirect_string(NotificationType.MadeCommitteeHead, new_committee.id)
     )
     send_notifications(new_committee.head)
 
+##
+## @brief      Notifies an admin when
+##             someone wants close a charge.
+##
+## @param      mapper       The database mapper
+## @param      connection   The connection to the database
+## @param      new_request  The new request to close
+##
+## @return     void
+##
+@listens_for(Invitations, 'after_insert')
+def close_charge(mapper, connection, new_request):
+
+    admins = db.session.query(Users).filter(Users.is_admin == True).all()
+    
+    for admin in admins:
+        if new_request.charge_id:
+            connection.execute(notifications_table,
+                user = admin.id,
+                type = NotificationType.CloseChargeRequest,
+                destination = new_request.charge_id,
+                viewed = False,
+                message = create_message(NotificationType.CloseChargeRequest, new_request.user_name),
+                redirect = create_redirect_string(NotificationType.CloseChargeRequest, new_request.charge_id)
+            )
+            send_notifications(admin.id)
 
 ##
 ## @brief      Notifies a committee head when
@@ -128,10 +165,77 @@ def new_committee(mapper, connection, new_committee):
 ##
 @listens_for(Invitations, 'after_insert')
 def new_request(mapper, connection, new_request):
-    if not new_request.isInvite:
+    if not new_request.isInvite and not new_request.charge_id:
         connection.execute(notifications_table,
             user = new_request.committee.head,
             type = NotificationType.UserRequest,
-            destination = new_request.id
+            destination = new_request.id,
+            message = create_message(NotificationType.UserRequest, new_request.user_name),
+            redirect = create_redirect_string(NotificationType.UserRequest, new_request.id)
         )
         send_notifications(new_request.committee.head)
+        
+
+##
+## @brief      Deletes the notification from the DB
+##
+## @param      user       The user object.
+## @param      user_data  The user's token.
+##
+## @return     An array of notifications for the user.
+##
+@socketio.on('delete_notification')
+@ensure_dict
+@get_user
+def delete_notification(user, user_data):
+    notification = Notifications.query.filter_by(id = user_data["notificationId"]).first()
+     
+    try:
+        db.session.delete(notification)
+        emit('delete_minute', {"success": "Notification deleted."})
+    except:
+        db.session.rollback()
+        db.session.flush()
+        emit('delete_minute', {"error": "Notification was not deleted."})
+
+##
+## @brief      Creates the message for the notification on the frontend
+##
+## @return     the notification message to be displayed on the frontend.
+##
+def create_message(notificationType, message):
+    
+    if (notificationType is NotificationType.MadeCommitteeHead):
+        message = 'You have been made the head of the committee: ' + message
+    elif (notificationType is NotificationType.AssignedToAction): 
+        message = 'You have been assigned to the task: ' + message
+    elif (notificationType is NotificationType.MentionedInNote):
+        message = 'You have been mentioned in a note. In the task: ' + message
+    elif (notificationType is NotificationType.UserRequest):
+        message = message + ' requests to join your committee.'
+    elif (notificationType is NotificationType.CloseChargeRequest):
+        message = message + ' has requested for you to close a charge.'
+
+    return str(message)
+
+##
+## @brief      Creates the redirect string for the notification on the frontend
+##
+## @return     the redirect string to be used on the frontend when the user opens the notification
+##
+def create_redirect_string(notificationType, destination):
+
+    destination = str(destination)
+
+    if (notificationType is NotificationType.MadeCommitteeHead):
+        redirect = '/committee/' + destination
+    elif (notificationType is NotificationType.AssignedToAction):
+        redirect = '/charge/' + destination
+    elif (notificationType is NotificationType.MentionedInNote):
+        redirect = '/charge/' + destination
+    elif (notificationType is NotificationType.UserRequest):
+        redirect = '/committee/' + destination
+    elif (notificationType is NotificationType.CloseChargeRequest):
+        redirect = '/charge/' + destination
+
+    return str(redirect)

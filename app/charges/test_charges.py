@@ -157,7 +157,8 @@ class TestCharges(object):
             "priority": 0,
             "description": "test description",
             "committee": "testcommittee",
-            "private": False
+            "private": False,
+            "status": 1
         }
 
         self.socketio.emit('create_charge', user_data)
@@ -170,7 +171,8 @@ class TestCharges(object):
             "title": "test charge",
             "priority": 0,
             "description": "test description",
-            "committee": "testcommittee"
+            "committee": "testcommittee",
+            "status": 1
         }
 
         self.socketio.emit('create_charge', user_data)
@@ -223,6 +225,7 @@ class TestCharges(object):
         user_data = {
             "token": self.admin_token,
             "priority": 0,
+            "title": "Gottem!",
             "description": "test description",
             "committee": "testcommittee"
         }
@@ -433,6 +436,7 @@ class TestCharges(object):
         user_data = {
             "token": self.admin_token,
             "charge": 10,
+            "title": "Test Charge",
             "committee": self.committee2.id
         }
 
@@ -446,6 +450,7 @@ class TestCharges(object):
         user_data = {
             "token": self.user_token,
             "charge": 10,
+            "title": "this is the new title",
             "committee": self.committee.id
         }
         self.socketio.emit('edit_charge', user_data)

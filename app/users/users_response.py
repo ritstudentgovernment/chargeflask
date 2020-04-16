@@ -15,3 +15,4 @@ class Response():
     DBError = {'error': 'Could not complete action.'}
     UserNotFound = {'error': 'User not found.'}
     RoleNotFound = {'error': 'Role not found.'}
+    AlreadyAdmin = {'success': 'This user is already an admin'}

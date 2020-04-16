@@ -196,7 +196,11 @@ def edit_roles(user, user_data):
         return;
 
     if role == Roles.AdminUser:
-        edit_user.is_admin = True
+        if edit_user.is_admin == True:
+            emit('edit_roles', Response.AlreadyAdmin)
+            return;
+        else:
+            edit_user.is_admin = True
     elif role == Roles.ManagerUser:
         edit_user.is_admin = True
     else:

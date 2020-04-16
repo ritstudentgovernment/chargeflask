@@ -13,4 +13,7 @@ class Response():
 	InvalidPriority = {'error': 'Invalid priority level.'}
 	EditError = {'error': 'Couldn\'t edit charge.'}
 	EditSuccess = {'success': 'Charge successfully edited.'}
+	CloseSuccess = {'success': 'Charge successfully closed.'}
+	CloseError = {'error': 'Charge could not be closed.'}
+	CloseRequestSuccess = {'success': 'Your request has been sent to the Admin.'}
 	PermError = {'error': 'Insufficient permissions to perform this action.'}

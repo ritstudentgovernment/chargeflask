@@ -58,7 +58,6 @@ class TestUser(object):
         self.admin_user.last_name = "User" 
         self.admin_user.email = "adminuser@test.com" 
         self.admin_user.is_admin = True 
-        self.admin_user.is_super = True
         db.session.add(self.admin_user) 
         db.session.commit() 
         self.admin_user_token = self.admin_user.generate_auth() 

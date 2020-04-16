@@ -31,10 +31,6 @@ from app.users.models import Users
 @get_user
 def get_minute(user, user_data):
     minute = Minutes.query.filter_by(id= user_data.get("minute_id", -1)).first()
-    
-    if user is None:
-        emit('get_minute', Response.UserDoesntExist)
-        return
 
     if minute is None:
         emit('get_minute', Response.MinuteDoesntExist)
@@ -44,9 +40,10 @@ def get_minute(user, user_data):
 
     membership = committee.members.filter_by(member = user).first()
 
-    if minute.private and (membership is None and not user.is_admin):
-        emit('get_minute', Response.PermError)
-        return
+    if minute.private:
+        if user is None or (membership is None and not user.is_admin):
+            emit('get_minute', Response.PermError)
+            return
     
     minute_data = {
         'id': minute.id,
@@ -75,10 +72,6 @@ def get_minute(user, user_data):
 @get_user
 def get_minutes(user, user_data):
     committee = Committees.query.filter_by(id = user_data.get("committee_id","")).first()
-
-    if user is None:
-        emit('get_minutes', Response.UserDoesntExist)
-        return
     
     if committee is None:
         emit('get_minutes', Response.CommitteeDoesntExist)
@@ -88,7 +81,7 @@ def get_minutes(user, user_data):
     membership = committee.members.filter_by(member= user).first()
     minutes = None
 
-    if (membership is None and not user.is_admin):
+    if user is None or (membership is None and not user.is_admin):
         minutes = committee.minutes.filter_by(private= False).all()
     else:
         minutes = committee.minutes.all()

@@ -122,7 +122,7 @@ def get_committee(committee_id, broadcast = False):
 @ensure_dict
 @get_user
 def create_committee(user, user_data):
-
+    
     if user is not None and user.is_admin:
 
         # Build committee id string.
@@ -153,9 +153,8 @@ def create_committee(user, user_data):
                 if "committee_img" in user_data:
                     com_img = base64.b64decode(user_data["committee_img"])
                     new_committee.committee_img = com_img
-
+                
                 db.session.add(new_committee)
-
                 try:
 
                     db.session.commit()
@@ -208,8 +207,8 @@ def edit_committee(user, user_data):
     
     for key in user_data:
 
-        if (key == "description" or key == "location" or
-            key == "meeting_time" or key == "enabled" or key == "committee_img"):
+        if (key == "description" or key == "location" or key == "meeting_day"
+            or key == "meeting_time" or key == "enabled" or key == "committee_img"):
             
             if key == "committee_img":
 
@@ -239,6 +238,5 @@ def edit_committee(user, user_data):
         get_committee(committee.id, broadcast= True)
         get_committees(broadcast= True)
     except Exception as e:
-        print(e)
         db.session.rollback()
         emit("edit_committee", Response.EditError)

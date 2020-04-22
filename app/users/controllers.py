@@ -22,6 +22,40 @@ def get_all_users():
     emit('get_all_users', users_ser)
     return;
 
+@socketio.on('add_user')
+@get_user
+def add_user(user, user_data):
+
+    # Only admins can manually add other admins
+    if user.is_admin == False:
+        emit('add_user', Response.PermError)
+
+    # Input validation for email
+    if "@rit.edu" not in user_data["email"] and "@g.rit.edu" not in user_data["email"]:
+        emit('add_user', Response.AddAdminEmailError)
+        return;
+
+    users = Users.query.filter_by().all()
+    for user in users:
+        if (user.id == user_data["id"]):
+            emit('add_user', Response.UserAlreadyExistsError)
+            return;
+
+    newUser = Users(id = user_data["id"])
+    newUser.first_name = user_data.get("first_name", "")
+    newUser.last_name = user_data.get("last_name", "")
+    newUser.email = user_data.get("email", "")
+    newUser.is_admin = user_data.get("is_admin", "")
+    db.session.add(newUser)
+
+    try:
+        db.session.commit()
+        emit('add_user', Response.AddSuccess)
+    except Exception as e:
+        db.session.rollback()
+        db.session.flush()
+        emit('add_user', Response.DBError)
+
 
 # setup acs response handler
 @saml_manager.login_from_acs
@@ -162,7 +196,11 @@ def edit_roles(user, user_data):
         return;
 
     if role == Roles.AdminUser:
-        edit_user.is_admin = True
+        if edit_user.is_admin == True:
+            emit('edit_roles', Response.AlreadyAdmin)
+            return;
+        else:
+            edit_user.is_admin = True
     elif role == Roles.ManagerUser:
         edit_user.is_admin = True
     else:

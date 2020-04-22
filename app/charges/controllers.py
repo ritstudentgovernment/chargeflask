@@ -37,7 +37,8 @@ def get_all_charges(broadcast = False):
             "priority": charge.priority,
             "status": charge.status,
             "paw_links": charge.paw_links,
-            "created_at": charge.created_at.isoformat()
+            "created_at": charge.created_at.isoformat(),
+            "progress_notes": charge.progress_notes
         });
     emit("get_all_charges", charge_ser, broadcast = broadcast)
 
@@ -76,7 +77,8 @@ def get_charges(user, user_data, broadcast = False):
                 "status": charge.status,
                 "paw_links": charge.paw_links,
                 "private": charge.private,
-                "created_at": charge.created_at.isoformat()
+                "created_at": charge.created_at.isoformat(),
+                "progress_notes": charge.progress_notes
             })
 
     emit("get_charges", charge_ser, broadcast = broadcast)
@@ -120,7 +122,8 @@ def get_charge(user, user_data, broadcast = False):
         "status": charge.status,
         "paw_links": charge.paw_links,
         "private": charge.private,
-        "created_at": charge.created_at.isoformat()
+        "created_at": charge.created_at.isoformat(),
+        "progress_notes": charge.progress_notes
     }
     emit('get_charge', charge_info, broadcast= broadcast)
 
@@ -188,7 +191,7 @@ def create_charge(user, user_data):
     charge.author = user.id
     charge.description = user_data.get("description", "")
     charge.committee = committee.id
-    charge.status = user_data.get("status", "") # TODO problem here
+    charge.status = user_data.get("status", "")
     charge.priority = 0
     charge.objectives = user_data.get("objectives", [])
     charge.schedule = user_data.get("schedules", [])
@@ -196,6 +199,7 @@ def create_charge(user, user_data):
     charge.stakeholders = user_data.get("stakeholders", [])
     charge.paw_links = user_data.get("paw_links", "")
     charge.private = user_data.get("private", True)
+    charge.progress_notes = None
 
     db.session.add(charge)
 
@@ -214,6 +218,8 @@ def create_charge(user, user_data):
 ## A charge for a committee is created, the default
 ## status for the charge will be Unapproved, which
 ## means that the charge is a Charge Initiative.
+##
+## This function contains the behavior to edit and delete progress_notes within a charge
 ##
 ## @param      user_data  The user data to create a
 ##             charge for a committee. This can include:
@@ -253,7 +259,6 @@ def edit_charge(user, user_data):
 
     committee = Committees.query.filter_by(id = charge.committee).first()
     membership = committee.members.filter_by(member= user).first()
-
     if (membership is None or membership.role != Roles.CommitteeHead) and not user.is_admin:
         emit("edit_charge", Response.PermError)
         return
@@ -268,6 +273,57 @@ def edit_charge(user, user_data):
         if (key == "description" or key == "title" or key == "priority" or
             key == "status" or key == "paw_links" or key == "private" or key == "committee"):
             setattr(charge, key, user_data[key])
+
+        # Edit progress notes
+        if (key == "edit_note"): 
+            current_notes = getattr(charge, "progress_notes") 
+
+            # Get the progress note info from user_data
+            note_id = int(user_data["edit_note"]["id"])
+            note = str(user_data["edit_note"]["note"])
+            date = str(user_data["edit_note"]["date"])
+
+            # Edit the notes, and update the DB
+            current_notes.edit(note_id, [note, date, str(note_id)])
+            setattr(charge, "progress_notes", current_notes) 
+
+        #Delete progress_notes
+        if (key == "delete_note"): 
+            current_notes = getattr(charge, "progress_notes") 
+            note_id = int(user_data["delete_note"]["id"])
+            current_notes.pop(note_id)
+            setattr(charge, "progress_notes", current_notes)
+
+        # Create a new progess_note
+        if (key == 'add_note'):
+            current_notes = getattr(charge, "progress_notes")
+
+            # This logic generates the new note_id attribute
+            if (current_notes == None):
+                current_notes = []
+                note_id = 0
+            else:
+                new_id = 0
+                for note in current_notes:
+                    if int(note[2]) > new_id: # the note_id will always be the third element
+                        new_id = int(note[2]) # Set to the largest current id
+                note_id = new_id + 1 # The new id will be the new largest and unique
+
+            # Get the progress note info from user_data
+            note = str(user_data["add_note"]["note"])
+            date = str(user_data["add_note"]["date"])
+
+            # Create the new one from the user data
+            new_note = []
+            new_note.append(note)
+            new_note.append(date)
+            new_note.append(str(note_id))
+
+            # Add the new note to the current list of notes
+            current_notes.append(new_note)
+            
+            # Overwrite the old list with the new one
+            setattr(charge, "progress_notes", current_notes)
 
     try:
         db.session.commit()
@@ -332,4 +388,5 @@ def close_charge(user, user_data):
             get_charges(user_data, broadcast= True)
         except Exception as e:
             db.session.rollback()
+
             emit("close_charge", Response.CloseError)

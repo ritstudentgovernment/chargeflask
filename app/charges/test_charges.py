@@ -129,7 +129,8 @@ class TestCharges(object):
             'status': 0,
             'priority': 0,
             'private': True,
-            'paw_links': "https://testlink.com"
+            'paw_links': "https://testlink.com",
+            'progress_notes': None
         }
 
         # Create a test charge.
@@ -142,6 +143,7 @@ class TestCharges(object):
         charge.priority = 0
         charge.status = 0
         charge.private  = True
+        charge.progress_notes = None
         self.charge = charge
 
         db.session.add(charge)
@@ -293,7 +295,7 @@ class TestCharges(object):
 
         user_data = {
             "token": self.user_token3,
-            "charge": 10
+            "charge": 10,
         }
 
         self.socketio.emit('get_charge', user_data)
@@ -305,7 +307,7 @@ class TestCharges(object):
 
         user_data = {
             "token": self.admin_token,
-            "charge": 10
+            "charge": 10,
         }
 
         self.socketio.emit('get_charge', user_data)
@@ -437,7 +439,7 @@ class TestCharges(object):
             "token": self.admin_token,
             "charge": 10,
             "title": "Test Charge",
-            "committee": self.committee2.id
+            "committee": self.committee2.id,
         }
 
         self.charge_dict["committee"] = user_data["committee"]

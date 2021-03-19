@@ -18,7 +18,7 @@ huey==1.10.2
 idna==2.6
 isodate==0.6.0
 itsdangerous==0.24
-Jinja2==2.10.1
+Jinja2==2.11.3
 jsonify==0.5
 lxml==4.2.5
 MarkupSafe==1.0

@@ -20,7 +20,7 @@ isodate==0.6.0
 itsdangerous==0.24
 Jinja2==2.10.1
 jsonify==0.5
-lxml==4.2.5
+lxml==4.9.1
 MarkupSafe==1.0
 mimesis==2.1.0
 mock==2.0.0
